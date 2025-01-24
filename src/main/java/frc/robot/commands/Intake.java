@@ -5,22 +5,18 @@ import frc.robot.subsystems.IntakeSubsystem;
 
 public class Intake extends Command {
     private IntakeSubsystem intakeSubsystem;
-    private boolean in;
+    private double motorSpeed;
 
-    public Intake(IntakeSubsystem intakeSubsystem, boolean in) {
+    public Intake(IntakeSubsystem intakeSubsystem, double motorSpeed) {
         this.intakeSubsystem = intakeSubsystem;
-        this.in = in;
+        this.motorSpeed = motorSpeed;
 
         addRequirements(intakeSubsystem);
     }
 
     @Override
     public void execute() {
-        if (in) {
-            intakeSubsystem.intakeIn();
-        } else {
-            intakeSubsystem.intakeOut();
-        }      
+        intakeSubsystem.runIntake(motorSpeed);
     }
 
     @Override

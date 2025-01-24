@@ -26,7 +26,8 @@ public class RobotContainer {
     private final CommandJoystick joystick = new CommandJoystick(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final IntakeSubsystem intakeSubsysem = new IntakeSubsystem();
+    @SuppressWarnings("unused")
+    private final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
 
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -121,11 +122,12 @@ public class RobotContainer {
      * @return the adjusted value after applying the deadzone and squaring
      */
     public double deadzone(double input) {
+        boolean neg = input < 0;
         //TODO: Work with drivers to find deadzone
         if (Math.abs(input) <= .1 && Math.abs(input) > 0) {
             return 0;
         }
 
-        return input * input; //TODO: Find out if this is necessary
+        return neg ? -Math.pow(input, 2) : Math.pow(input, 2); //TODO: Find out if this is necessary
     }
 }
