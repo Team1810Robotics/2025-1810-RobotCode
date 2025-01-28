@@ -18,7 +18,28 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Constants {
     public class IntakeConstants {
-        public static final int MOTOR_ID = 0; //TODO: Figure out this value
+        public static final int MOTOR_ID = 0;
+    }
+
+    public class WristConstants {
+        public class RollConstants {
+            public static final int MOTOR_ID = 0;
+
+            //TODO: Tune
+            public static final double kP = 0.0;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+
+            //TODO: Figure out setpoints
+        }
+        
+        public class PitchConstants {
+            public static final int MOTOR_ID = 0;
+        
+            public static final double kP = 0.0;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
+        }
     }
 
     public class TunerConstants {
