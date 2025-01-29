@@ -123,11 +123,10 @@ public class RobotContainer {
      */
     // public double deadzone(double input) {
     //     boolean neg = input < 0;
-    //     //TODO: Work with drivers to find deadzone
     //     if (Math.abs(input) <= .1 && Math.abs(input) > 0) {
     //         return 0;
     //     }
 
-    //     return neg ? -Math.pow(input, 2) : Math.pow(input, 2); //TODO: Find out if this is necessary
+    //     return neg ? -Math.pow(input, 2) : Math.pow(input, 2); 
     // }
 }

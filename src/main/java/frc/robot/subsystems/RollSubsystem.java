@@ -26,7 +26,7 @@ public class RollSubsystem extends SubsystemBase {
     }
 
     public double getPostiion() {
-        return (encoder.get() - RollConstants.ENCODER_OFFSET)  * 360; //TODO: Figure out offset
+        return (encoder.get() - RollConstants.ENCODER_OFFSET)  * 360; 
     }
 
     public boolean atSetPoint(double setpoint) {
