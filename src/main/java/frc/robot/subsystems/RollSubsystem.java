@@ -1,21 +1,21 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.RollConstants;
 
 public class RollSubsystem extends SubsystemBase {
 
     private SparkMax rollMotor;
-    private AbsoluteEncoder encoder;
+    private DutyCycleEncoder encoder;
 
     private PIDController rollpidController;
     public RollSubsystem() {
         rollMotor = new SparkMax(RollConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
-        encoder = rollMotor.getAbsoluteEncoder();
+        encoder = new DutyCycleEncoder(RollConstants.ENCODER_ID);
 
         rollpidController = new PIDController(RollConstants.kP, RollConstants.kI, RollConstants.kD);
     }
@@ -25,7 +25,7 @@ public class RollSubsystem extends SubsystemBase {
     }
 
     public double getPostiion() {
-        return encoder.getPosition() * 360; //TODO: Figure out offset
+        return encoder.get() * 360; //TODO: Figure out offset
     }
 
     public boolean atSetPoint(double setpoint) {
