@@ -25,7 +25,7 @@ public class PitchSubsystem extends SubsystemBase {
     }
 
     public double getPostiion() {
-        return encoder.get() * 360; //TODO: Figure out offset
+        return (encoder.get() - PitchConstants.ENCODER_OFFSET) * 360; //TODO: Figure out offset
     }
 
     public boolean atSetPoint(double setpoint) {

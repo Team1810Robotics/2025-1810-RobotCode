@@ -53,9 +53,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((deadzone(-xbox.getLeftY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((deadzone(-xbox.getLeftX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(xbox.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX((-xbox.getLeftY() * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
+                    .withVelocityY((-xbox.getLeftX() * MaxSpeed) * 0.8) // Drive left with negative X (left)
+                    .withRotationalRate(xbox.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -84,9 +84,9 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((deadzone(-joystick.getY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((deadzone(-joystick.getX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(joystick.getZ()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX((-joystick.getY() * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
+                    .withVelocityY((-joystick.getX() * MaxSpeed) * 0.8) // Drive left with negative X (left)
+                    .withRotationalRate(joystick.getZ() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -121,13 +121,13 @@ public class RobotContainer {
      * @param input the input value to be adjusted
      * @return the adjusted value after applying the deadzone and squaring
      */
-    public double deadzone(double input) {
-        boolean neg = input < 0;
-        //TODO: Work with drivers to find deadzone
-        if (Math.abs(input) <= .1 && Math.abs(input) > 0) {
-            return 0;
-        }
+    // public double deadzone(double input) {
+    //     boolean neg = input < 0;
+    //     //TODO: Work with drivers to find deadzone
+    //     if (Math.abs(input) <= .1 && Math.abs(input) > 0) {
+    //         return 0;
+    //     }
 
-        return neg ? -Math.pow(input, 2) : Math.pow(input, 2); //TODO: Find out if this is necessary
-    }
+    //     return neg ? -Math.pow(input, 2) : Math.pow(input, 2); //TODO: Find out if this is necessary
+    // }
 }

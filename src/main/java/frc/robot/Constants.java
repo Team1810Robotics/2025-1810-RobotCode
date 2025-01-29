@@ -26,6 +26,7 @@ public class Constants {
             public static final int MOTOR_ID = 0;
 
             public static final int ENCODER_ID = 0;
+            public static final double ENCODER_OFFSET = 0;
 
             //TODO: Tune
             public static final double kP = 0.0;
@@ -39,6 +40,7 @@ public class Constants {
             public static final int MOTOR_ID = 0;
 
             public static final int ENCODER_ID = 0;
+            public static final double ENCODER_OFFSET = 0;
         
             public static final double kP = 0.0;
             public static final double kI = 0.0;

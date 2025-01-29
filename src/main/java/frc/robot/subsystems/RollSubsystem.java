@@ -13,6 +13,7 @@ public class RollSubsystem extends SubsystemBase {
     private DutyCycleEncoder encoder;
 
     private PIDController rollpidController;
+
     public RollSubsystem() {
         rollMotor = new SparkMax(RollConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         encoder = new DutyCycleEncoder(RollConstants.ENCODER_ID);
@@ -25,7 +26,7 @@ public class RollSubsystem extends SubsystemBase {
     }
 
     public double getPostiion() {
-        return encoder.get() * 360; //TODO: Figure out offset
+        return (encoder.get() - RollConstants.ENCODER_OFFSET)  * 360; //TODO: Figure out offset
     }
 
     public boolean atSetPoint(double setpoint) {
