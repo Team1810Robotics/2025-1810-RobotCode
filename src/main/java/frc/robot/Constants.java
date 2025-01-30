@@ -49,6 +49,20 @@ public class Constants { //TODO: Add IDs
         }
     }
 
+    public class ExtenderConstants {
+        public static final int MOTOR_ID = 0;
+        public static final int ENCODER_ID = 0;
+
+        public static final double kP = 0.0;
+        public static final double kI = 0.0;
+        public static final double kD = 0.0;
+
+        public static final double dL2Height = 0.0;
+        public static final double dL3Height = 0.0;
+        public static final double dL4Height = 0.0;
+
+        public static final double INCHES_PER_ROTATION = 8;
+    }
     public class TunerConstants {
         // Both sets of gains need to be tuned to your individual robot.
 
