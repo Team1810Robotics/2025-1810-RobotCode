@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.Constants.TunerConstants;
+import frc.robot.commands.Intake;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -75,6 +76,9 @@ public class RobotContainer {
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        xbox.rightTrigger().whileTrue(new Intake(intakeSubsysem, 1));
+        xbox.leftTrigger().whileTrue(new Intake(intakeSubsysem, -1));
     }
 
     @SuppressWarnings("unused")

@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    CommandScheduler.getInstance().schedule(Commands.print(Double.toString(m_robotContainer.intakeSubsysem.getColorSensor())));
+    
   }
 
   @Override
@@ -57,7 +57,9 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    CommandScheduler.getInstance().schedule(Commands.print(Double.toString(m_robotContainer.intakeSubsysem.getColorSensor())));
+  }
 
   @Override
   public void teleopExit() {}

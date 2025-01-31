@@ -20,13 +20,13 @@ public class Intake extends Command {
         intakeSubsystem.runIntake(motorSpeed);
     }
 
-    @Override
-    public boolean isFinished() {
-        if (intakeSubsystem.getColorSensor() == 255 || intakeSubsystem.getColorSensor() == IntakeConstants.ALGAE_BLUE_VAL) {
-            return true;
-        }
-        return false;
-    }
+    // @Override
+    // public boolean isFinished() {
+    //     // if (intakeSubsystem.getColorSensor() == IntakeConstants.CORAL_BLUE_VAL || intakeSubsystem.getColorSensor() == IntakeConstants.ALGAE_BLUE_VAL) {
+    //     //     return true;
+    //     // }
+    //     // return false;
+    // }
 
     @Override
     public void end(boolean interrupted) {
