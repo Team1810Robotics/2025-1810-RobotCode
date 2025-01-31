@@ -25,10 +25,10 @@ public class Intake extends Command {
 
     @Override
     public boolean isFinished() {
-        int colorSensor = intakeSubsystem.getColorSensor();
-        if (colorSensor > 1230 && piece == GamePiece.CORAL) {
+        int distance = intakeSubsystem.getDistance();
+        if (distance > 1230 && piece == GamePiece.CORAL) {
             return true;
-        } else if (colorSensor > 600 && piece == GamePiece.ALGAE) {
+        } else if (distance > 600 && piece == GamePiece.ALGAE) {
             return true;
         }
         return false;
