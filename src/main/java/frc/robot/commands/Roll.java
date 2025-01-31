@@ -25,6 +25,7 @@ public class Roll extends Command{
     public boolean isFinished() {
         return rollSubsystem.atSetPoint(setPoint);
     }
+    
     @Override
     public void end(boolean interrupted) {
         rollSubsystem.stop();

@@ -6,7 +6,6 @@ import frc.robot.subsystems.ExtenderSubsystem;
 
 public class Extender extends Command {
     private ExtenderSubsystem extenderSubsystem;
-    private double motorSpeed;
 
     private ExtenderHeights height;
 
@@ -17,8 +16,7 @@ public class Extender extends Command {
     }
 
 
-    public Extender(ExtenderSubsystem extenderSubsystem, double motorSpeed, ExtenderHeights height) {
-        this.motorSpeed = motorSpeed;
+    public Extender(ExtenderSubsystem extenderSubsystem, ExtenderHeights height) {
         this.extenderSubsystem = extenderSubsystem;
         this.height = height;
 
@@ -28,7 +26,7 @@ public class Extender extends Command {
 
     @Override
     public void execute() {
-        extenderSubsystem.runExtender(motorSpeed);
+        extenderSubsystem.extend(extenderSubsystem.outputScalar(extenderSubsystem.getDistance(), extenderSubsystem.getTargetHeight(height)));
     }
 
     public boolean isFinished() {

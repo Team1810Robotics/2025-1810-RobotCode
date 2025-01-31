@@ -62,6 +62,7 @@ public class Constants { //TODO: Add IDs
         public static final double dL4Height = 0.0;
 
         public static final double INCHES_PER_ROTATION = 8;
+        public static final double MAX_EXTENSION_INCHES = 18.0;
     }
     public class TunerConstants {
         // Both sets of gains need to be tuned to your individual robot.
