@@ -20,7 +20,8 @@ public class Constants {
     public class IntakeConstants {
         public static final int MOTOR_ID = 0; //TODO: Figure out this value
 
-        public static final int INTAKE_BEAM_ID = 0;
+        public static final int ALGAE_BLUE_VAL = 0; //tenative
+        public static final int CORAL_BLUE_VAL = 255;
     }
 
     public class TunerConstants {

@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class Intake extends Command {
@@ -21,7 +22,10 @@ public class Intake extends Command {
 
     @Override
     public boolean isFinished() {
-        return intakeSubsystem.getIntakeBeam();
+        if (intakeSubsystem.getColorSensor() == 255 || intakeSubsystem.getColorSensor() == IntakeConstants.ALGAE_BLUE_VAL) {
+            return true;
+        }
+        return false;
     }
 
     @Override

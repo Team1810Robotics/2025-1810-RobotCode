@@ -27,7 +27,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     @SuppressWarnings("unused")
-    private final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
+    public final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
 
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
