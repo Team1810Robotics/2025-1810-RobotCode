@@ -1,16 +1,19 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants;
+import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class Intake extends Command {
     private IntakeSubsystem intakeSubsystem;
     private double motorSpeed;
+    private Constants.GamePiece piece;
 
-    public Intake(IntakeSubsystem intakeSubsystem, double motorSpeed) {
+    public Intake(IntakeSubsystem intakeSubsystem, double motorSpeed, Constants.GamePiece piece) {
         this.intakeSubsystem = intakeSubsystem;
         this.motorSpeed = motorSpeed;
+        this.piece = piece;
 
         addRequirements(intakeSubsystem);
     }
@@ -20,13 +23,16 @@ public class Intake extends Command {
         intakeSubsystem.runIntake(motorSpeed);
     }
 
-    // @Override
-    // public boolean isFinished() {
-    //     // if (intakeSubsystem.getColorSensor() == IntakeConstants.CORAL_BLUE_VAL || intakeSubsystem.getColorSensor() == IntakeConstants.ALGAE_BLUE_VAL) {
-    //     //     return true;
-    //     // }
-    //     // return false;
-    // }
+    @Override
+    public boolean isFinished() {
+        int colorSensor = intakeSubsystem.getColorSensor();
+        if (colorSensor > 1230 && piece == GamePiece.CORAL) {
+            return true;
+        } else if (colorSensor > 600 && piece == GamePiece.ALGAE) {
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public void end(boolean interrupted) {

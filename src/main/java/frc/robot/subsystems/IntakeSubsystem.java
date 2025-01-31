@@ -28,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
 
     public int getColorSensor() {
-        return colorSensor.getBlue();
+        return colorSensor.getProximity();
     }
 
     public void stop() {

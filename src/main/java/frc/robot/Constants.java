@@ -17,11 +17,14 @@ import edu.wpi.first.units.measure.*;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class Constants {
-    public class IntakeConstants {
-        public static final int MOTOR_ID = 0; //TODO: Figure out this value
 
-        public static final int ALGAE_BLUE_VAL = 0; //tenative
-        public static final int CORAL_BLUE_VAL = 255;
+    public enum GamePiece {
+        CORAL,
+        ALGAE,
+        NONE
+    }
+    public class IntakeConstants {
+        public static final int MOTOR_ID = 25;
     }
 
     public class TunerConstants {
@@ -93,7 +96,7 @@ public class Constants {
         private static final boolean kInvertLeftSide = true;
         private static final boolean kInvertRightSide = false;
 
-        private static final int kPigeonId = 34;
+        private static final int kPigeonId = 30;
 
         // These are only used for simulation
         private static final MomentOfInertia kSteerInertia = KilogramSquareMeters.of(0.01);
@@ -134,7 +137,7 @@ public class Constants {
         // Front Left
         private static final int kFrontLeftDriveMotorId = 7;
         private static final int kFrontLeftSteerMotorId = 8;
-        private static final int kFrontLeftEncoderId = 33;
+        private static final int kFrontLeftEncoderId = 34;
         private static final Angle kFrontLeftEncoderOffset = Rotations.of(-0.023193359);
         private static final boolean kFrontLeftSteerMotorInverted = false;
         private static final boolean kFrontLeftEncoderInverted = false;
@@ -145,7 +148,7 @@ public class Constants {
         // Front Right
         private static final int kFrontRightDriveMotorId = 1;
         private static final int kFrontRightSteerMotorId = 2;
-        private static final int kFrontRightEncoderId = 30;
+        private static final int kFrontRightEncoderId = 31;
         private static final Angle kFrontRightEncoderOffset = Rotations.of(-0.352783203125);
         private static final boolean kFrontRightSteerMotorInverted = false;
         private static final boolean kFrontRightEncoderInverted = false;
@@ -156,7 +159,7 @@ public class Constants {
         // Back Left
         private static final int kBackLeftDriveMotorId = 5;
         private static final int kBackLeftSteerMotorId = 6;
-        private static final int kBackLeftEncoderId = 32;
+        private static final int kBackLeftEncoderId = 33;
         private static final Angle kBackLeftEncoderOffset = Rotations.of(-0.062255859375);
         private static final boolean kBackLeftSteerMotorInverted = false;
         private static final boolean kBackLeftEncoderInverted = false;
@@ -167,7 +170,7 @@ public class Constants {
         // Back Right
         private static final int kBackRightDriveMotorId = 3;
         private static final int kBackRightSteerMotorId = 4;
-        private static final int kBackRightEncoderId = 31;
+        private static final int kBackRightEncoderId = 32;
         private static final Angle kBackRightEncoderOffset = Rotations.of(-0.45751953125);
         private static final boolean kBackRightSteerMotorInverted = false;
         private static final boolean kBackRightEncoderInverted = false;
