@@ -15,8 +15,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.Constants.GamePiece;
 import frc.robot.Constants.TunerConstants;
+import frc.robot.commands.Intake;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 
@@ -27,7 +28,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     @SuppressWarnings("unused")
-    private final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
+    public final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
 
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -75,6 +76,10 @@ public class RobotContainer {
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        xbox.rightTrigger().whileTrue(new Intake(intakeSubsysem, 1, GamePiece.CORAL));
+        xbox.x().whileTrue(new Intake(intakeSubsysem, .75, GamePiece.ALGAE));
+        xbox.leftTrigger().whileTrue(new Intake(intakeSubsysem, -1, GamePiece.NONE));
     }
 
     @SuppressWarnings("unused")
