@@ -7,16 +7,12 @@ import frc.robot.subsystems.ExtenderSubsystem;
 public class Extender extends Command {
     private ExtenderSubsystem extenderSubsystem;
 
-    private ExtenderHeights height;
-
-    public enum ExtenderHeights {
-        L2,
-        L3,
-        L4
-    }
+    private ExtenderConstants.ExtenderHeights height;
 
 
-    public Extender(ExtenderSubsystem extenderSubsystem, ExtenderHeights height) {
+
+
+    public Extender(ExtenderSubsystem extenderSubsystem, ExtenderConstants.ExtenderHeights height) {
         this.extenderSubsystem = extenderSubsystem;
         this.height = height;
 
@@ -26,18 +22,25 @@ public class Extender extends Command {
 
     @Override
     public void execute() {
-        extenderSubsystem.extend(extenderSubsystem.outputScalar(extenderSubsystem.getDistance(), extenderSubsystem.getTargetHeight(height)));
+        extenderSubsystem.extend(extenderSubsystem.getTargetHeight(height));
     }
 
+
     public boolean isFinished() {
-        switch (height) {
-            case L2:
-                return extenderSubsystem.getDistance() > ExtenderConstants.dL2Height;
-            case L3:
-                return extenderSubsystem.getDistance() > ExtenderConstants.dL3Height;
-            case L4:
-                return extenderSubsystem.getDistance() > ExtenderConstants.dL4Height;
+        double targetHeight = extenderSubsystem.getTargetHeight(height);
+        double currentHeight = extenderSubsystem.getDistance();
+
+        if (Math.abs(targetHeight - currentHeight) < 0.1) {
+            return true;
         }
+
+        // If the extender is moving upwards and has reached the target height, or if it is moving
+        // downwards and has passed the target height, then return true
+        if ((targetHeight > currentHeight && extenderSubsystem.getDistance() > currentHeight) ||
+            (targetHeight < currentHeight && extenderSubsystem.getDistance() < currentHeight)) {
+            return true;
+        }
+
         return false;
     }
 
