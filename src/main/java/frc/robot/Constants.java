@@ -19,6 +19,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 public class Constants {
     public class IntakeConstants {
         public static final int MOTOR_ID = 0; //TODO: Figure out this value
+
+        public static final int INTAKE_BEAM_ID = 0;
     }
 
     public class TunerConstants {

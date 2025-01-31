@@ -20,6 +20,11 @@ public class Intake extends Command {
     }
 
     @Override
+    public boolean isFinished() {
+        return intakeSubsystem.getIntakeBeam();
+    }
+
+    @Override
     public void end(boolean interrupted) {
         intakeSubsystem.stop();
     }
