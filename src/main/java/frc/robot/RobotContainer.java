@@ -6,18 +6,33 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.io.IOException;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.util.struct.parser.ParseException;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+//import frc.robot.commands.Intake;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+//import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -38,8 +53,18 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
+    //public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+
+    public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+
+    private final SendableChooser<Command> autoChooser;
+
     public RobotContainer() {
         configureXbox();
+
+        autoChooser = AutoBuilder.buildAutoChooser("");
+        SmartDashboard.putData("Auto Mode", autoChooser);
+
     }
 
     @SuppressWarnings("unused")
@@ -51,7 +76,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX((deadzone(-xbox.getLeftY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
                     .withVelocityY((deadzone(-xbox.getLeftX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(xbox.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(deadzone(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean())) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -71,6 +96,13 @@ public class RobotContainer {
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+
+        //xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
+        //xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
+
+        //xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
+        //xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
     }
 
     @SuppressWarnings("unused")
@@ -82,7 +114,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX((deadzone(-joystick.getY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
                     .withVelocityY((deadzone(-joystick.getX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(joystick.getZ()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(deadzone(visionSubsystem.visionTargetPIDCalc(joystick.getZ(), joystick.button(0).getAsBoolean())) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
 
@@ -103,10 +135,9 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
-    
-
+   
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return autoChooser.getSelected();
     }
 
     /**
