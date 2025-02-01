@@ -1,18 +1,18 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ExtenderConstants;
+import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
 import frc.robot.subsystems.ExtenderSubsystem;
 
 public class Extender extends Command {
     private ExtenderSubsystem extenderSubsystem;
 
-    private ExtenderConstants.ExtenderHeights height;
+    private ExtenderHeights height;
 
 
 
 
-    public Extender(ExtenderSubsystem extenderSubsystem, ExtenderConstants.ExtenderHeights height) {
+    public Extender(ExtenderSubsystem extenderSubsystem, ExtenderHeights height) {
         this.extenderSubsystem = extenderSubsystem;
         this.height = height;
 

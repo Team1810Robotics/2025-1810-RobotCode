@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ExtenderConstants;
+import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
@@ -73,7 +74,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     //     return (-4 * Math.pow(percentDistance, 2)) + (4 * percentDistance);
     // }
 
-    public double getTargetHeight(ExtenderConstants.ExtenderHeights height) {
+    public double getTargetHeight(ExtenderHeights height) {
         switch (height) {
             case BASE:
                 return ExtenderConstants.BASE_HEIGHT;
