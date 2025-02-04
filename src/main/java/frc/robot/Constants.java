@@ -24,7 +24,7 @@ public class Constants {
         NONE
     }
     public class IntakeConstants {
-        public static final int MOTOR_ID = 25;
+        public static final int MOTOR_ID = 14;
     }
 
     public class TunerConstants {
