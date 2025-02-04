@@ -23,7 +23,8 @@ public class Roll extends Command{
 
     @Override
     public boolean isFinished() {
-        return rollSubsystem.atSetPoint(setPoint);
+        return false;
+        // return rollSubsystem.atSetPoint(setPoint);
     }
     @Override
     public void end(boolean interrupted) {

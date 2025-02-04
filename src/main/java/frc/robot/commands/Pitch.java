@@ -21,7 +21,8 @@ public class Pitch extends Command {
 
     @Override
     public boolean isFinished() {
-        return pitchSubsystem.atSetPoint(setpoint);
+        return false;
+        // return pitchSubsystem.atSetPoint(setpoint);
     }
 
     @Override

@@ -21,8 +21,16 @@ public class RollSubsystem extends SubsystemBase {
         rollpidController = new PIDController(RollConstants.kP, RollConstants.kI, RollConstants.kD);
     }
 
+    /**
+     * Runs pitch motor with PID
+     * @param setPoint setpoint for wrist
+     */
     public void runRoll(double setPoint) {
         rollMotor.set(rollpidController.calculate(getPostiion(), setPoint));
+    }
+
+    public void run(double speed) {
+        rollMotor.set(speed);
     }
 
     public double getPostiion() {

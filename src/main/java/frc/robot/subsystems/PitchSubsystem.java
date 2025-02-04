@@ -20,8 +20,16 @@ public class PitchSubsystem extends SubsystemBase {
         pitchpidController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
     }
 
+    /**
+     * Runs the pitch motor with PID
+     * @param setPoint Setpoint for wrist
+     */
     public void runPitch(double setPoint) {
         pitchMotor.set(pitchpidController.calculate(getPostiion(), setPoint));
+    }
+
+    public void run(double speed) {
+        pitchMotor.set(speed);
     }
 
     public double getPostiion() {
