@@ -17,7 +17,7 @@ public class Roll extends Command{
 
     @Override
     public void execute() {
-        rollSubsystem.runRoll(setPoint);
+        rollSubsystem.run(setPoint);
     }
 
 

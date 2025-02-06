@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.GamePiece;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -20,17 +21,18 @@ public class Intake extends Command {
 
     @Override
     public void execute() {
+        Commands.print(Integer.toString(intakeSubsystem.getDistance()));
         intakeSubsystem.runIntake(motorSpeed);
     }
 
     @Override
     public boolean isFinished() {
-        int distance = intakeSubsystem.getDistance();
-        if (distance > 1230 && piece == GamePiece.CORAL) {
-            return true;
-        } else if (distance > 600 && piece == GamePiece.ALGAE) {
-            return true;
-        }
+        // int distance = intakeSubsystem.getDistance();
+        // if (distance > 1230 && piece == GamePiece.CORAL) {
+        //     return true;
+        // } else if (distance > 600 && piece == GamePiece.ALGAE) {
+        //     return true;
+        // }
         return false;
     }
 

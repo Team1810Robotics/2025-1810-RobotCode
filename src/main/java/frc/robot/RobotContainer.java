@@ -18,8 +18,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.GamePiece;
 import frc.robot.Constants.TunerConstants;
 import frc.robot.commands.Intake;
+import frc.robot.commands.Pitch;
+import frc.robot.commands.Roll;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PitchSubsystem;
+import frc.robot.subsystems.RollSubsystem;
 
 public class RobotContainer {
 
@@ -29,6 +33,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     @SuppressWarnings("unused")
     public final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
+    public final RollSubsystem rollSubsystem = new RollSubsystem();
+    public final PitchSubsystem pitchSubsystem = new PitchSubsystem();
 
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -78,8 +84,14 @@ public class RobotContainer {
         drivetrain.registerTelemetry(logger::telemeterize);
 
         xbox.rightTrigger().whileTrue(new Intake(intakeSubsysem, 1, GamePiece.CORAL));
-        xbox.x().whileTrue(new Intake(intakeSubsysem, .75, GamePiece.ALGAE));
-        xbox.leftTrigger().whileTrue(new Intake(intakeSubsysem, -1, GamePiece.NONE));
+        xbox.leftTrigger().whileTrue(new Intake(intakeSubsysem, .75, GamePiece.ALGAE));
+        xbox.x().whileTrue(new Intake(intakeSubsysem, -1, GamePiece.NONE));
+
+        xbox.leftBumper().and(xbox.a()).whileTrue(new Roll(rollSubsystem, .1));
+        xbox.leftBumper().and(xbox.b()).whileTrue(new Roll(rollSubsystem, -.1));
+
+        xbox.rightBumper().and(xbox.a()).whileTrue(new Pitch(pitchSubsystem, .1));
+        xbox.rightBumper().and(xbox.b()).whileTrue(new Pitch(pitchSubsystem, -.1));
     }
 
     @SuppressWarnings("unused")

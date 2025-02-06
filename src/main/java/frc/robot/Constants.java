@@ -23,10 +23,10 @@ public class Constants {
         ALGAE,
         NONE
     }
-    
+
     public class WristConstants {
         public class RollConstants {
-            public static final int MOTOR_ID = 0;
+            public static final int MOTOR_ID = 13;
 
             public static final int ENCODER_ID = 0;
             public static final double ENCODER_OFFSET = 0; //TODO: Figure out offset
@@ -40,9 +40,9 @@ public class Constants {
         }
         
         public class PitchConstants {
-            public static final int MOTOR_ID = 0;
+            public static final int MOTOR_ID = 15;
 
-            public static final int ENCODER_ID = 0;
+            public static final int ENCODER_ID = 1;
             public static final double ENCODER_OFFSET = 0; //TODO: Figure out offset
         
             //TODO: Tune

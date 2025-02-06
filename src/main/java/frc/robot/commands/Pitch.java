@@ -16,7 +16,7 @@ public class Pitch extends Command {
 
     @Override
     public void execute() {
-        pitchSubsystem.runPitch(setpoint);
+        pitchSubsystem.run(setpoint);
     }
 
     @Override
