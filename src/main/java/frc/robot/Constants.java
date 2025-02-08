@@ -21,6 +21,11 @@ public class Constants {
         public static final int MOTOR_ID = 0; //TODO: Figure out this value
     }
 
+    public class ArmConstants {
+        public static final int MOTOR_ID_1 = 10;
+        public static final int MOTOR_ID_2 = 11;
+    }
+
     public class TunerConstants {
         // Both sets of gains need to be tuned to your individual robot.
 

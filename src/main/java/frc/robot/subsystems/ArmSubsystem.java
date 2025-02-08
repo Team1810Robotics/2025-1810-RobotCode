@@ -1,26 +1,40 @@
 package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
+import com.revrobotics.spark.SparkBase.ResetMode;
 
 
 public class ArmSubsystem extends SubsystemBase {
    
-    private SparkMax armMotor;
+    private SparkMax armMotor1;
+    private SparkMax armMotor2;
     private DutyCycleEncoder armEncoder;
+
+    private SparkMaxConfig config;
    
     private final ArmFeedforward feedforward;
     private final PIDController armPIDController;
 
+
     public ArmSubsystem() {
-        //TODO: Figure out this port
-        armMotor = new SparkMax(0, MotorType.kBrushless);
+        armMotor1 = new SparkMax(ArmConstants.MOTOR_ID_1, MotorType.kBrushless);
+        armMotor2 = new SparkMax(ArmConstants.MOTOR_ID_2, MotorType.kBrushless);
         armEncoder = new DutyCycleEncoder(0);
-                        
+
+        config = new SparkMaxConfig();
+
+        config.follow(ArmConstants.MOTOR_ID_1);
+
+        armMotor2.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
         armPIDController = new PIDController(0 , 0 , 0 ); //kP //kI //kD
         feedforward = new ArmFeedforward(0 , 0 , 0 ); //ks //kg //kv
     }
@@ -38,18 +52,20 @@ public class ArmSubsystem extends SubsystemBase {
         // double armEncoderVelocity = //TODO: Recalc velocity
         //     armEncoder.getVelocity().getValueAsDouble() * 360;
         double feedforwardOutput = feedforward.calculate(setpoint, 0);
-        armMotor.set(output + feedforwardOutput);
+        armMotor1.set(output + feedforwardOutput);
+        armMotor2.set(output + feedforwardOutput);
     }
 
 
     public void setSpeed(double speed){
-        armMotor.set(speed);
+        armMotor1.set(speed);
     }
 
 
 
     public void stop(){
-        armMotor.stopMotor();
+        armMotor1.stopMotor();
+        armMotor2.stopMotor();
     }
 
 
