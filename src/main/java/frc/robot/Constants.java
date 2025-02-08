@@ -11,7 +11,7 @@ public class Constants {
     }
     public class VisionConstants {
         public static final String TARGET_CAMERA = "Arducam_OV9281_USB_Camera";
-        public static final double V_Kp = 0.05;
+        public static final double V_Kp = 0.07;
         public static final double V_Ki = 0.0000;
         public static final double V_Kd = 0.0;
     }

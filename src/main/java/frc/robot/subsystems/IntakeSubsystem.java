@@ -1,4 +1,4 @@
-/* package frc.robot.subsystems;
+package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -13,8 +13,6 @@ public class IntakeSubsystem extends SubsystemBase {
         //TODO: Figure out this port
         intakeMotor = new SparkMax(IntakeConstants.INTAKE_MOTOR, MotorType.kBrushless);
     }
-
-
 
     public void intakeIn() {
         intakeMotor.set(1);
@@ -32,4 +30,3 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor.stopMotor();
     }
 }
-  */

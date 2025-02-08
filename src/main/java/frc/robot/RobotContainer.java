@@ -6,32 +6,25 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.io.IOException;
+import org.photonvision.PhotonUtils;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.config.PIDConstants;
-import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.util.struct.parser.ParseException;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-//import frc.robot.commands.Intake;
+import frc.robot.commands.Intake;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-//import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class RobotContainer {
@@ -53,18 +46,19 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    //public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
+    double forward, strafe, turn, targetYaw, targetRange;
+
     public RobotContainer() {
         configureXbox();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
-        SmartDashboard.putData("Auto Mode", autoChooser);
-
+        SmartDashboard.putData("Auto Chooser", autoChooser);
     }
 
     @SuppressWarnings("unused")
@@ -81,8 +75,8 @@ public class RobotContainer {
         );
 
         xbox.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        xbox.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-xbox.getLeftY(), -xbox.getLeftX()))
+        xbox.b().whileTrue(drivetrain.applyRequest(() -> //Manual turn wheels
+            point.withModuleDirection(new Rotation2d(deadzone(-xbox.getLeftY()), deadzone(-xbox.getLeftX())))
         ));
 
         //Run SysId routines when holding back/start and X/Y.
@@ -97,45 +91,13 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-
         //xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         //xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
 
-        //xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
-        //xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
+        xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
+        xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
     }
-
-    @SuppressWarnings("unused")
-    private void configureJoystick() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX((deadzone(-joystick.getY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((deadzone(-joystick.getX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(visionSubsystem.visionTargetPIDCalc(joystick.getZ(), joystick.button(0).getAsBoolean())) * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
-
-        joystick.button(1).whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.button(11).whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getY(), -joystick.getX()))
-        ));
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.button(10).and(joystick.button(3)).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.button(10).and(joystick.button(3)).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.button(9).and(joystick.button(4)).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.button(9).and(joystick.button(4)).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        joystick.button(12).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        drivetrain.registerTelemetry(logger::telemeterize);
-    }
-   
+  
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
