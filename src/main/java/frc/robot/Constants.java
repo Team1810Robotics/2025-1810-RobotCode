@@ -50,8 +50,8 @@ public class Constants { //TODO: Add IDs
     }
 
     public class ExtenderConstants {
-        public static final int MOTOR_ID = 0;
-        public static final int ENCODER_ID = 0;
+        public static final int MOTOR_ID = 12;
+        public static final int ENCODER_ID = 1;
 
         public static final double kP = 0.0;
         public static final double kI = 0.0;
@@ -63,7 +63,7 @@ public class Constants { //TODO: Add IDs
         public static final double BASE_HEIGHT = 0.0;
 
         public static final double INCHES_PER_ROTATION = 8;
-        public static final double MAX_EXTENSION_INCHES = 18.0;
+        public static final double MAX_EXTENSION_INCHES = 44.0;
 
         public enum ExtenderHeights {
             BASE,

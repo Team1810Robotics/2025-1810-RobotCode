@@ -23,7 +23,7 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        extenderpidController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue how this would work
+        extenderpidController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
     }
 
     /**
@@ -37,8 +37,13 @@ public class ExtenderSubsystem extends SubsystemBase {
      */
     public double getRotations() {
         double currentRotation = encoder.get();
+        double rotationDifference = currentRotation - previousRotation;
 
-        cumulativeRotations += Math.abs(currentRotation - previousRotation);
+        if (rotationDifference > 0) {
+            cumulativeRotations += rotationDifference; 
+        } else {
+            cumulativeRotations += rotationDifference; 
+        }
 
         previousRotation = currentRotation;
         return cumulativeRotations;
