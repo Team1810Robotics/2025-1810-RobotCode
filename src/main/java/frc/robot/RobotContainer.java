@@ -32,7 +32,7 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     @SuppressWarnings("unused")
-    public final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem(); //TODO: Set up binding
     public final RollSubsystem rollSubsystem = new RollSubsystem();
     public final PitchSubsystem pitchSubsystem = new PitchSubsystem();
 
@@ -83,9 +83,9 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        xbox.rightTrigger().whileTrue(new Intake(intakeSubsysem, 1, GamePiece.CORAL));
-        xbox.leftTrigger().whileTrue(new Intake(intakeSubsysem, .75, GamePiece.ALGAE));
-        xbox.x().whileTrue(new Intake(intakeSubsysem, -1, GamePiece.NONE));
+        xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, 1, GamePiece.CORAL));
+        xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, .75, GamePiece.ALGAE));
+        xbox.x().whileTrue(new Intake(intakeSubsystem, -1, GamePiece.NONE));
 
         xbox.leftBumper().and(xbox.a()).whileTrue(new Roll(rollSubsystem, .1));
         xbox.leftBumper().and(xbox.b()).whileTrue(new Roll(rollSubsystem, -.1));
