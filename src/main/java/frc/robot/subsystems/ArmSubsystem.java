@@ -7,6 +7,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -23,11 +25,10 @@ public class ArmSubsystem extends SubsystemBase {
     private final ArmFeedforward feedforward;
     private final PIDController armPIDController;
 
-
     public ArmSubsystem() {
         armMotor1 = new SparkMax(ArmConstants.MOTOR_ID_1, MotorType.kBrushless);
         armMotor2 = new SparkMax(ArmConstants.MOTOR_ID_2, MotorType.kBrushless);
-        armEncoder = new DutyCycleEncoder(0);
+        armEncoder = new DutyCycleEncoder(ArmConstants.ENCODER_ID);
 
         config = new SparkMaxConfig();
 
@@ -37,23 +38,28 @@ public class ArmSubsystem extends SubsystemBase {
         
         armPIDController = new PIDController(0 , 0 , 0 ); //kP //kI //kD
         feedforward = new ArmFeedforward(0 , 0 , 0 ); //ks //kg //kv
-    }
 
+        SmartDashboard.putData(armPIDController);
+        Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> armEncoder.get());
+    }
 
     public double getMeasurement() {
-        double position = armEncoder.get();
+        double position = armEncoder.get() -0.382;
         double degrees = position * 360;
        
-        return degrees - 0; //TODO: change zero to real offset
+        return degrees - 0.382; //TODO: change zero to real offset
     }
 
 
-    public void useOutput(double output, double setpoint) {
-        // double armEncoderVelocity = //TODO: Recalc velocity
-        //     armEncoder.getVelocity().getValueAsDouble() * 360;
+    public void useOutput(double setpoint) {
         double feedforwardOutput = feedforward.calculate(setpoint, 0);
-        armMotor1.set(output + feedforwardOutput);
-        armMotor2.set(output + feedforwardOutput);
+        double output = armPIDController.calculate(getMeasurement(), setpoint);
+
+        armMotor1.set(-output + feedforwardOutput);
+    }
+
+    public double armPower(){
+        return armMotor1.getOutputCurrent();
     }
 
 
@@ -61,14 +67,10 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor1.set(speed);
     }
 
-
-
     public void stop(){
         armMotor1.stopMotor();
         armMotor2.stopMotor();
     }
-
-
 }
 
 

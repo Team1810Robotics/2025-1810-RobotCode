@@ -20,6 +20,10 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
+    // System.out.println(RobotContainer.armSubsystem.getMeasurement());
+    // System.out.println(RobotContainer.armSubsystem.armPower());
+    System.out.println(RobotContainer.extenderSubsystem.getEncoder());
+    System.out.println(RobotContainer.extenderSubsystem.getDistance());
   }
 
   @Override

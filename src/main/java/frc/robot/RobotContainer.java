@@ -10,14 +10,22 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 
 import frc.robot.Constants.TunerConstants;
+import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
+import frc.robot.commands.ArmCommand;
+import frc.robot.commands.Extender;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class RobotContainer {
@@ -28,7 +36,10 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     @SuppressWarnings("unused")
     private final IntakeSubsystem intakeSubsysem = new IntakeSubsystem(); //TODO: Set up binding
+    public final static ArmSubsystem armSubsystem = new ArmSubsystem();
+    public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
 
+    public double setpoint = 0;
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
@@ -39,11 +50,13 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private ArmCommand armCommand;
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     public RobotContainer() {
         configureXbox();
+        Shuffleboard.getTab("Arm").addNumber("Arm Setpoint", () -> setpoint);
     }
 
     @SuppressWarnings("unused")
@@ -58,57 +71,12 @@ public class RobotContainer {
                     .withRotationalRate(deadzone(xbox.getRightX()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+    xbox.a().whileTrue(new ArmCommand(armSubsystem, setpoint));
 
-        xbox.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        xbox.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-xbox.getLeftY(), -xbox.getLeftX()))
-        ));
-
-        //Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        xbox.back().and(xbox.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        xbox.back().and(xbox.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        xbox.start().and(xbox.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        xbox.start().and(xbox.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        drivetrain.registerTelemetry(logger::telemeterize);
-    }
-
-    @SuppressWarnings("unused")
-    private void configureJoystick() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-            // Drivetrain will execute this command periodically
-            drivetrain.applyRequest(() ->
-                drive.withVelocityX((deadzone(-joystick.getY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((deadzone(-joystick.getX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(deadzone(joystick.getZ()) * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            )
-        );
-
-        joystick.button(1).whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.button(11).whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getY(), -joystick.getX()))
-        ));
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.button(10).and(joystick.button(3)).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.button(10).and(joystick.button(3)).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.button(9).and(joystick.button(4)).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.button(9).and(joystick.button(4)).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // reset the field-centric heading on left bumper press
-        joystick.button(12).onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-        drivetrain.registerTelemetry(logger::telemeterize);
+    xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
+    
     }
     
-
     public Command getAutonomousCommand() {
         return Commands.print("No autonomous command configured");
     }
