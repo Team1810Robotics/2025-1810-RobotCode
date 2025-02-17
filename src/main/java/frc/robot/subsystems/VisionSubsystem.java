@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot.subsystems;
 
 import java.util.List;
@@ -10,17 +6,14 @@ import java.util.Optional;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
-import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -35,13 +28,15 @@ public class VisionSubsystem extends SubsystemBase {
     double targetYaw, targetRange;
     boolean targetVisible;
 
-    private final PIDController rotController = new PIDController(VisionConstants.V_Kp, VisionConstants.V_Ki, VisionConstants.V_Kd);
+    public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
+    public PIDController driveControllerY = new PIDController(VisionConstants.VY_Kp,VisionConstants.VY_Ki,VisionConstants.VY_Kd);
+    public PIDController driveControllerX = new PIDController(VisionConstants.VX_Kp,VisionConstants.VX_Ki,VisionConstants.VX_Kd);
+
     
-    AprilTagFieldLayout aprilTagFieldLayout =
-            AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
     
     public static final Transform3d CAMERA_TO_ROBOT =
-                new Transform3d(new Translation3d(0.31, 0.0, 0.248), new Rotation3d(0, 0, 0));
+        new Transform3d(new Translation3d(0.31, 0.0, 0.248), new Rotation3d(0, 0, 0));
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
@@ -53,7 +48,25 @@ public class VisionSubsystem extends SubsystemBase {
                         CAMERA_TO_ROBOT);
         result = camera.getLatestResult();
 
-        //Shuffleboard.getTab("Teleop").add(rotController);
+        Shuffleboard.getTab("Vision").add(rotController);
+        Shuffleboard.getTab("Vision").add(driveControllerY);
+        Shuffleboard.getTab("Vision").add(driveControllerX);
+
+        Shuffleboard.getTab("Vision").addNumber("Yaw", () -> getYaw().get());
+        Shuffleboard.getTab("Vision").addNumber("Pitch", () -> getPitch().get());
+        Shuffleboard.getTab("Vision").addNumber("Range", () -> getRange().get());
+
+        Shuffleboard.getTab("Vision").addNumber("Distance Error", () -> getRangeError().get());
+
+        Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0, 0.5, getRange().get(), true, driveControllerY));
+        Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0, 0.0, getXRange().get(), true, driveControllerX));
+    }
+
+    public Optional<Double> getRangeError(){
+        if (hasTarget()) {
+            return Optional.of(getRange().get() - 0.5);
+        }
+        else return Optional.of(1000.0);
     }
 
     public Optional<Double> getRange() {
@@ -61,40 +74,27 @@ public class VisionSubsystem extends SubsystemBase {
             // Get the range to the target using the best target's pose
             return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
         }
-        return Optional.empty();
+        return Optional.of(1000.0);
+    }
+
+    public Optional<Double> getXRange(){
+        if (hasTarget()){
+            return Optional.of(result.getBestTarget().altCameraToTarget.getX());
+        } else return Optional.of(1000.0);
     }
     
       @Override
       public void periodic() {
         result = camera.getLatestResult();
         allResults = camera.getAllUnreadResults();
-
-        /* double tagHeight = aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId()).get().getZ();
-        
-        double driveX = PhotonUtils.calculateDistanceToTargetMeters(
-            0.248, // Measured with a tape measure, or in CAD.
-            tagHeight, // From 2024 game manual for ID 7
-            Units.degreesToRadians(0), // Measured with a protractor, or in CAD.
-            Units.degreesToRadians(getPitch().get())); */
-        
-        //SmartDashboard.putNumber("drive-x", driveX);
-        //Shuffleboard.getTab("Vision").addBoolean("Has Tag", () -> result.hasTargets());
-        //Shuffleboard.getTab("vision").addDouble("Yaw To Target", () -> getYaw().get());
-        //SmartDashboard.putNumber("pidVis", visionTargetPIDCalc(RobotContainer.joystick.getZ(), ))
-        //SmartDashboard.putNumber("Yaw", getYaw().get());
-        //SmartDashboard.putNumber("Pitch", getPitch().get());
       }
 
-      PIDController rotPidController =
-            new PIDController(VisionConstants.V_Kp, VisionConstants.V_Ki, VisionConstants.V_Kd);
-
-      public double visionTargetPIDCalc(
-         double altRotation, boolean visionMode) {
+      public double visionTargetPIDCalc(double altRotation, boolean visionMode) {
          boolean target = hasTarget();
          Optional<Double> yaw = getYaw();
 
          if (target && visionMode && yaw.isPresent()) {
-             return -rotPidController.calculate(yaw.get());
+             return -rotController.calculate(yaw.get());
          }
          if ((visionMode == true) && !target) {
              return altRotation;
@@ -102,41 +102,18 @@ public class VisionSubsystem extends SubsystemBase {
           return altRotation;
       }
 
-      public double[] drivePid(double x, double y, double t, boolean mode){
-        if (!allResults.isEmpty()) {
-            // Camera processed a new frame since last
-            // Get the last one in the list.
-            var result = allResults.get(allResults.size() - 1);
-            if (result.hasTargets()) {
-                // At least one AprilTag was seen by the camera
-                for (var target : result.getTargets()) {
-                    if (target.getFiducialId() == 7) {
-                        // Found Tag 7, record its information
-                        targetYaw = target.getYaw();
-                        targetRange =
-                                PhotonUtils.calculateDistanceToTargetMeters(
-                                        0.5, // Measured with a tape measure, or in CAD.
-                                        1.435, // From 2024 game manual for ID 7
-                                        Units.degreesToRadians(0), // Measured with a protractor, or in CAD.
-                                        Units.degreesToRadians(target.getPitch()));
-                        targetVisible = true;
-                    }
-                }
-            }
-        }
-        // Auto-align when requested
-        if (mode && targetVisible) {
-            // Driver wants auto-alignment to tag 7
-            // And, tag 7 is in sight, so we can turn toward it.
-            // Override the driver's turn and fwd/rev command with an automatic one
-            // That turns toward the tag, and gets the range right.
-            t =
-                    (0 - targetYaw) * 0.05;
-            x =
-                    (2 - targetRange) * 0.005;
-        }
-        double drive[] = {x, y, t};
-                return drive;
+      /**
+       * Used to make the robot drive to a set distance away from an apriltag.
+       * 
+       * @param altDrive The input from the controller for then no tag is present.
+       * @param distance How far away from the apriltag do we want to be.
+       * @param driveMode True/False input for if we do want to drive towards the apriltag.
+       * @return
+       */
+      public double visionDrive(double altDrive, double distance, double source, boolean driveMode, PIDController pid){
+        if(getRange().isPresent() && driveMode && hasTarget()){
+            return pid.calculate(source - distance);
+        } else return altDrive;
       }
     
       public Optional<Double> getYaw() {
@@ -151,7 +128,7 @@ public class VisionSubsystem extends SubsystemBase {
         if (hasTarget()) {
              return Optional.of(result.getBestTarget().getPitch());
          } else {
-             return Optional.of(10000.0);
+             return Optional.of(1000.0);
          }
      }
     

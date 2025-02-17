@@ -35,8 +35,6 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -68,16 +66,11 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
             // Drivetrain will execute this command periodically
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((deadzone(-xbox.getLeftY()) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
+                drive.withVelocityX((deadzone(-visionSubsystem.visionDrive(xbox.getLeftY(), 0.5, visionSubsystem.getRange().get(), xbox.b().getAsBoolean(), visionSubsystem.driveControllerY)) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
                     .withVelocityY((deadzone(-xbox.getLeftX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
                     .withRotationalRate(deadzone(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean())) * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
-
-        xbox.b().whileTrue(drivetrain.applyRequest(() -> brake));
-        xbox.b().whileTrue(drivetrain.applyRequest(() -> //Manual turn wheels
-            point.withModuleDirection(new Rotation2d(deadzone(-xbox.getLeftY()), deadzone(-xbox.getLeftX())))
-        ));
 
         //Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
