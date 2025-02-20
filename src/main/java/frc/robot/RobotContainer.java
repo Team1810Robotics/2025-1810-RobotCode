@@ -12,9 +12,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
+import frc.robot.commands.ArmCommand;
+import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
@@ -36,6 +41,8 @@ public class RobotContainer {
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
+    public final static ArmSubsystem armSubsystem = new ArmSubsystem();
+    public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -56,6 +63,9 @@ public class RobotContainer {
                     .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
+        xbox.a().whileTrue(new ArmCommand(armSubsystem, 0));
+
+        xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
         
         //Reset Gyro
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
