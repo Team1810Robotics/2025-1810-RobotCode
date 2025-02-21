@@ -19,12 +19,16 @@ import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
 import frc.robot.commands.ArmCommand;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
+import frc.robot.commands.PitchCommand;
+import frc.robot.commands.RollCommand;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.PitchSubsystem;
+import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 @SuppressWarnings("unused") // For now :) 
@@ -48,6 +52,8 @@ public class RobotContainer {
     public final static ArmSubsystem armSubsystem = new ArmSubsystem();
     public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
     public final static CANdleSubsystem candleSubsystem = new CANdleSubsystem();
+    public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
+    public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -62,6 +68,7 @@ public class RobotContainer {
         autoChooser = AutoBuilder.buildAutoChooser("");
         SmartDashboard.putData("Auto Chooser", autoChooser);
         Shuffleboard.getTab("Arm").add(armSubsystem);
+        Shuffleboard.getTab("Arm").addNumber("Arm Setpoint Actual", ()-> armSetpoint.get().getDouble());
 
     }
 
@@ -75,12 +82,17 @@ public class RobotContainer {
                     .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
-        xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, armSetpoint.get().getDouble()));
+/*         xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
+        xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
+
+        xbox.rightBumper().whileTrue(new PitchCommand(pitchSubsystem, 0));
+        xbox.leftBumper().whileTrue(new RollCommand(rollSubsystem, 0));
         
         xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
         
         //Reset Gyro
+
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -90,6 +102,10 @@ public class RobotContainer {
         
         xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
         xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
+    }
+
+    public double getSetpoint(){
+        return armSetpoint.get().getDouble();
     }
         
     public Command getAutonomousCommand() {

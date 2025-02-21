@@ -39,15 +39,17 @@ public class ArmSubsystem extends SubsystemBase {
         armPIDController = new PIDController(0 , 0 , 0 ); //kP //kI //kD
         feedforward = new ArmFeedforward(0 , 0 , 0 ); //ks //kg //kv
 
-        SmartDashboard.putData(armPIDController);
-        Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> armEncoder.get());
+        SmartDashboard.putData("armPID", armPIDController);
+        Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
+        Shuffleboard.getTab("Arm").addNumber("Arm Rad",() -> armEncoder.get());
+        Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
     }
 
     public double getMeasurement() {
-        double position = armEncoder.get() -0.382;
+        double position = armEncoder.get() -0.72;
         double degrees = position * 360;
        
-        return degrees - 0.382; //TODO: change zero to real offset
+        return degrees; //TODO: change zero to real offset
     }
 
 

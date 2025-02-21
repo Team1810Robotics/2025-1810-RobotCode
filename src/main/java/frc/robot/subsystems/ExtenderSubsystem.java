@@ -5,6 +5,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ExtenderConstants;
 import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
@@ -24,6 +25,9 @@ public class ExtenderSubsystem extends SubsystemBase {
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
         extenderpidController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
+
+        Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> encoder.get());
+        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getRotations());
     }
 
     /**
@@ -48,6 +52,7 @@ public class ExtenderSubsystem extends SubsystemBase {
         previousRotation = currentRotation;
         return cumulativeRotations;
     }
+
     public double getEncoder() {
         return encoder.get();
     }

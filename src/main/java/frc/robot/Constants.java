@@ -1,6 +1,41 @@
 package frc.robot;
 
 public class Constants {
+
+    public enum GamePiece {
+        CORAL,
+        ALGAE,
+        NONE
+    }
+
+    public class WristConstants {
+        public class RollConstants {
+            public static final int MOTOR_ID = 13;
+
+            public static final int ENCODER_ID = 2;
+            public static final double ENCODER_OFFSET = 0; //TODO: Figure out offset
+
+            //TODO: Tune
+            public static double kP = 0.0;
+            public static double kI = 0.0;
+            public static double kD = 0.0;
+
+            //TODO: Figure out setpoints
+        }
+        
+        public class PitchConstants {
+            public static final int MOTOR_ID = 15;
+
+            public static final int ENCODER_ID = 3;
+            public static final double ENCODER_OFFSET = 0; //TODO: Figure out offset
+        
+            //TODO: Tune
+            public static double kP = 0.0;
+            public static double kI = 0.0;
+            public static double kD = 0.0;
+        }
+    }
+
     public class IntakeConstants {
         public static int INTAKE_MOTOR = 25;    
     }
@@ -16,9 +51,9 @@ public class Constants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double kP = 0.0;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
+        public static double kP = 0.0;
+        public static double kI = 0.0;
+        public static double kD = 0.0;
 
         public static final double L2_HEIGHT = 0.0;
         public static final double L3_HEIGHT = 0.0;
