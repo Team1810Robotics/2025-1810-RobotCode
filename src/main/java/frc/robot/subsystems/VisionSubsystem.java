@@ -33,7 +33,7 @@ public class VisionSubsystem extends SubsystemBase {
     public PIDController driveControllerX = new PIDController(VisionConstants.VX_Kp,VisionConstants.VX_Ki,VisionConstants.VX_Kd);
 
     
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025Reefscape.loadAprilTagLayoutField();
     
     public static final Transform3d CAMERA_TO_ROBOT =
         new Transform3d(new Translation3d(0.31, 0.0, 0.248), new Rotation3d(0, 0, 0));
@@ -55,6 +55,7 @@ public class VisionSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Vision").addNumber("Yaw", () -> getYaw().get());
         Shuffleboard.getTab("Vision").addNumber("Pitch", () -> getPitch().get());
         Shuffleboard.getTab("Vision").addNumber("Range", () -> getRange().get());
+        Shuffleboard.getTab("Vision").addNumber("Range - X", () -> getXRange().get());
 
         Shuffleboard.getTab("Vision").addNumber("Distance Error", () -> getRangeError().get());
 
@@ -75,12 +76,19 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
         }
         return Optional.of(1000.0);
-    }
+    } //bennett martin is evil
 
     public Optional<Double> getXRange(){
         if (hasTarget()){
-            return Optional.of(result.getBestTarget().altCameraToTarget.getX());
+            return Optional.of(result.getBestTarget().bestCameraToTarget.getY());
         } else return Optional.of(1000.0);
+    }
+
+    public Optional<Double> getTagRYaw(){
+        if(hasTarget()){
+            return Optional.of(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId()).get().getRotation().getZ());
+        }
+        return Optional.of(1000.0);
     }
     
       @Override

@@ -6,6 +6,9 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -18,6 +21,7 @@ import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.CANdleSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -43,14 +47,22 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static ArmSubsystem armSubsystem = new ArmSubsystem();
     public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
+    public final static CANdleSubsystem candleSubsystem = new CANdleSubsystem();
 
     private final SendableChooser<Command> autoChooser;
+
+    private ShuffleboardTab tab = Shuffleboard.getTab("Arm");
+    private GenericEntry armSetpoint =
+    tab.add("Arm Setpoint", 0)
+       .getEntry();
 
     public RobotContainer() {
         configureXbox();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
         SmartDashboard.putData("Auto Chooser", autoChooser);
+        Shuffleboard.getTab("Arm").add(armSubsystem);
+
     }
 
     @SuppressWarnings("unused")
@@ -58,27 +70,28 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((-visionSubsystem.visionDrive(xbox.getLeftY(), 0.5, visionSubsystem.getRange().get(), xbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY(((-xbox.getLeftX()) * MaxSpeed) * 0.8) // Drive left with negative X (left)
+                drive.withVelocityX((-visionSubsystem.visionDrive(xbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), xbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
+                    .withVelocityY((-visionSubsystem.visionDrive(xbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), xbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) * 0.8) // Drive left with negative X (left)
                     .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
-        xbox.a().whileTrue(new ArmCommand(armSubsystem, 0));
-
+        xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, armSetpoint.get().getDouble()));
+        xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
+        
         xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
         
         //Reset Gyro
         xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
+        
         drivetrain.registerTelemetry(logger::telemeterize);
-
+        
         xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
-
+        
         xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
         xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
     }
-  
+        
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();
     }
