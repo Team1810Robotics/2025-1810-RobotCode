@@ -89,4 +89,11 @@ public class Constants {
         public static double VX_Ki = 0.0;
         public static double VX_Kd = 0.0;
     }
+
+    public class LedConstants {
+        public static final int CANdle_COUNT = 8;
+        public static final int ARM_L_COUNT = 50;
+        public static final int ARM_R_COUNT = 100;
+        public static final int ARM_STATUS = 108;
+    }
 }
