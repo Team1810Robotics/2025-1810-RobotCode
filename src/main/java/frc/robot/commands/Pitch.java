@@ -5,15 +5,16 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.RollSubsystem;
+import frc.robot.subsystems.PitchSubsystem;
 
-public class RollCommand extends Command {
+public class Pitch extends Command {
 
-  RollSubsystem rollSubsystem;
-  double setpoint;
+  private PitchSubsystem pitchSubsystem;
+  private double setpoint;
 
-  public RollCommand(RollSubsystem rollSubsystem, double setpoint) {
-    this.rollSubsystem = rollSubsystem;
+
+  public Pitch(PitchSubsystem pitchSubsystem, double setpoint) {
+    this.pitchSubsystem = pitchSubsystem;
     this.setpoint = setpoint;
   }
 
@@ -22,12 +23,12 @@ public class RollCommand extends Command {
 
   @Override
   public void execute() {
-    rollSubsystem.runRoll(setpoint);
+    pitchSubsystem.run(setpoint);
   }
 
   @Override
   public void end(boolean interrupted) {
-    rollSubsystem.stop();
+    pitchSubsystem.stop();
   }
 
   @Override

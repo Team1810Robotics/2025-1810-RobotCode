@@ -2,11 +2,14 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.security.cert.CertPathValidatorException.BasicReason;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -15,12 +18,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.GamePiece;
 import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
-import frc.robot.commands.ArmCommand;
+import frc.robot.commands.Arm;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
-import frc.robot.commands.PitchCommand;
-import frc.robot.commands.RollCommand;
+import frc.robot.commands.Pitch;
+import frc.robot.commands.Roll;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.CANdleSubsystem;
@@ -72,7 +76,6 @@ public class RobotContainer {
 
     }
 
-    @SuppressWarnings("unused")
     private void configureXbox() {
 
         drivetrain.setDefaultCommand(
@@ -86,10 +89,14 @@ public class RobotContainer {
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
         xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
 
-        xbox.rightBumper().whileTrue(new PitchCommand(pitchSubsystem, 0));
-        xbox.leftBumper().whileTrue(new RollCommand(rollSubsystem, 0));
+        // xbox.rightBumper().whileTrue(new Pitch(pitchSubsystem, 135));
+        // xbox.leftBumper().whileTrue(new Pitch(pitchSubsystem, 80));
+        // xbox.rightTrigger().whileTrue(new Pitch(pitchSubsystem, 0));
         
         xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
+        xbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
+
+        xbox.y().whileTrue(new Arm(armSubsystem, 90));
         
         //Reset Gyro
 
@@ -97,11 +104,12 @@ public class RobotContainer {
         
         drivetrain.registerTelemetry(logger::telemeterize);
         
-        xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
-        xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
+        // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
+        // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
         
-        xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, true));
-        xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, false));
+        // xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, GamePiece.CORAL));
+        // xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, GamePiece.ALGAE));
+        // xbox.a().whileTrue(new Intake(intakeSubsystem, GamePiece.NONE));
     }
 
     public double getSetpoint(){

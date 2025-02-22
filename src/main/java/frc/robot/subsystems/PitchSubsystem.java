@@ -20,34 +20,30 @@ public class PitchSubsystem extends SubsystemBase {
 
         pitchpidController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
-        Shuffleboard.getTab("Intake").addNumber("Pitch Rad", () -> encoder.get());
+        Shuffleboard.getTab("Intake").addNumber("Pitch Rad Adjust", () -> encoder.get() - PitchConstants.ENCODER_OFFSET);
+        Shuffleboard.getTab("Intake").addNumber("Pitch Rad Raw", () -> encoder.get());
         Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
+        Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchpidController.calculate(getMeasurment(), 0));
 
         Shuffleboard.getTab("Intake").add("Pitch PID", pitchpidController);
     }
 
     public double getMeasurment(){
-      double position = encoder.get() -0.9;
+      double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
       double degrees = position * 360;
      
-      return degrees; //TODO: change zero to real offset
+      return degrees; 
     }
 
     /**
      * Runs the pitch motor with PID
      * @param setPoint Setpoint for wrist
      */
-    public void runPitch(double setPoint) {
+    public void run(double setPoint) {
         pitchMotor.set(pitchpidController.calculate(getMeasurment(), setPoint));
     }
 
-    public void run(double speed) {
-        pitchMotor.set(speed);
-    }
 
-    public boolean atSetPoint(double setpoint) {
-        return pitchpidController.atSetpoint();
-    }
 
     public void stop() {
         pitchMotor.stopMotor();

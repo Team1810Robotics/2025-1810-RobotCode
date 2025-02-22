@@ -19,6 +19,8 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
+    private int fullRotations = 0;  
+
 
     public ExtenderSubsystem() {
         extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
@@ -26,8 +28,8 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         extenderpidController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
 
-        Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> encoder.get());
-        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getRotations());
+        Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> getEncoder());
+        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
     }
 
     /**
@@ -39,22 +41,23 @@ public class ExtenderSubsystem extends SubsystemBase {
      *
      * @return the total number of rotations the extender has gone through
      */
-    public double getRotations() {
-        double currentRotation = encoder.get();
-        double rotationDifference = currentRotation - previousRotation;
-
-        if (rotationDifference > 0) {
-            cumulativeRotations += rotationDifference; 
-        } else {
-            cumulativeRotations += rotationDifference; 
+    
+    public void totalRotations() {
+        double currentRotation = getEncoder();
+        
+        // Check for wraparound
+        if (currentRotation - previousRotation > 0.5) {
+            fullRotations--;  // Wrapped backwards (1 -> 0)
+        } else if (currentRotation - previousRotation < -0.5) {
+            fullRotations++;  // Wrapped forwards (0 -> 1)
         }
-
+        
+        cumulativeRotations = fullRotations + currentRotation;
         previousRotation = currentRotation;
-        return cumulativeRotations;
     }
 
     public double getEncoder() {
-        return encoder.get();
+        return encoder.get() - .09;
     }
 
     public void run(double speed) {
@@ -62,7 +65,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public double getDistance() {
-        return getRotations() * ExtenderConstants.INCHES_PER_ROTATION;
+        return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
 
     public void extend(double height) {
@@ -110,7 +113,10 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.stopMotor();
     }
     
-    
+    @Override
+    public void periodic() {
+        totalRotations();
+    }
 
     
 

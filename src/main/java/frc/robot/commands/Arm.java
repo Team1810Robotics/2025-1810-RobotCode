@@ -7,12 +7,12 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ArmCommand extends Command {
+public class Arm extends Command {
 
   ArmSubsystem armSubsystem;
   double setpoint;
 
-  public ArmCommand(ArmSubsystem armSubsystem, double setpoint) {
+  public Arm(ArmSubsystem armSubsystem, double setpoint) {
     this.armSubsystem = armSubsystem;
     this.setpoint = setpoint;
   }

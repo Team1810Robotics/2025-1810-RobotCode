@@ -22,32 +22,25 @@ public class RollSubsystem extends SubsystemBase {
         rollpidController = new PIDController(RollConstants.kP, RollConstants.kI, RollConstants.kD);
 
         Shuffleboard.getTab("Intake").addNumber("Roll Rad", () -> encoder.get());
+        Shuffleboard.getTab("Intake").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);
         Shuffleboard.getTab("Intake").addNumber("Roll Deg", () -> getMeasurment());
 
         Shuffleboard.getTab("Intake").add("Roll PID", rollpidController);
     }
 
     public double getMeasurment(){
-      double position = encoder.get() -0.74;
+      double position = encoder.get() - RollConstants.ENCODER_OFFSET;
       double degrees = position * 360;
      
-      return degrees; //TODO: change zero to real offset
+      return degrees;
     }
 
     /**
      * Runs pitch motor with PID
      * @param setPoint setpoint for wrist
      */
-    public void runRoll(double setPoint) {
-        rollMotor.set(rollpidController.calculate(getMeasurment(), setPoint));
-    }
-
-    public void run(double speed) {
-        rollMotor.set(speed);
-    }
-
-    public boolean atSetPoint(double setpoint) {
-        return rollpidController.atSetpoint();
+    public void run(double setpoint) {
+        rollMotor.set(rollpidController.calculate(getMeasurment(), setpoint));
     }
 
     public void stop() {

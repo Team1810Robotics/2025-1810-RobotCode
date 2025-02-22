@@ -27,17 +27,17 @@ public class Constants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = 0; //TODO: Figure out offset
+            public static final double ENCODER_OFFSET = .16;
         
             //TODO: Tune
-            public static double kP = 0.0;
+            public static double kP = 0.007;
             public static double kI = 0.0;
             public static double kD = 0.0;
         }
     }
 
     public class IntakeConstants {
-        public static int INTAKE_MOTOR = 25;    
+        public static int INTAKE_MOTOR = 14;    
     }
 
     public class ArmConstants {
@@ -45,6 +45,8 @@ public class Constants {
         public static final int MOTOR_ID_2 = 11;
 
         public static final int ENCODER_ID = 0;
+
+        public static final double ENCODER_OFFSET = .66;
     }
 
     public class ExtenderConstants {
@@ -60,7 +62,7 @@ public class Constants {
         public static final double L4_HEIGHT = 0.0;
         public static final double BASE_HEIGHT = 0.0;
 
-        public static final double INCHES_PER_ROTATION = 8;
+        public static final double INCHES_PER_ROTATION = .125;
         public static final double MAX_EXTENSION_INCHES = 44.0;
 
         public enum ExtenderHeights {

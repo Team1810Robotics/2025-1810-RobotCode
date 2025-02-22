@@ -41,15 +41,17 @@ public class ArmSubsystem extends SubsystemBase {
 
         SmartDashboard.putData("armPID", armPIDController);
         Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
-        Shuffleboard.getTab("Arm").addNumber("Arm Rad",() -> armEncoder.get());
+        Shuffleboard.getTab("Arm").addNumber("Arm Rad Raw",() -> armEncoder.get());
+        Shuffleboard.getTab("Arm").addNumber("Arm Rad Adj",() -> armEncoder.get() - ArmConstants.ENCODER_OFFSET);
+
         Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
     }
 
     public double getMeasurement() {
-        double position = armEncoder.get() -0.72;
+        double position = armEncoder.get() - ArmConstants.ENCODER_OFFSET;
         double degrees = position * 360;
        
-        return degrees; //TODO: change zero to real offset
+        return degrees; 
     }
 
 
