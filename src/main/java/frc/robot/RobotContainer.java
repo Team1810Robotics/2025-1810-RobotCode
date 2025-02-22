@@ -27,7 +27,7 @@ import frc.robot.commands.Pitch;
 import frc.robot.commands.Roll;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.CANdleSubsystem;
+import frc.robot.subsystems.LedSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -55,7 +55,7 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static ArmSubsystem armSubsystem = new ArmSubsystem();
     public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
-    public final static CANdleSubsystem candleSubsystem = new CANdleSubsystem();
+    public final static LedSubsystem ledSubsystem = new LedSubsystem();
     public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
     public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
