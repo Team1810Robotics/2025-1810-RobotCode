@@ -16,10 +16,10 @@ public class Roll extends Command {
   public Roll(RollSubsystem rollSubsystem, double setpoint) {
     this.rollSubsystem = rollSubsystem;
     this.setpoint = setpoint;
+
+    addRequirements(rollSubsystem);
   }
 
-  @Override
-  public void initialize() {}
 
   @Override
   public void execute() {

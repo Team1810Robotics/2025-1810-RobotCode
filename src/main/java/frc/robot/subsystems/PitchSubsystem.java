@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,6 +27,8 @@ public class PitchSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchpidController.calculate(getMeasurment(), 0));
 
         Shuffleboard.getTab("Intake").add("Pitch PID", pitchpidController);
+
+        Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
     }
 
     public double getMeasurment(){
@@ -40,7 +43,8 @@ public class PitchSubsystem extends SubsystemBase {
      * @param setPoint Setpoint for wrist
      */
     public void run(double setPoint) {
-        pitchMotor.set(pitchpidController.calculate(getMeasurment(), setPoint));
+      if (encoder.isConnected())  pitchMotor.set(pitchpidController.calculate(getMeasurment(), setPoint));
+      else stop();
     }
 
 

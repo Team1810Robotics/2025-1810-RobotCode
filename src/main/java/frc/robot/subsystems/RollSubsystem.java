@@ -26,6 +26,9 @@ public class RollSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("Roll Deg", () -> getMeasurment());
 
         Shuffleboard.getTab("Intake").add("Roll PID", rollpidController);
+
+        Shuffleboard.getTab("Encoder").addBoolean("Roll Encoder", () -> encoder.isConnected());
+        Shuffleboard.getTab("Intake").addNumber("Poll PID Out", () -> -rollpidController.calculate(getMeasurment(), 0));
     }
 
     public double getMeasurment(){
@@ -40,7 +43,8 @@ public class RollSubsystem extends SubsystemBase {
      * @param setPoint setpoint for wrist
      */
     public void run(double setpoint) {
-        rollMotor.set(rollpidController.calculate(getMeasurment(), setpoint));
+      if(encoder.isConnected()) rollMotor.set(rollpidController.calculate(getMeasurment(), setpoint));
+      else stop();
     }
 
     public void stop() {

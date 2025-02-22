@@ -3,13 +3,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.lib.Elastic;
 import frc.robot.Constants.ArmConstants;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
@@ -20,9 +21,11 @@ public class ArmSubsystem extends SubsystemBase {
     private SparkMax armMotor2;
     private DutyCycleEncoder armEncoder;
 
-    private SparkMaxConfig config;
+    private SparkMaxConfig config1;
+    private SparkMaxConfig config2;
+
+    Elastic.Notification notification;
    
-    private final ArmFeedforward feedforward;
     private final PIDController armPIDController;
 
     public ArmSubsystem() {
@@ -30,14 +33,18 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2 = new SparkMax(ArmConstants.MOTOR_ID_2, MotorType.kBrushless);
         armEncoder = new DutyCycleEncoder(ArmConstants.ENCODER_ID);
 
-        config = new SparkMaxConfig();
+        config1 = new SparkMaxConfig();
+        config2 = new SparkMaxConfig();
 
-        config.follow(ArmConstants.MOTOR_ID_1);
+        config2.follow(ArmConstants.MOTOR_ID_1);
 
-        armMotor2.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        config1.idleMode(IdleMode.kCoast);
+        config2.idleMode(IdleMode.kCoast);
+
+        armMotor1.configure(config1, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        armMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        armPIDController = new PIDController(0 , 0 , 0 ); //kP //kI //kD
-        feedforward = new ArmFeedforward(0 , 0 , 0 ); //ks //kg //kv
+        armPIDController = new PIDController(ArmConstants.kP , ArmConstants.kI , ArmConstants.kD);
 
         SmartDashboard.putData("armPID", armPIDController);
         Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
@@ -45,6 +52,9 @@ public class ArmSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Arm").addNumber("Arm Rad Adj",() -> armEncoder.get() - ArmConstants.ENCODER_OFFSET);
 
         Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
+        Shuffleboard.getTab("Encoder").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
+
+        notification = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "!!! Arm Error !!!", "Encoder Disconected");
     }
 
     public double getMeasurement() {
@@ -56,10 +66,17 @@ public class ArmSubsystem extends SubsystemBase {
 
 
     public void useOutput(double setpoint) {
-        double feedforwardOutput = feedforward.calculate(setpoint, 0);
-        double output = armPIDController.calculate(getMeasurement(), setpoint);
+        if (armEncoder.isConnected()){
+            double output = armPIDController.calculate(getMeasurement(), setpoint);
+            armMotor1.set(-output);
+        } else {
+            stop();
+            Elastic.sendNotification(notification.withAutomaticHeight());
+        }
+    }
 
-        armMotor1.set(-output + feedforwardOutput);
+    public void testNotif(){
+        Elastic.sendNotification(notification);
     }
 
     public double armPower(){

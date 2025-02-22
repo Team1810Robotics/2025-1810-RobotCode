@@ -16,10 +16,9 @@ public class Pitch extends Command {
   public Pitch(PitchSubsystem pitchSubsystem, double setpoint) {
     this.pitchSubsystem = pitchSubsystem;
     this.setpoint = setpoint;
+    addRequirements(pitchSubsystem);
   }
 
-  @Override
-  public void initialize() {}
 
   @Override
   public void execute() {

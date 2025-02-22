@@ -33,19 +33,6 @@ public class Extender extends Command {
 
 
     public boolean isFinished() {
-        // double targetHeight = extenderSubsystem.getTargetHeight(height);
-        // double currentHeight = extenderSubsystem.getDistance();
-
-        // if (Math.abs(targetHeight - currentHeight) < 0.1) {
-        //     return true;
-        // }
-
-        // // If the extender is moving upwards and has reached the target height, or if it is moving
-        // // downwards and has passed the target height, then return true
-        // if ((targetHeight > currentHeight && extenderSubsystem.getDistance() > currentHeight) ||
-        //     (targetHeight < currentHeight && extenderSubsystem.getDistance() < currentHeight)) {
-        //     return true;
-        // }
 
         return false;
     }

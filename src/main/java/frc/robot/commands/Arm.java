@@ -9,16 +9,15 @@ import frc.robot.subsystems.ArmSubsystem;
 
 public class Arm extends Command {
 
-  ArmSubsystem armSubsystem;
-  double setpoint;
+  private ArmSubsystem armSubsystem;
+  private double setpoint;
 
   public Arm(ArmSubsystem armSubsystem, double setpoint) {
     this.armSubsystem = armSubsystem;
     this.setpoint = setpoint;
-  }
 
-  @Override
-  public void initialize() {}
+    addRequirements(armSubsystem);
+  }
 
   @Override
   public void execute() {

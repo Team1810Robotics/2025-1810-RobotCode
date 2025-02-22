@@ -18,8 +18,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.GamePiece;
 import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
+import frc.robot.Constants.IntakeConstants.Mode;
 import frc.robot.commands.Arm;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
@@ -67,6 +67,7 @@ public class RobotContainer {
        .getEntry();
 
     public RobotContainer() {
+        // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
         configureBindings();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
@@ -89,14 +90,17 @@ public class RobotContainer {
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
         xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
 
-        // xbox.rightBumper().whileTrue(new Pitch(pitchSubsystem, 135));
-        // xbox.leftBumper().whileTrue(new Pitch(pitchSubsystem, 80));
-        // xbox.rightTrigger().whileTrue(new Pitch(pitchSubsystem, 0));
-        
-        driverXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
-        driverXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
+        driverXbox.x().onTrue(new Roll(rollSubsystem, 250));
+        driverXbox.b().onTrue(new Roll(rollSubsystem, 160));
 
-        driverXbox.y().whileTrue(new Arm(armSubsystem, 90));
+        driverXbox.rightTrigger().onTrue(new Pitch(pitchSubsystem, 135));
+        driverXbox.rightBumper().onTrue(new Pitch(pitchSubsystem, 80));
+        driverXbox.leftBumper().onTrue(new Pitch(pitchSubsystem, 30));
+        
+        // driverXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
+        // driverXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
+
+        driverXbox.y().onTrue(new Arm(armSubsystem, 90));
         
         //Reset Gyro
 
@@ -107,9 +111,9 @@ public class RobotContainer {
         // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
         
-        // xbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, GamePiece.CORAL));
-        // xbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, GamePiece.ALGAE));
-        // xbox.a().whileTrue(new Intake(intakeSubsystem, GamePiece.NONE));
+        driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
+        // driverXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, GamePiece.ALGAE));
+        driverXbox.a().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
     }
 
     public double getSetpoint(){
