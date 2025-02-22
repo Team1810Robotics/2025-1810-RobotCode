@@ -21,7 +21,7 @@ public class RollSubsystem extends SubsystemBase {
 
         rollpidController = new PIDController(RollConstants.kP, RollConstants.kI, RollConstants.kD);
 
-        Shuffleboard.getTab("Intake").addNumber("Roll Rad", () -> encoder.get());
+        Shuffleboard.getTab("Intake").addNumber("Roll Rad Raw", () -> encoder.get());
         Shuffleboard.getTab("Intake").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);
         Shuffleboard.getTab("Intake").addNumber("Roll Deg", () -> getMeasurment());
 

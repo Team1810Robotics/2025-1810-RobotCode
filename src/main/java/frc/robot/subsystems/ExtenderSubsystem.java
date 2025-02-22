@@ -45,11 +45,10 @@ public class ExtenderSubsystem extends SubsystemBase {
     public void totalRotations() {
         double currentRotation = getEncoder();
         
-        // Check for wraparound
         if (currentRotation - previousRotation > 0.5) {
-            fullRotations--;  // Wrapped backwards (1 -> 0)
+            fullRotations--;  
         } else if (currentRotation - previousRotation < -0.5) {
-            fullRotations++;  // Wrapped forwards (0 -> 1)
+            fullRotations++;  
         }
         
         cumulativeRotations = fullRotations + currentRotation;
@@ -57,7 +56,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public double getEncoder() {
-        return encoder.get() - .09;
+        return encoder.get() - ExtenderConstants.ENCODER_OFFSET;
     }
 
     public void run(double speed) {
@@ -72,27 +71,6 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.set(extenderpidController.calculate(getDistance(), height));
     }
 
-    // /**
-    //  * Given a current distance and a target distance, returns the output scalar that should be
-    //  * given to the motor in order to reach the target distance. This scalar is calculated using
-    //  * a quadratic equation to slow down the motor as it approaches its target.
-    //  * 
-    //  * <a href="https://www.desmos.com/calculator/tldkhkjmiz">See the equation visualized here</a>
-    //  *
-    //  * @param currentDistance the current distance
-    //  * @param targetDistance the target distance
-    //  * @return the output scalar
-    //  */
-    // public double outputScalar(double currentDistance, double targetDistance) {
-    //     double percentDistance = (currentDistance - targetDistance) / targetDistance;
-
-    //     if (percentDistance < 0 || percentDistance > 1) {
-    //         CommandScheduler.getInstance().schedule((Commands.print("Invalid percent distance of: " + percentDistance)));
-    //         return 0;
-    //     }
-
-    //     return (-4 * Math.pow(percentDistance, 2)) + (4 * percentDistance);
-    // }
 
     public double getTargetHeight(ExtenderHeights height) {
         switch (height) {
@@ -104,9 +82,9 @@ public class ExtenderSubsystem extends SubsystemBase {
                 return ExtenderConstants.L3_HEIGHT;
             case L4:
                 return ExtenderConstants.L4_HEIGHT;
-        }
-        return 0;
-        
+            default:
+                return -1;
+        }        
     }
     
     public void stop() {

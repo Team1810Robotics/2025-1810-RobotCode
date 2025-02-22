@@ -47,8 +47,8 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController xbox = new CommandXboxController(0);
-    private final CommandJoystick manipulator = new CommandJoystick(1);
+    private final CommandXboxController driverXbox = new CommandXboxController(0);
+    private final CommandXboxController manipulatorXbox = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
@@ -67,7 +67,7 @@ public class RobotContainer {
        .getEntry();
 
     public RobotContainer() {
-        configureXbox();
+        configureBindings();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -76,16 +76,16 @@ public class RobotContainer {
 
     }
 
-    private void configureXbox() {
+    private void configureBindings() {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((-visionSubsystem.visionDrive(xbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), xbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((-visionSubsystem.visionDrive(xbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), xbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(xbox.getRightX(), xbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
+                    .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) * 0.8) // Drive left with negative X (left)
+                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
-/*         xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
+/*      xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
         xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
 
@@ -93,14 +93,14 @@ public class RobotContainer {
         // xbox.leftBumper().whileTrue(new Pitch(pitchSubsystem, 80));
         // xbox.rightTrigger().whileTrue(new Pitch(pitchSubsystem, 0));
         
-        xbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
-        xbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
+        driverXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
+        driverXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
 
-        xbox.y().whileTrue(new Arm(armSubsystem, 90));
+        driverXbox.y().whileTrue(new Arm(armSubsystem, 90));
         
         //Reset Gyro
 
-        xbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         drivetrain.registerTelemetry(logger::telemeterize);
         
