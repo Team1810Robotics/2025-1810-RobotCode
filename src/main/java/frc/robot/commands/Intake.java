@@ -1,40 +1,45 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.Mode;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class Intake extends Command {
     private IntakeSubsystem intakeSubsystem;
-    private IntakeConstants.Mode piece;
+    private IntakeConstants.Mode mode;
 
-    //runs when true
-    private boolean toggle = false;
 
-    public Intake(IntakeSubsystem intakeSubsystem, IntakeConstants.Mode piece) {
+    /**
+     * Intake command that runs the intake motor at a certain speed depending on
+     * the {@link IntakeConstants.Mode} given.
+     *
+     * @param intakeSubsystem The IntakeSubsystem to run the command on.
+     * @param mode           The mode to run the command in. If it's {@link IntakeConstants.Mode#ALGAE}
+     *                        the command will toggle the intake on and off.
+     */
+    public Intake(IntakeSubsystem intakeSubsystem, IntakeConstants.Mode mode) {
         this.intakeSubsystem = intakeSubsystem;
-        this.piece = piece;
+        this.mode = mode;
 
         addRequirements(intakeSubsystem);
     }
 
     @Override
     public void initialize() {
-        if (piece == Mode.ALGAE) {
-            toggle = !toggle;
+        if (mode == Mode.ALGAE) {
+            intakeSubsystem.toggle = !intakeSubsystem.toggle;
         }
         
     }
 
     @Override
     public void execute() {
-        if (piece == Mode.CORAL) {
+        if (mode == Mode.CORAL) {
             intakeSubsystem.setSpeed(1);
-        } else if (piece == Mode.ALGAE){
+        } else if (mode == Mode.ALGAE){
             intakeSubsystem.setSpeed(.75);
-        } else if (piece == Mode.OUT){
+        } else if (mode == Mode.OUT){
             intakeSubsystem.setSpeed(-.5);
         } else {
             intakeSubsystem.setSpeed(.05);
@@ -45,11 +50,11 @@ public class Intake extends Command {
     public boolean isFinished() {
         int distance = intakeSubsystem.getDistance();
 
-        if (piece == Mode.ALGAE) {
-            return !toggle;
+        if (mode == Mode.ALGAE) {
+            return !intakeSubsystem.toggle;
         }
 
-        if (distance > 2000 && piece == Mode.CORAL) {
+        if (distance > 2000 && mode == Mode.CORAL) {
             return true;
         } 
 

@@ -13,9 +13,16 @@ public class Pitch extends Command {
   private double setpoint;
 
 
+  /**
+   * Pitch command.
+   *
+   * @param pitchSubsystem Pitch subsystem.
+   * @param setpoint       Setpoint in degrees.
+   */
   public Pitch(PitchSubsystem pitchSubsystem, double setpoint) {
     this.pitchSubsystem = pitchSubsystem;
     this.setpoint = setpoint;
+
     addRequirements(pitchSubsystem);
   }
 

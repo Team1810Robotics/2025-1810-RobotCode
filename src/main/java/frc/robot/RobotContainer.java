@@ -15,11 +15,15 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
 import frc.robot.Constants.IntakeConstants.Mode;
+import frc.robot.Constants.WristConstants.PitchConstants;
+import frc.robot.Constants.WristConstants.RollConstants;
 import frc.robot.commands.Arm;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
@@ -103,7 +107,6 @@ public class RobotContainer {
         driverXbox.y().onTrue(new Arm(armSubsystem, 90));
         
         //Reset Gyro
-
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         drivetrain.registerTelemetry(logger::telemeterize);
@@ -111,14 +114,39 @@ public class RobotContainer {
         // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
         
-        driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
-        // driverXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, GamePiece.ALGAE));
-        driverXbox.a().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
+        // driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
+        // driverXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, Mode.ALGAE));
+        // driverXbox.a().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
     }
 
     public double getSetpoint(){
         return armSetpoint.get().getDouble();
     }
+
+    public Command intakePostition() {
+        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION));
+    }
+
+    public Command l1Position() {
+        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+    }
+
+    public Command l2Position() {
+        return new Arm(armSubsystem, ArmConstants.L2_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+    }
+
+    public Command l3Position() {
+        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+    }
+
+    public Command l4Position() {
+        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+    }
+
+    public Command basePosiiton() {
+        return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION));
+    }
+
         
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();

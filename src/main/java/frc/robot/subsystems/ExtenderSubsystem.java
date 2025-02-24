@@ -63,6 +63,14 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.set(speed);
     }
 
+    /**
+     * Returns the total distance the extender has extended, in inches.
+     *
+     * <p>This method uses the total number of rotations the encoder has gone through,
+     * as calculated by the {@link #totalRotations()} method.
+     *
+     * @return the total distance the extender has extended, in inches
+     */
     public double getDistance() {
         return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
@@ -72,6 +80,12 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
 
+    /**
+     * Returns the target height for the given ExtenderHeights enum value.
+     *
+     * @param height the enum value
+     * @return the target height in inches
+     */
     public double getTargetHeight(ExtenderHeights height) {
         switch (height) {
             case BASE:

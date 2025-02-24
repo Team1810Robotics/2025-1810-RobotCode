@@ -12,6 +12,12 @@ public class Extender extends Command {
 
 
 
+    /**
+     * Create a new Extender command.
+     *
+     * @param extenderSubsystem The {@link ExtenderSubsystem} to control.
+     * @param height            The height to extend to.
+     */
     public Extender(ExtenderSubsystem extenderSubsystem, ExtenderHeights height) {
         this.extenderSubsystem = extenderSubsystem;
         this.height = height;
@@ -33,7 +39,6 @@ public class Extender extends Command {
 
 
     public boolean isFinished() {
-
         return false;
     }
 

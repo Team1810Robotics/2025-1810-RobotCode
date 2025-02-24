@@ -12,6 +12,12 @@ public class Arm extends Command {
   private ArmSubsystem armSubsystem;
   private double setpoint;
 
+  /**
+   * Create a new Arm command.
+   *
+   * @param armSubsystem the {@link ArmSubsystem} to control
+   * @param setpoint     the desired angle in degrees
+   */
   public Arm(ArmSubsystem armSubsystem, double setpoint) {
     this.armSubsystem = armSubsystem;
     this.setpoint = setpoint;
