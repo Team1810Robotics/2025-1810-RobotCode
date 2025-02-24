@@ -9,9 +9,6 @@ public class Extender extends Command {
 
     private ExtenderHeights height;
 
-
-
-
     /**
      * Create a new Extender command.
      *
@@ -36,7 +33,6 @@ public class Extender extends Command {
         }
 
     }
-
 
     public boolean isFinished() {
         return false;

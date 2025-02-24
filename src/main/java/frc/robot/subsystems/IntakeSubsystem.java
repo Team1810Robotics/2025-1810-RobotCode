@@ -24,7 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("Distance", () -> getDistance());
     }
 
-    public void setSpeed(double speed) {
+    public void run(double speed) {
         intakeMotor.set(speed);
     }
 

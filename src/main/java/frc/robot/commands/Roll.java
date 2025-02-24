@@ -12,7 +12,6 @@ public class Roll extends Command {
   private RollSubsystem rollSubsystem;
   private double setpoint;
 
-
   /**
    * Create a new command that runs the roll subsystem to the specified setpoint.
    *
@@ -26,19 +25,18 @@ public class Roll extends Command {
     addRequirements(rollSubsystem);
   }
 
-
   @Override
   public void execute() {
     rollSubsystem.run(setpoint);
   }
 
   @Override
+  public boolean isFinished() {
+    return false;
+  }
+  @Override
   public void end(boolean interrupted) {
     rollSubsystem.stop();
   }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
 }

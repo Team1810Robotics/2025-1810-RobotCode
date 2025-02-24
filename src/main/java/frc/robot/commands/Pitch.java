@@ -33,12 +33,14 @@ public class Pitch extends Command {
   }
 
   @Override
+  public boolean isFinished() {
+    return false;
+  }
+
+  @Override
   public void end(boolean interrupted) {
     pitchSubsystem.stop();
   }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+
 }

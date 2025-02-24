@@ -65,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
 
-    public void useOutput(double setpoint) {
+    public void run(double setpoint) {
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
             armMotor1.set(-output);

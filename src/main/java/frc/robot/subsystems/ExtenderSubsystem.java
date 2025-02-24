@@ -15,7 +15,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     private SparkMax extenderMotor;
     private DutyCycleEncoder encoder;
 
-    private PIDController extenderpidController;
+    private PIDController extenderPIDController;
 
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
@@ -26,7 +26,7 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        extenderpidController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
+        extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> getEncoder());
         Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
@@ -76,7 +76,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void extend(double height) {
-        extenderMotor.set(extenderpidController.calculate(getDistance(), height));
+        extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
     }
 
 

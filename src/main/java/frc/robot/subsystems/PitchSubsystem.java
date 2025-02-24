@@ -12,20 +12,20 @@ public class PitchSubsystem extends SubsystemBase {
     private SparkMax pitchMotor;
     private DutyCycleEncoder encoder;
 
-    private PIDController pitchpidController;
+    private PIDController pitchPIDController;
 
     public PitchSubsystem() {
         pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
-        pitchpidController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
+        pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
         Shuffleboard.getTab("Intake").addNumber("Pitch Rad Adjust", () -> encoder.get() - PitchConstants.ENCODER_OFFSET);
         Shuffleboard.getTab("Intake").addNumber("Pitch Rad Raw", () -> encoder.get());
         Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
-        Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchpidController.calculate(getMeasurment(), 0));
+        Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchPIDController.calculate(getMeasurment(), 0));
 
-        Shuffleboard.getTab("Intake").add("Pitch PID", pitchpidController);
+        Shuffleboard.getTab("Intake").add("Pitch PID", pitchPIDController);
 
         Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
     }
@@ -42,7 +42,7 @@ public class PitchSubsystem extends SubsystemBase {
      * @param setPoint Setpoint for wrist
      */
     public void run(double setPoint) {
-      if (encoder.isConnected())  pitchMotor.set(pitchpidController.calculate(getMeasurment(), setPoint));
+      if (encoder.isConnected())  pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
       else stop();
     }
 

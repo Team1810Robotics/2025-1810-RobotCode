@@ -36,13 +36,13 @@ public class Intake extends Command {
     @Override
     public void execute() {
         if (mode == Mode.CORAL) {
-            intakeSubsystem.setSpeed(1);
+            intakeSubsystem.run(1);
         } else if (mode == Mode.ALGAE){
-            intakeSubsystem.setSpeed(.75);
+            intakeSubsystem.run(.75);
         } else if (mode == Mode.OUT){
-            intakeSubsystem.setSpeed(-.5);
+            intakeSubsystem.run(-.5);
         } else {
-            intakeSubsystem.setSpeed(.05);
+            intakeSubsystem.run(.05);
         }
     }
 

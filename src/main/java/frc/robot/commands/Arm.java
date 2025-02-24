@@ -27,7 +27,12 @@ public class Arm extends Command {
 
   @Override
   public void execute() {
-    armSubsystem.useOutput(setpoint);
+    armSubsystem.run(setpoint);
+  }
+
+  @Override
+  public boolean isFinished() {
+    return false;
   }
 
   @Override
@@ -35,8 +40,5 @@ public class Arm extends Command {
     armSubsystem.stop();
   }
 
-  @Override
-  public boolean isFinished() {
-    return false;
-  }
+
 }
