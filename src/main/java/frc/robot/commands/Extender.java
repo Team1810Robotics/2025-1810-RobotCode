@@ -26,10 +26,10 @@ public class Extender extends Command {
     @Override
     public void execute() {
         // extenderSubsystem.extend(extenderSubsystem.getTargetHeight(height));
-        if (height == ExtenderHeights.L2) {
-            extenderSubsystem.run(-.5);
-        } else if (height == ExtenderHeights.L4) {
-            extenderSubsystem.run(.5);
+        if (height == ExtenderHeights.BASE) {
+            extenderSubsystem.run(-.25);
+        } else if (height == ExtenderHeights.L2) {
+            extenderSubsystem.run(.8);
         }
 
     }

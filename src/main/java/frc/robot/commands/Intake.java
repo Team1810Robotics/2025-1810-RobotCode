@@ -28,7 +28,6 @@ public class Intake extends Command {
     @Override
     public void initialize() {
         if (mode == Mode.ALGAE) {
-            intakeSubsystem.toggle = !intakeSubsystem.toggle;
         }
         
     }
@@ -49,10 +48,6 @@ public class Intake extends Command {
     @Override
     public boolean isFinished() {
         int distance = intakeSubsystem.getDistance();
-
-        if (mode == Mode.ALGAE) {
-            return !intakeSubsystem.toggle;
-        }
 
         if (distance > 2000 && mode == Mode.CORAL) {
             return true;

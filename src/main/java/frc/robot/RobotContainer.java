@@ -94,17 +94,19 @@ public class RobotContainer {
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
         xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
 
-        driverXbox.x().onTrue(new Roll(rollSubsystem, 250));
-        driverXbox.b().onTrue(new Roll(rollSubsystem, 160));
+        // driverXbox.x().onTrue(new Roll(rollSubsystem, 250));
+        // driverXbox.b().onTrue(new Roll(rollSubsystem, 160));
 
-        driverXbox.rightTrigger().onTrue(new Pitch(pitchSubsystem, 135));
-        driverXbox.rightBumper().onTrue(new Pitch(pitchSubsystem, 80));
-        driverXbox.leftBumper().onTrue(new Pitch(pitchSubsystem, 30));
+        driverXbox.rightTrigger().onTrue(basePosiiton());
+        driverXbox.rightBumper().onTrue(intakePostition());
+        driverXbox.leftBumper().onTrue(l3Position());
         
-        // driverXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
-        // driverXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L4));
+        driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.BASE));
+        driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
 
-        driverXbox.y().onTrue(new Arm(armSubsystem, 90));
+        // driverXbox.button(10).whileTrue(new Arm(armSubsystem, 120));
+        // driverXbox.button(9).whileTrue(new Arm(armSubsystem, 45));
+        // driverXbox.leftTrigger().whileTrue(new Arm(armSubsystem, 115));
         
         //Reset Gyro
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
@@ -114,9 +116,9 @@ public class RobotContainer {
         // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
         
-        // driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
-        // driverXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, Mode.ALGAE));
-        // driverXbox.a().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
+        driverXbox.x().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
+        // driverXbox.x().toggleOnTrue(new Intake(intakeSubsystem, Mode.ALGAE));
+        driverXbox.b().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
     }
 
     public double getSetpoint(){
@@ -124,27 +126,27 @@ public class RobotContainer {
     }
 
     public Command intakePostition() {
-        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)));
     }
 
     public Command l1Position() {
-        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION).alongWith(new Pitch(pitchSubsystem, PitchConstants.L1_POSITION)));
     }
 
     public Command l2Position() {
-        return new Arm(armSubsystem, ArmConstants.L2_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L2_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L2_POSITION));
     }
 
     public Command l3Position() {
-        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION));
     }
 
     public Command l4Position() {
-        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.SCORE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION));
     }
 
     public Command basePosiiton() {
-        return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION));
+        return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION)));
     }
 
         

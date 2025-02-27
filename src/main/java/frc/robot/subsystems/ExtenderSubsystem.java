@@ -19,7 +19,6 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
-    private int fullRotations = 0;  
 
 
     public ExtenderSubsystem() {
@@ -28,8 +27,15 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
 
-        Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> getEncoder());
+        Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
+        Shuffleboard.getTab("Extender").addNumber("Extender Encoder Adj", () -> getEncoder());
         Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
+
+        Shuffleboard.getTab("Extender").addNumber("Cumulative Rotations", () -> cumulativeRotations);
+
+        Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
+
+    
     }
 
     /**
@@ -42,16 +48,23 @@ public class ExtenderSubsystem extends SubsystemBase {
      * @return the total number of rotations the extender has gone through
      */
     
-    public void totalRotations() {
+     public void totalRotations() {
         double currentRotation = getEncoder();
         
-        if (currentRotation - previousRotation > 0.5) {
-            fullRotations--;  
-        } else if (currentRotation - previousRotation < -0.5) {
-            fullRotations++;  
+        // Calculate the delta, accounting for wraparound
+        double delta = currentRotation - previousRotation;
+        
+        // Adjust for wraparound cases
+        if (delta > 0.5) {
+            delta -= 1.0; // Wrapped from 1.0 to 0.0 (moving backward)
+        } else if (delta < -0.5) {
+            delta += 1.0; // Wrapped from 0.0 to 1.0 (moving forward)
         }
         
-        cumulativeRotations = fullRotations + currentRotation;
+        // Update cumulative position without relying on fullRotations counter
+        cumulativeRotations -= delta; // Keep negative sign if needed for direction
+        
+        // Store for next calculation
         previousRotation = currentRotation;
     }
 

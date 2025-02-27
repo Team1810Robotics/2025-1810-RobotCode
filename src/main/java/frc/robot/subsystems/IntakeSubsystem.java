@@ -14,7 +14,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private ColorSensorV3 colorSensor;
 
-    public boolean toggle;
 
     public IntakeSubsystem() {
         intakeMotor = new SparkMax(IntakeConstants.INTAKE_MOTOR, MotorType.kBrushless);
@@ -22,6 +21,7 @@ public class IntakeSubsystem extends SubsystemBase {
         colorSensor = new ColorSensorV3(Port.kOnboard);
 
         Shuffleboard.getTab("Intake").addNumber("Distance", () -> getDistance());
+        Shuffleboard.getTab("Intake").addBoolean("Distance Sensor", () -> colorSensor.isConnected());
     }
 
     public void run(double speed) {

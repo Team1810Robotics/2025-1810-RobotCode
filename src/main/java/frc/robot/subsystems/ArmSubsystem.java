@@ -54,6 +54,7 @@ public class ArmSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
         Shuffleboard.getTab("Encoder").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
 
+
         notification = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "!!! Arm Error !!!", "Encoder Disconected");
     }
 

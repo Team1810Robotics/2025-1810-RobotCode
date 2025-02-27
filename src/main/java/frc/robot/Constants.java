@@ -9,31 +9,34 @@ public class Constants {
             public static final int MOTOR_ID = 13;
 
             public static final int ENCODER_ID = 2;
-            public static final double ENCODER_OFFSET = .21; 
+            public static final double ENCODER_OFFSET = .3; 
 
-            public static double kP = 0.002;
+            public static double kP = 0.003;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
             //TODO: Figure out setpoints
 
-            public static final double INTAKE_POSITION = 160;
-            public static final double SCORE_POSITION = 250;
+            public static final double INTAKE_POSITION = 65;
+            public static final double SCORE_POSITION = 163;
         }
         
         public class PitchConstants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = .16;
+            public static final double ENCODER_OFFSET = .16 - (5.0/360.0);
         
             public static double kP = 0.007;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
             public static final double INTAKE_POSITION = 135;
-            public static final double SCORE_POSITION = 30;
-            public static final double BASE_POSITION = 80;
+            public static final double L1_POSITION = 0;
+            public static final double L2_POSITION = 23;
+            public static final double L3_POSITION = 43;
+            public static final double L4_POSITION = 30;
+            public static final double BASE_POSITION = 0;
         }
     }
 
@@ -56,37 +59,37 @@ public class Constants {
 
         public static final double kP = 0.035;
         public static final double kI = 0.0;
-        public static final double kD = 0.000005;
+        public static final double kD = 0.000002;
 
         public static final double ENCODER_OFFSET = .29;
 
-        public static final double INTAKE_POSITION = 0;
+        public static final double INTAKE_POSITION = 109;
 
 
-        public static final double L1_POSITION = 0;
-        public static final double L2_POSITION = 0;
-        public static final double L3_POSITION = 0;
-        public static final double L4_POSITION = 0;
+        public static final double L1_POSITION = 50;
+        public static final double L2_POSITION = 71;
+        public static final double L3_POSITION = 81;
+        public static final double L4_POSITION = 84;
 
-        public static final double BASE_POSITION = 0;
+        public static final double BASE_POSITION = 115;
     }
 
     public class ExtenderConstants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double ENCODER_OFFSET = .09;
+        public static final double ENCODER_OFFSET = .51;
 
         public static double kP = 0.0;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
         public static final double L2_HEIGHT = 0.0;
-        public static final double L3_HEIGHT = 0.0;
-        public static final double L4_HEIGHT = 0.0;
+        public static final double L3_HEIGHT = 6.875;
+        public static final double L4_HEIGHT = 15.5;
         public static final double BASE_HEIGHT = 0.0;
 
-        public static final double INCHES_PER_ROTATION = .125;
+        public static final double INCHES_PER_ROTATION = .5;
         public static final double MAX_EXTENSION_INCHES = 44.0;
 
         public enum ExtenderHeights {
