@@ -8,7 +8,6 @@ import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ExtenderConstants;
-import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
@@ -35,7 +34,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
-    
+        Shuffleboard.getTab("Extender").addNumber("Motor Power", () -> extenderMotor.getAppliedOutput());
     }
 
     /**
@@ -92,27 +91,6 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
     }
 
-
-    /**
-     * Returns the target height for the given ExtenderHeights enum value.
-     *
-     * @param height the enum value
-     * @return the target height in inches
-     */
-    public double getTargetHeight(ExtenderHeights height) {
-        switch (height) {
-            case BASE:
-                return ExtenderConstants.BASE_HEIGHT;
-            case L2:
-                return ExtenderConstants.L2_HEIGHT;
-            case L3:
-                return ExtenderConstants.L3_HEIGHT;
-            case L4:
-                return ExtenderConstants.L4_HEIGHT;
-            default:
-                return -1;
-        }        
-    }
     
     public void stop() {
         extenderMotor.stopMotor();

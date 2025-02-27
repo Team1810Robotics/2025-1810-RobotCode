@@ -2,12 +2,14 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.lang.reflect.Field;
 import java.security.cert.CertPathValidatorException.BasicReason;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -19,8 +21,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ExtenderConstants.ExtenderHeights;
+import frc.robot.Constants.ExtenderConstants;
 import frc.robot.Constants.IntakeConstants.Mode;
 import frc.robot.Constants.WristConstants.PitchConstants;
 import frc.robot.Constants.WristConstants.RollConstants;
@@ -79,6 +82,7 @@ public class RobotContainer {
         Shuffleboard.getTab("Arm").add(armSubsystem);
         Shuffleboard.getTab("Arm").addNumber("Arm Setpoint Actual", ()-> armSetpoint.get().getDouble());
 
+        Shuffleboard.getTab("Swerve").addNumber("S Velo", () -> drivetrain.getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
     }
 
     private void configureBindings() {
@@ -87,8 +91,15 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
                     .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) * 0.8) // Drive left with negative X (left)
-                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(-driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
+
+        //Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        driverXbox.back().and(driverXbox.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverXbox.back().and(driverXbox.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverXbox.start().and(driverXbox.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverXbox.start().and(driverXbox.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
 /*      xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
@@ -101,8 +112,8 @@ public class RobotContainer {
         driverXbox.rightBumper().onTrue(intakePostition());
         driverXbox.leftBumper().onTrue(l3Position());
         
-        driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.BASE));
-        driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderHeights.L2));
+        driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+        driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
 
         // driverXbox.button(10).whileTrue(new Arm(armSubsystem, 120));
         // driverXbox.button(9).whileTrue(new Arm(armSubsystem, 45));

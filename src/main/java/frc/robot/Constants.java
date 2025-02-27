@@ -61,7 +61,7 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.000002;
 
-        public static final double ENCODER_OFFSET = .29;
+        public static final double ENCODER_OFFSET = .3034;
 
         public static final double INTAKE_POSITION = 109;
 
@@ -80,24 +80,18 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .51;
 
-        public static double kP = 0.0;
+        public static double kP = 1;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
-        public static final double L2_HEIGHT = 0.0;
+        public static final double L2_HEIGHT = 5;
         public static final double L3_HEIGHT = 6.875;
-        public static final double L4_HEIGHT = 15.5;
-        public static final double BASE_HEIGHT = 0.0;
+        public static final double L4_HEIGHT = 14.5;
+        public static final double BASE_HEIGHT = 0.5;
 
         public static final double INCHES_PER_ROTATION = .5;
         public static final double MAX_EXTENSION_INCHES = 44.0;
 
-        public enum ExtenderHeights {
-            BASE,
-            L2,
-            L3,
-            L4
-        }
     }
 
     public class VisionConstants {
