@@ -4,13 +4,21 @@ import static edu.wpi.first.units.Units.*;
 
 import java.lang.reflect.Field;
 import java.security.cert.CertPathValidatorException.BasicReason;
+import java.util.Optional;
+
+import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 
 import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -79,6 +87,7 @@ public class RobotContainer {
     public RobotContainer() {
         // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
         configureBindings();
+        configureVisionPoseEstimation();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
         SmartDashboard.putData("Auto Chooser", autoChooser);
@@ -101,10 +110,10 @@ public class RobotContainer {
 
         //Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        driverXbox.back().and(driverXbox.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverXbox.back().and(driverXbox.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driverXbox.start().and(driverXbox.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driverXbox.start().and(driverXbox.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // driverXbox.back().and(driverXbox.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // driverXbox.back().and(driverXbox.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // driverXbox.start().and(driverXbox.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // driverXbox.start().and(driverXbox.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
 /*      xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
         xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
@@ -113,27 +122,32 @@ public class RobotContainer {
         // driverXbox.x().onTrue(new Roll(rollSubsystem, 250));
         // driverXbox.b().onTrue(new Roll(rollSubsystem, 160));
 
-        driverXbox.rightTrigger().onTrue(basePosiiton());
-        driverXbox.rightBumper().onTrue(intakePostition());
-        driverXbox.leftBumper().onTrue(l3Position());
+        // driverXbox.rightTrigger().onTrue(basePosiiton());
+        // driverXbox.rightBumper().onTrue(intakePostition());
+        // driverXbox.leftBumper().onTrue(l3Position());
 
-        manipulatorXbox.b().or(manipulatorXbox.a()).whileTrue(drivetrain.applyRequest(() -> brake));
-        manipulatorXbox.a().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(0, 1))
-        ));
-        manipulatorXbox.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(1, 0))
-        ));
+
+        manipulatorXbox.leftBumper().whileTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION));
+
+        // manipulatorXbox.b().or(manipulatorXbox.a()).whileTrue(drivetrain.applyRequest(() -> brake));
+        // manipulatorXbox.a().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(0, 1))
+        // ));
+        // manipulatorXbox.b().whileTrue(drivetrain.applyRequest(() ->
+        //     point.withModuleDirection(new Rotation2d(1, 0))
+        // ));
         
-        driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
-        driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
+        manipulatorXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+        manipulatorXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        manipulatorXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
+        manipulatorXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
 
         // driverXbox.button(10).whileTrue(new Arm(armSubsystem, 120));
         // driverXbox.button(9).whileTrue(new Arm(armSubsystem, 45));
         // driverXbox.leftTrigger().whileTrue(new Arm(armSubsystem, 115));
         
         //Reset Gyro
-        driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverXbox.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         drivetrain.registerTelemetry(logger::telemeterize);
         
@@ -173,6 +187,48 @@ public class RobotContainer {
         return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION)));
     }
 
+    private void configureVisionPoseEstimation() {
+        // Run vision-based pose estimation on a separate thread
+        new Thread(() -> {
+            while (true) {
+                // Get the current estimated pose from the drivetrain
+                Pose2d currentPose = drivetrain.getState().Pose;
+                
+                // Get vision-estimated pose
+                Optional<EstimatedRobotPose> visionEstimate = 
+                    visionSubsystem.getEstimatedGlobalPose(currentPose);
+                
+                // If we have a vision measurement, add it to the drivetrain
+                if (visionEstimate.isPresent()) {
+                    EstimatedRobotPose pose = visionEstimate.get();
+                    
+                    // Timestamped pose from PhotonVision
+                    Pose2d visionPose = pose.estimatedPose.toPose2d();
+                    double timestamp = pose.timestampSeconds;
+                    
+                    // Standard deviations based on target distance
+                    // The further the target, the higher the standard deviation
+                    double distance = visionSubsystem.getRange().orElse(5.0);
+                    double xStdDev = 0.1 + distance * 0.05; // Higher std dev with distance
+                    double yStdDev = 0.1 + distance * 0.05;
+                    double thetaStdDev = 0.1 + distance * 0.01;
+                    
+                    // Create standard deviation matrix for vision measurement
+                    Matrix<N3, N1> visionStdDevs = VecBuilder.fill(xStdDev, yStdDev, thetaStdDev);
+                    
+                    // Add vision measurement to drivetrain pose estimator
+                    drivetrain.addVisionMeasurement(visionPose, timestamp, visionStdDevs);
+                }
+                
+                // Sleep to avoid overwhelming CPU
+                try {
+                    Thread.sleep(20); // 50Hz update rate
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
         
     public Command getAutonomousCommand() {
         return autoChooser.getSelected();

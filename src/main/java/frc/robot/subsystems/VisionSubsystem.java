@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import java.util.List;
 import java.util.Optional;
 
+import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
@@ -11,6 +12,7 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -63,6 +65,11 @@ public class VisionSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0, 0.5, getRange().get(), true, driveControllerY));
         Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0, 0.0, getXRange().get(), true, driveControllerX));
+    }
+
+    public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
+        photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
+        return photonPoseEstimator.update(result);
     }
 
     public Optional<Double> getRangeError(){

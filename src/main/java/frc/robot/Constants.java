@@ -57,9 +57,9 @@ public class Constants {
 
         public static final int ENCODER_ID = 0;
 
-        public static final double kP = 0.035;
+        public static final double kP = 0.045;
         public static final double kI = 0.0;
-        public static final double kD = 0.000002;
+        public static final double kD = 0.000001;
 
         public static final double ENCODER_OFFSET = .3034;
 
@@ -78,14 +78,14 @@ public class Constants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double ENCODER_OFFSET = .51;
+        public static final double ENCODER_OFFSET = .23;
 
         public static double kP = 1;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
-        public static final double L2_HEIGHT = 5;
-        public static final double L3_HEIGHT = 6.875;
+        public static final double L2_HEIGHT = 1.05;
+        public static final double L3_HEIGHT = 6.3;
         public static final double L4_HEIGHT = 14.5;
         public static final double BASE_HEIGHT = 0.5;
 
