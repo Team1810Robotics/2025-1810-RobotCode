@@ -2,7 +2,10 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.io.IOException;
 import java.util.function.Supplier;
+
+import org.json.simple.parser.ParseException;
 
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
@@ -221,8 +224,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
                 this // Subsystem for requirements
             );
-        } catch (Exception ex) {
-            DriverStation.reportError("Failed to load PathPlanner config and configure AutoBuilder", ex.getStackTrace());
+        } catch (IOException ioException) {
+            DriverStation.reportError("Auto Builder IO Exception", ioException.getStackTrace());
+        } catch (ParseException parseException) {
+            //DON'T PUT COMMENTS IN JSON FILES
+            DriverStation.reportError("Auto Builder Parse Exception", parseException.getStackTrace());
         }
     }
 
