@@ -17,8 +17,16 @@ public class Constants {
 
             //TODO: Figure out setpoints
 
-            public static final double INTAKE_POSITION = 65;
+            //public static final double INTAKE_POSITION = 65;
             public static final double SCORE_POSITION = 163;
+            
+            public static final double INTAKE_POSITION = 135;
+            public static final double GROUND_PICKUP = 66.95;
+            public static final double L1_POSITION = 161.5;
+            public static final double L2_POSITION = 157.3;
+            public static final double L3_POSITION = 154.7;
+            public static final double L4_POSITION = 161.5;
+            public static final double BASE_POSITION = 208; //Check This
         }
         
         public class PitchConstants {
@@ -32,11 +40,12 @@ public class Constants {
             public static double kD = 0.0;
 
             public static final double INTAKE_POSITION = 135;
-            public static final double L1_POSITION = 0;
-            public static final double L2_POSITION = 23;
-            public static final double L3_POSITION = 43;
-            public static final double L4_POSITION = 30;
-            public static final double BASE_POSITION = 0;
+            public static final double GROUND_PICKUP = 208;
+            public static final double L1_POSITION = 212;
+            public static final double L2_POSITION = 203;
+            public static final double L3_POSITION = 201;
+            public static final double L4_POSITION = 209;
+            public static final double BASE_POSITION = 208; //Check This
         }
     }
 
@@ -66,10 +75,11 @@ public class Constants {
         public static final double INTAKE_POSITION = 109;
 
 
-        public static final double L1_POSITION = 50;
-        public static final double L2_POSITION = 71;
-        public static final double L3_POSITION = 81;
-        public static final double L4_POSITION = 84;
+        public static final double GROUND_PICKUP = 187.25;
+        public static final double L1_POSITION = 108;
+        public static final double L2_POSITION = 105;
+        public static final double L3_POSITION = 99;
+        public static final double L4_POSITION = 94.6;
 
         public static final double BASE_POSITION = 115;
     }
@@ -84,7 +94,10 @@ public class Constants {
         public static double kI = 0.0;
         public static double kD = 0.0;
 
-        public static final double L2_HEIGHT = 1.05;
+
+        public static final double GROUND_PICKUP = 0.5;
+        public static final double L1_HEIGHT = 0.5;
+        public static final double L2_HEIGHT = 0.5;
         public static final double L3_HEIGHT = 6.3;
         public static final double L4_HEIGHT = 14.5;
         public static final double BASE_HEIGHT = 0.5;
