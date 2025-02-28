@@ -186,6 +186,14 @@ public class RobotContainer {
     public Command basePosiiton() {
         return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION)));
     }
+        
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
+
+    public void addNamedCommands(){
+        
+    }
 
     private void configureVisionPoseEstimation() {
         // Run vision-based pose estimation on a separate thread
@@ -228,9 +236,5 @@ public class RobotContainer {
                 }
             }
         }).start();
-    }
-        
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
     }
 }
