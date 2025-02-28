@@ -51,6 +51,8 @@ import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
+import com.pathplanner.lib.auto.NamedCommands;
+
 @SuppressWarnings("unused") // For now :) 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -87,6 +89,7 @@ public class RobotContainer {
     public RobotContainer() {
         // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
         configureBindings();
+        addNamedCommands();
         configureVisionPoseEstimation();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
@@ -186,6 +189,20 @@ public class RobotContainer {
     public Command basePosiiton() {
         return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION)));
     }
+        
+    public Command getAutonomousCommand() {
+        return autoChooser.getSelected();
+    }
+
+    public void addNamedCommands(){
+        NamedCommands.registerCommand("Base Position", basePosiiton());
+        NamedCommands.registerCommand("L1 Position", l1Position());
+        NamedCommands.registerCommand("L2 Position", l2Position());
+        NamedCommands.registerCommand("L3 Position", l3Position());
+        NamedCommands.registerCommand("L4 Position", l4Position());
+        //NamedCommands.registerCommand("Ground Pickup", groundPickup());
+        NamedCommands.registerCommand("Intake Position", intakePostition());
+    }
 
     private void configureVisionPoseEstimation() {
         // Run vision-based pose estimation on a separate thread
@@ -228,9 +245,5 @@ public class RobotContainer {
                 }
             }
         }).start();
-    }
-        
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
     }
 }
