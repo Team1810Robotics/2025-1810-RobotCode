@@ -20,12 +20,12 @@ public class Constants {
             //public static final double INTAKE_POSITION = 65;
             public static final double SCORE_POSITION = 163;
             
-            public static final double INTAKE_POSITION = 65;
+            public static final double INTAKE_POSITION = 68;
             public static final double GROUND_PICKUP = 66.95;
-            public static final double L1_POSITION = 164.0;
-            public static final double L2_POSITION = 164.0;
-            public static final double L3_POSITION = 164.0;
-            public static final double L4_POSITION = 164.0;
+            public static final double L1_POSITION = 68.0;
+            public static final double L2_POSITION = 158.0;
+            public static final double L3_POSITION = 158.0;
+            public static final double L4_POSITION = 158.0;
             public static final double BASE_POSITION = 68; //Check This
         }
         
@@ -33,21 +33,22 @@ public class Constants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = .16 - (5.0/360.0);
+            public static final double ENCODER_OFFSET = .319 - (5.0/360.0);
         
             public static double kP = 0.007;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 135;
-            public static final double GROUND_PICKUP = 208;
-            public static final double L1_POSITION = 190;
-            public static final double L2_POSITION = 190;
-            public static final double L3_POSITION = 190;
-            public static final double L4_POSITION = 190;
-            public static final double BASE_POSITION = 90; //Check This
+            public static final double INTAKE_POSITION = 135; // 45
+            public static final double GROUND_PICKUP = 145;
+            public static final double L1_POSITION = 135;
+            public static final double L2_POSITION = 135;
+            public static final double L3_POSITION = 135;
+            public static final double L4_POSITION = 135;
+            public static final double BASE_POSITION = 125; //Check This
 
-            public static final double UPRIGHT = 150;
+
+            public static final double UPRIGHT = 90;
         }
     }
 
@@ -74,11 +75,11 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .3034;
 
-        public static final double INTAKE_POSITION = 109;
+        public static final double INTAKE_POSITION = 105; //75 
 
 
-        public static final double GROUND_PICKUP = 187.25;
-        public static final double L1_POSITION = 108;
+        public static final double GROUND_PICKUP = 183;
+        public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 99;
         public static final double L4_POSITION = 94.6;
@@ -97,7 +98,7 @@ public class Constants {
         public static double kD = 0.0;
 
 
-        public static final double GROUND_PICKUP = 0.5;
+        public static final double GROUND_PICKUP = 0.0;
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.1;
         public static final double L3_HEIGHT = 6;
@@ -110,7 +111,8 @@ public class Constants {
     }
 
     public class VisionConstants {
-        public static final String TARGET_CAMERA = "Arducam_OV9281_USB_Camera (1)";
+        public static final String TARGET_CAMERA_RIGHT = "Arducam_OV9281_USB_Camera (1)";
+        public static final String TARGET_CAMERA_LEFT = "Arducam_OV9281_USB_Camera";
         
         //Vision Rotation PID vars
         public static double VR_Kp = 0.07;

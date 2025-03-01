@@ -1,7 +1,11 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -13,6 +17,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     private SparkMax extenderMotor;
     private DutyCycleEncoder encoder;
+    private SparkMaxConfig config;
 
     private PIDController extenderPIDController;
 
@@ -23,6 +28,10 @@ public class ExtenderSubsystem extends SubsystemBase {
     public ExtenderSubsystem() {
         extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
+
+        config = new SparkMaxConfig();
+        config.idleMode(IdleMode.kBrake);
+        extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
 
@@ -35,6 +44,8 @@ public class ExtenderSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
         Shuffleboard.getTab("Extender").addNumber("Motor Power", () -> extenderMotor.getAppliedOutput());
+
+        Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
     }
 
     /**
@@ -72,7 +83,9 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void run(double speed) {
-        extenderMotor.set(speed);
+        if (encoder.isConnected()){
+            extenderMotor.set(speed);
+        }
     }
 
     /**
@@ -88,7 +101,9 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void extend(double height) {
-        extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
+        if (encoder.isConnected()) {        
+            extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
+        }
     }
 
     

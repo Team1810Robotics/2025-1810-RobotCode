@@ -38,8 +38,11 @@ public class Intake extends Command {
             intakeSubsystem.run(1);
         } else if (mode == Mode.ALGAE){
             intakeSubsystem.run(.75);
+        } else if (mode == Mode.IDLE){
+            if (intakeSubsystem.getDistance() > 1500){
+            intakeSubsystem.run(.1);}
         } else if (mode == Mode.OUT){
-            intakeSubsystem.run(-.5);
+            intakeSubsystem.run(-.35);
         } else {
             intakeSubsystem.run(.05);
         }

@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -15,11 +18,19 @@ public class RollSubsystem extends SubsystemBase {
 
     private PIDController rollPIDController;
 
+    private SparkMaxConfig config;
+
     public RollSubsystem() {
         rollMotor = new SparkMax(RollConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         encoder = new DutyCycleEncoder(RollConstants.ENCODER_ID);
 
         rollPIDController = new PIDController(RollConstants.kP, RollConstants.kI, RollConstants.kD);
+
+        config = new SparkMaxConfig();
+        config.smartCurrentLimit(40);
+
+        rollMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
 
         Shuffleboard.getTab("Intake").addNumber("Roll Rad Raw", () -> encoder.get());
         Shuffleboard.getTab("Intake").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);

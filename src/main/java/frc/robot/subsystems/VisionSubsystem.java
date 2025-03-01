@@ -23,9 +23,9 @@ import frc.robot.Constants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    public PhotonCamera camera;
+    public PhotonCamera cameraLeft, cameraRight, targetCamera;
     PhotonPoseEstimator photonPoseEstimator;
-    public static PhotonPipelineResult result;
+    public static PhotonPipelineResult resultRight, resultLeft, targetResult;
     List<PhotonPipelineResult> allResults;
     double targetYaw, targetRange;
     boolean targetVisible;
@@ -37,20 +37,26 @@ public class VisionSubsystem extends SubsystemBase {
     
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    
+    public enum CAMERA_SIDE {
+        LEFT, RIGHT, NONE
+    }
     
     public static final Transform3d CAMERA_TO_ROBOT =
         new Transform3d(new Translation3d(0.31, 0.0, 0.248), new Rotation3d(0, 0, 0));
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
-        camera = new PhotonCamera(VisionConstants.TARGET_CAMERA);
+        cameraRight = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
+        cameraLeft = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
                         aprilTagFieldLayout,
                         PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                         CAMERA_TO_ROBOT);
-        result = camera.getLatestResult();
+        resultRight = cameraRight.getLatestResult();
+        resultLeft = cameraLeft.getLatestResult();
+
+        targetCamera = cameraRight;
 
         Shuffleboard.getTab("Vision").add(rotController);
         Shuffleboard.getTab("Vision").add(driveControllerY);
@@ -63,13 +69,19 @@ public class VisionSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addNumber("Distance Error", () -> getRangeError().get());
 
-        Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0, 0.5, getRange().get(), true, driveControllerY));
-        Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0, 0.0, getXRange().get(), true, driveControllerX));
+        Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0.0, 0.5, getRange().get(), true,false, driveControllerY));
+        Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0.0, 0.0, getXRange().get(), true,false, driveControllerX));
+    }
+
+    public void setTargetCamera(CAMERA_SIDE side){
+        if (side == CAMERA_SIDE.LEFT) targetCamera = cameraLeft;
+        else targetCamera = cameraRight;
+        targetResult = targetCamera.getLatestResult();
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-        return photonPoseEstimator.update(result);
+        return photonPoseEstimator.update(resultRight);
     }
 
     public Optional<Double> getRangeError(){
@@ -82,28 +94,28 @@ public class VisionSubsystem extends SubsystemBase {
     public Optional<Double> getRange() {
         if (hasTarget()) {
             // Get the range to the target using the best target's pose
-            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
+            return Optional.of(targetResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
         }
         return Optional.of(1000.0);
     } //bennett martin is evil
 
     public Optional<Double> getXRange(){
         if (hasTarget()){
-            return Optional.of(result.getBestTarget().bestCameraToTarget.getY());
+            return Optional.of(targetResult.getBestTarget().bestCameraToTarget.getY());
         } else return Optional.of(1000.0);
     }
 
     public Optional<Double> getTagRYaw(){
         if(hasTarget()){
-            return Optional.of(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId()).get().getRotation().getZ());
+            return Optional.of(aprilTagFieldLayout.getTagPose(targetResult.getBestTarget().getFiducialId()).get().getRotation().getZ());
         }
         return Optional.of(1000.0);
     }
     
       @Override
       public void periodic() {
-        result = camera.getLatestResult();
-        allResults = camera.getAllUnreadResults();
+        resultRight = cameraRight.getLatestResult();
+        allResults = cameraRight.getAllUnreadResults();
       }
 
       public double visionTargetPIDCalc(double altRotation, boolean visionMode) {
@@ -127,15 +139,16 @@ public class VisionSubsystem extends SubsystemBase {
        * @param driveMode True/False input for if we do want to drive towards the apriltag.
        * @return
        */
-      public double visionDrive(double altDrive, double distance, double source, boolean driveMode, PIDController pid){
-        if(getRange().isPresent() && driveMode && hasTarget()){
+      public double visionDrive(double altDrive, double distance, double source, boolean driveModeLeft, boolean driveModeRight, PIDController pid){
+        //setTargetCamera();
+        if(getRange().isPresent() && driveModeLeft && hasTarget()){
             return pid.calculate(source - distance);
         } else return altDrive;
       }
     
       public Optional<Double> getYaw() {
          if (hasTarget()) {
-              return Optional.of(result.getBestTarget().getYaw());
+              return Optional.of(targetResult.getBestTarget().getYaw());
           } else {
               return Optional.of(1000.0);
           }
@@ -143,13 +156,13 @@ public class VisionSubsystem extends SubsystemBase {
 
       public Optional<Double> getPitch() {
         if (hasTarget()) {
-             return Optional.of(result.getBestTarget().getPitch());
+             return Optional.of(targetResult.getBestTarget().getPitch());
          } else {
              return Optional.of(1000.0);
          }
      }
     
       public boolean hasTarget(){
-        return result.hasTargets();
+        return resultRight.hasTargets() || resultLeft.hasTargets();
   }
 }

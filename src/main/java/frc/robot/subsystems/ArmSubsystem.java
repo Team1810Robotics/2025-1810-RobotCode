@@ -38,8 +38,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         config2.follow(ArmConstants.MOTOR_ID_1);
 
-        config1.idleMode(IdleMode.kCoast);
-        config2.idleMode(IdleMode.kCoast);
+        config1.idleMode(IdleMode.kBrake);
+        config2.idleMode(IdleMode.kBrake);
 
         armMotor1.configure(config1, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         armMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
