@@ -11,7 +11,7 @@ public class Constants {
             public static final int ENCODER_ID = 2;
             public static final double ENCODER_OFFSET = .3; 
 
-            public static double kP = 0.003;
+            public static double kP = 0.0175;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
@@ -20,13 +20,13 @@ public class Constants {
             //public static final double INTAKE_POSITION = 65;
             public static final double SCORE_POSITION = 163;
             
-            public static final double INTAKE_POSITION = 135;
+            public static final double INTAKE_POSITION = 65;
             public static final double GROUND_PICKUP = 66.95;
-            public static final double L1_POSITION = 161.5;
-            public static final double L2_POSITION = 157.3;
-            public static final double L3_POSITION = 154.7;
-            public static final double L4_POSITION = 161.5;
-            public static final double BASE_POSITION = 208; //Check This
+            public static final double L1_POSITION = 164.0;
+            public static final double L2_POSITION = 164.0;
+            public static final double L3_POSITION = 164.0;
+            public static final double L4_POSITION = 164.0;
+            public static final double BASE_POSITION = 68; //Check This
         }
         
         public class PitchConstants {
@@ -41,11 +41,13 @@ public class Constants {
 
             public static final double INTAKE_POSITION = 135;
             public static final double GROUND_PICKUP = 208;
-            public static final double L1_POSITION = 212;
-            public static final double L2_POSITION = 203;
-            public static final double L3_POSITION = 201;
-            public static final double L4_POSITION = 209;
-            public static final double BASE_POSITION = 208; //Check This
+            public static final double L1_POSITION = 190;
+            public static final double L2_POSITION = 190;
+            public static final double L3_POSITION = 190;
+            public static final double L4_POSITION = 190;
+            public static final double BASE_POSITION = 90; //Check This
+
+            public static final double UPRIGHT = 150;
         }
     }
 
@@ -97,10 +99,10 @@ public class Constants {
 
         public static final double GROUND_PICKUP = 0.5;
         public static final double L1_HEIGHT = 0.5;
-        public static final double L2_HEIGHT = 0.5;
-        public static final double L3_HEIGHT = 6.3;
-        public static final double L4_HEIGHT = 14.5;
-        public static final double BASE_HEIGHT = 0.5;
+        public static final double L2_HEIGHT = 0.1;
+        public static final double L3_HEIGHT = 6;
+        public static final double L4_HEIGHT = 13;
+        public static final double BASE_HEIGHT = 0;
 
         public static final double INCHES_PER_ROTATION = .5;
         public static final double MAX_EXTENSION_INCHES = 44.0;

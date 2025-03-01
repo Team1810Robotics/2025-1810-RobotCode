@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -56,7 +57,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 @SuppressWarnings("unused") // For now :) 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
@@ -106,8 +107,8 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) * 0.8) // Drive forward with negative Y (forward)
-                    .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) * 0.8) // Drive left with negative X (left)
+                drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+                    .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.y().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
                     .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(-driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
@@ -127,10 +128,15 @@ public class RobotContainer {
 
         // driverXbox.rightTrigger().onTrue(basePosiiton());
         // driverXbox.rightBumper().onTrue(intakePostition());
-        // driverXbox.leftBumper().onTrue(l3Position());
+        driverXbox.a().onTrue(l1Position());
+        driverXbox.b().onTrue(l2Position());
+        driverXbox.x().onTrue(l3Position());
+        driverXbox.y().onTrue(l4Position());
+        //driverXbox.leftBumper().onTrue(groundPickup());
+        driverXbox.rightBumper().onTrue(basePosition());
 
 
-        manipulatorXbox.leftBumper().whileTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION));
+        // manipulatorXbox.leftBumper().whileTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION));
 
         // manipulatorXbox.b().or(manipulatorXbox.a()).whileTrue(drivetrain.applyRequest(() -> brake));
         // manipulatorXbox.a().whileTrue(drivetrain.applyRequest(() ->
@@ -139,11 +145,19 @@ public class RobotContainer {
         // manipulatorXbox.b().whileTrue(drivetrain.applyRequest(() ->
         //     point.withModuleDirection(new Rotation2d(1, 0))
         // ));
+
+
         
-        manipulatorXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
-        manipulatorXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
-        manipulatorXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
-        manipulatorXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
+         manipulatorXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+        // manipulatorXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        // // manipulatorXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
+        // // manipulatorXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT)); 
+
+        //manipulatorXbox.a().whileTrue(new Roll(rollSubsystem, RollConstants.L1_POSITION));
+        manipulatorXbox.x().whileTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
+
+        // manipulatorXbox.b().whileTrue(new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION));
+        //manipulatorXbox.y().onTrue(new Pitch(pitchSubsystem, PitchConstants.UPRIGHT));
 
         // driverXbox.button(10).whileTrue(new Arm(armSubsystem, 120));
         // driverXbox.button(9).whileTrue(new Arm(armSubsystem, 45));
@@ -157,9 +171,9 @@ public class RobotContainer {
         // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
         // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
         
-        driverXbox.x().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
+        driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
         // driverXbox.x().toggleOnTrue(new Intake(intakeSubsystem, Mode.ALGAE));
-        driverXbox.b().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
+        driverXbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
     }
 
     public double getSetpoint(){
@@ -171,23 +185,27 @@ public class RobotContainer {
     }
 
     public Command l1Position() {
-        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION).alongWith(new Pitch(pitchSubsystem, PitchConstants.L1_POSITION)));
+        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L1_POSITION), new Pitch(pitchSubsystem, PitchConstants.L1_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L1_HEIGHT));
     }
 
     public Command l2Position() {
-        return new Arm(armSubsystem, ArmConstants.L2_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L2_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L2_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L2_POSITION), new Pitch(pitchSubsystem, PitchConstants.L2_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
     }
 
     public Command l3Position() {
-        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L3_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
     }
 
     public Command l4Position() {
-        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.SCORE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION));
+        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
     }
 
-    public Command basePosiiton() {
-        return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION)));
+    public Command basePosition() {
+        return new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+    }
+
+    public Command roll(double setpoint) {
+        return new Pitch(pitchSubsystem, PitchConstants.UPRIGHT).withTimeout(.5).andThen(new Roll(rollSubsystem, setpoint));
     }
         
     public Command getAutonomousCommand() {
@@ -195,7 +213,7 @@ public class RobotContainer {
     }
 
     public void addNamedCommands(){
-        NamedCommands.registerCommand("Base Position", basePosiiton());
+        NamedCommands.registerCommand("Base Position", basePosition());
         NamedCommands.registerCommand("L1 Position", l1Position());
         NamedCommands.registerCommand("L2 Position", l2Position());
         NamedCommands.registerCommand("L3 Position", l3Position());
