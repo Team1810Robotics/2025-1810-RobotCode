@@ -1,6 +1,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ExtenderConstants;
 import frc.robot.subsystems.ExtenderSubsystem;
 
 public class Extender extends Command {
@@ -25,13 +26,14 @@ public class Extender extends Command {
     @Override
     public void execute() {
         extenderSubsystem.extend(height);
-/*         if (height == ExtenderConstants.BASE_HEIGHT) {
-            extenderSubsystem.run(-.25);
-        } else if (height == ExtenderConstants.L2_HEIGHT) {
-            extenderSubsystem.run(.5);
-        } */
+        // if (height == ExtenderConstants.BASE_HEIGHT) {
+        //     extenderSubsystem.run(-.25);
+        // } else if (height == ExtenderConstants.L2_HEIGHT) {
+        //     extenderSubsystem.run(.8);
+        // }
 
     }
+
 
     public boolean isFinished() {
         return false;

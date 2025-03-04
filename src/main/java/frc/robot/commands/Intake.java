@@ -40,9 +40,10 @@ public class Intake extends Command {
             intakeSubsystem.run(.75);
         } else if (mode == Mode.IDLE){
             if (intakeSubsystem.getDistance() > 1500){
-            intakeSubsystem.run(.1);}
+            intakeSubsystem.run(.3);
+            }
         } else if (mode == Mode.OUT){
-            intakeSubsystem.run(-.35);
+            intakeSubsystem.run(-.25);
         } else {
             intakeSubsystem.run(.05);
         }

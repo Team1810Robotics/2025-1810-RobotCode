@@ -9,24 +9,25 @@ public class Constants {
             public static final int MOTOR_ID = 13;
 
             public static final int ENCODER_ID = 2;
-            public static final double ENCODER_OFFSET = .3; 
+            public static final double ENCODER_OFFSET = .1; 
 
-            public static double kP = 0.0175;
+            public static double kP = 0.002;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
             //TODO: Figure out setpoints more
 
             //public static final double INTAKE_POSITION = 65;
+
             public static final double SCORE_POSITION = 163;
             
-            public static final double INTAKE_POSITION = 68;
-            public static final double GROUND_PICKUP = 66.95;
-            public static final double L1_POSITION = 68.0;
-            public static final double L2_POSITION = 158.0;
-            public static final double L3_POSITION = 158.0;
-            public static final double L4_POSITION = 158.0;
-            public static final double BASE_POSITION = 68; //Check This
+            public static final double INTAKE_POSITION = 140;
+            public static final double GROUND_PICKUP = 141;
+            public static final double L1_POSITION = 140 - 25;
+            public static final double L2_POSITION = 225 + 25;
+            public static final double L3_POSITION = 225 + 25;
+            public static final double L4_POSITION = 225 + 25;
+            public static final double BASE_POSITION = 140; //Check This
         }
         
         public class PitchConstants {
@@ -39,16 +40,16 @@ public class Constants {
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 135; // 45
-            public static final double GROUND_PICKUP = 145;
-            public static final double L1_POSITION = 135;
-            public static final double L2_POSITION = 135;
-            public static final double L3_POSITION = 135;
-            public static final double L4_POSITION = 135;
+            public static final double INTAKE_POSITION = 126; // 45
+            public static final double GROUND_PICKUP = 148;
+            public static final double L1_POSITION = 120;
+            public static final double L2_POSITION = 130;
+            public static final double L3_POSITION = 136;
+            public static final double L4_POSITION = 150;
             public static final double BASE_POSITION = 125; //Check This
 
 
-            public static final double UPRIGHT = 90;
+            public static final double UPRIGHT = 93;
         }
     }
 
@@ -75,14 +76,14 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .3034;
 
-        public static final double INTAKE_POSITION = 105; //75 
+        public static final double INTAKE_POSITION = 104; //75 
 
 
         public static final double GROUND_PICKUP = 183;
         public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
-        public static final double L3_POSITION = 99;
-        public static final double L4_POSITION = 94.6;
+        public static final double L3_POSITION = 97.5;
+        public static final double L4_POSITION = 92.3;
 
         public static final double BASE_POSITION = 115;
     }
@@ -98,12 +99,13 @@ public class Constants {
         public static double kD = 0.0;
 
 
-        public static final double GROUND_PICKUP = 0.0;
         public static final double L1_HEIGHT = 0.5;
-        public static final double L2_HEIGHT = 0.1;
-        public static final double L3_HEIGHT = 6;
-        public static final double L4_HEIGHT = 13;
-        public static final double BASE_HEIGHT = 0;
+        public static final double L2_HEIGHT = 0.2;
+        public static final double L3_HEIGHT = 6.72;
+        public static final double L4_HEIGHT = 13.93;
+        public static final double BASE_HEIGHT = 0.1;
+        public static final double GROUND_PICKUP = L2_HEIGHT;
+
 
         public static final double INCHES_PER_ROTATION = .5;
         public static final double MAX_EXTENSION_INCHES = 44.0;
@@ -112,7 +114,7 @@ public class Constants {
 
     public class VisionConstants {
         public static final String TARGET_CAMERA_RIGHT = "Arducam_OV9281_USB_Camera (1)";
-        public static final String TARGET_CAMERA_LEFT = "Arducam_OV9281_USB_Camera";
+        public static final String TARGET_CAMERA_LEFT = "USB_Camera";
         
         //Vision Rotation PID vars
         public static double VR_Kp = 0.07;
@@ -120,12 +122,12 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp = 1;
+        public static double VY_Kp = 0.5;
         public static double VY_Ki = 0.0;
         public static double VY_Kd = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp = 0.5;
+        public static double VX_Kp = 0.2;
         public static double VX_Ki = 0.0;
         public static double VX_Kd = 0.0;
     }

@@ -43,7 +43,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
-        Shuffleboard.getTab("Extender").addNumber("Motor Power", () -> extenderMotor.getAppliedOutput());
+        Shuffleboard.getTab("Extender").addNumber("Applied Motor Power", () -> extenderMotor.getAppliedOutput());
 
         Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
     }
@@ -101,7 +101,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void extend(double height) {
-        if (encoder.isConnected()) {        
+        if (encoder.isConnected()) {    
             extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
         }
     }

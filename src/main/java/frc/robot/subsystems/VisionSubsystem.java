@@ -23,9 +23,9 @@ import frc.robot.Constants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    public PhotonCamera cameraLeft, cameraRight, targetCamera;
+    public PhotonCamera camera;
     PhotonPoseEstimator photonPoseEstimator;
-    public static PhotonPipelineResult resultRight, resultLeft, targetResult;
+    public static PhotonPipelineResult result;
     List<PhotonPipelineResult> allResults;
     double targetYaw, targetRange;
     boolean targetVisible;
@@ -37,30 +37,24 @@ public class VisionSubsystem extends SubsystemBase {
     
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    public enum CAMERA_SIDE {
-        LEFT, RIGHT, NONE
-    }
+    
     
     public static final Transform3d CAMERA_TO_ROBOT =
-        new Transform3d(new Translation3d(0.31, 0.0, 0.248), new Rotation3d(0, 0, 0));
+        new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
-        cameraRight = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
-        cameraLeft = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
+        camera = new PhotonCamera(VisionConstants.TARGET_CAMERA_LEFT);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
                         aprilTagFieldLayout,
                         PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                         CAMERA_TO_ROBOT);
-        resultRight = cameraRight.getLatestResult();
-        resultLeft = cameraLeft.getLatestResult();
+        result = camera.getLatestResult();
 
-        targetCamera = cameraRight;
-
-        Shuffleboard.getTab("Vision").add(rotController);
-        Shuffleboard.getTab("Vision").add(driveControllerY);
-        Shuffleboard.getTab("Vision").add(driveControllerX);
+        Shuffleboard.getTab("Vision").add("Vision Rotiation PID", rotController);
+        Shuffleboard.getTab("Vision").add("Vision Y PID", driveControllerY);
+        Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerX);
 
         Shuffleboard.getTab("Vision").addNumber("Yaw", () -> getYaw().get());
         Shuffleboard.getTab("Vision").addNumber("Pitch", () -> getPitch().get());
@@ -69,19 +63,13 @@ public class VisionSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addNumber("Distance Error", () -> getRangeError().get());
 
-        Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0.0, 0.5, getRange().get(), true,false, driveControllerY));
-        Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0.0, 0.0, getXRange().get(), true,false, driveControllerX));
-    }
-
-    public void setTargetCamera(CAMERA_SIDE side){
-        if (side == CAMERA_SIDE.LEFT) targetCamera = cameraLeft;
-        else targetCamera = cameraRight;
-        targetResult = targetCamera.getLatestResult();
+        Shuffleboard.getTab("Vision").addNumber("driveYOut", () -> visionDrive(0, 0.5, getRange().get(), true, driveControllerY));
+        Shuffleboard.getTab("Vision").addNumber("driveXOut", () -> visionDrive(0, 0.0, getXRange().get(), true, driveControllerX));
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
         photonPoseEstimator.setReferencePose(prevEstimatedRobotPose);
-        return photonPoseEstimator.update(resultRight);
+        return photonPoseEstimator.update(result);
     }
 
     public Optional<Double> getRangeError(){
@@ -94,28 +82,28 @@ public class VisionSubsystem extends SubsystemBase {
     public Optional<Double> getRange() {
         if (hasTarget()) {
             // Get the range to the target using the best target's pose
-            return Optional.of(targetResult.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
+            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
         }
         return Optional.of(1000.0);
     } //bennett martin is evil
 
     public Optional<Double> getXRange(){
         if (hasTarget()){
-            return Optional.of(targetResult.getBestTarget().bestCameraToTarget.getY());
+            return Optional.of(result.getBestTarget().bestCameraToTarget.getY());
         } else return Optional.of(1000.0);
     }
 
     public Optional<Double> getTagRYaw(){
         if(hasTarget()){
-            return Optional.of(aprilTagFieldLayout.getTagPose(targetResult.getBestTarget().getFiducialId()).get().getRotation().getZ());
+            return Optional.of(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId()).get().getRotation().getZ());
         }
         return Optional.of(1000.0);
     }
     
       @Override
       public void periodic() {
-        resultRight = cameraRight.getLatestResult();
-        allResults = cameraRight.getAllUnreadResults();
+        result = camera.getLatestResult();
+        allResults = camera.getAllUnreadResults();
       }
 
       public double visionTargetPIDCalc(double altRotation, boolean visionMode) {
@@ -139,16 +127,15 @@ public class VisionSubsystem extends SubsystemBase {
        * @param driveMode True/False input for if we do want to drive towards the apriltag.
        * @return
        */
-      public double visionDrive(double altDrive, double distance, double source, boolean driveModeLeft, boolean driveModeRight, PIDController pid){
-        //setTargetCamera();
-        if(getRange().isPresent() && driveModeLeft && hasTarget()){
+      public double visionDrive(double altDrive, double distance, double source, boolean driveMode, PIDController pid){
+        if(getRange().isPresent() && driveMode && hasTarget()){
             return pid.calculate(source - distance);
         } else return altDrive;
       }
     
       public Optional<Double> getYaw() {
          if (hasTarget()) {
-              return Optional.of(targetResult.getBestTarget().getYaw());
+              return Optional.of(result.getBestTarget().getYaw());
           } else {
               return Optional.of(1000.0);
           }
@@ -156,13 +143,13 @@ public class VisionSubsystem extends SubsystemBase {
 
       public Optional<Double> getPitch() {
         if (hasTarget()) {
-             return Optional.of(targetResult.getBestTarget().getPitch());
+             return Optional.of(result.getBestTarget().getPitch());
          } else {
              return Optional.of(1000.0);
          }
      }
     
       public boolean hasTarget(){
-        return resultRight.hasTargets() || resultLeft.hasTargets();
+        return result.hasTargets();
   }
 }

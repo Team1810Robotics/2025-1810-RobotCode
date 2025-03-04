@@ -17,6 +17,8 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
 
+    //CameraServer.startAutomaticCapture();
+
     Shuffleboard.getTab("Teleoperated").add(CommandScheduler.getInstance());
   }
 

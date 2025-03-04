@@ -51,7 +51,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.subsystems.VisionSubsystem.CAMERA_SIDE;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -108,8 +107,8 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.b().getAsBoolean(),false, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                    .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.y().getAsBoolean(),false, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                drive.withVelocityX((-visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, visionSubsystem.getRange().get(), driverXbox.leftBumper().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                    .withVelocityY((-visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, -visionSubsystem.getYaw().get(), driverXbox.leftBumper().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
                     .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(-driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
             );
 
@@ -128,23 +127,27 @@ public class RobotContainer {
         // driverXbox.start().and(driverXbox.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         // driverXbox.start().and(driverXbox.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-/*      xbox.rightBumper().whileTrue(new ArmCommand(armSubsystem, getSetpoint()));
-        xbox.leftBumper().whileTrue(new ArmCommand(armSubsystem, 0));
-        xbox.leftStick().whileTrue(new ArmCommand(armSubsystem, 10)); */
-
-        // driverXbox.x().onTrue(new Roll(rollSubsystem, 250));
-        // driverXbox.b().onTrue(new Roll(rollSubsystem, 160));
 
         manipulatorXbox.a().onTrue(l1Position());
         manipulatorXbox.b().onTrue(l2Position());
         manipulatorXbox.x().onTrue(l3Position());
-        //manipulatorXbox.y().onTrue(l4Position());
+        manipulatorXbox.y().onTrue(l4Position());
         manipulatorXbox.back().onTrue(groundPickup());
         manipulatorXbox.rightBumper().onTrue(intakePostition()); //Base
+        manipulatorXbox.leftBumper().onTrue(algaeL3Position());
 
-        // manipulatorXbox.a().onTrue(new Pitch(pitchSubsystem, PitchConstants.L1_POSITION));
-        // manipulatorXbox.b().onTrue(new Pitch(pitchSubsystem, PitchConstants.UPRIGHT));        
-        // manipulatorXbox.x().onTrue(new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION));
+        // driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+        // driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+
+        // manipulatorXbox.a().onTrue(new Roll(rollSubsystem, RollConstants.L2_POSITION));
+        // manipulatorXbox.y().onTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
+
+        // manipulatorXbox.leftBumper().onTrue(new Pitch(pitchSubsystem, PitchConstants.UPRIGHT));
+
+
+        // manipulatorXbox.b().onTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        // manipulatorXbox.x().onTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
+
 
 
 
@@ -152,44 +155,11 @@ public class RobotContainer {
         manipulatorXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
 
 
-        // manipulatorXbox.leftBumper().whileTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION));
-
-        // manipulatorXbox.b().or(manipulatorXbox.a()).whileTrue(drivetrain.applyRequest(() -> brake));
-        // manipulatorXbox.a().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(0, 1))
-        // ));
-        // manipulatorXbox.b().whileTrue(drivetrain.applyRequest(() ->
-        //     point.withModuleDirection(new Rotation2d(1, 0))
-        // ));
-
-
-        
-        // manipulatorXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
-        // manipulatorXbox.x().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
-        // // manipulatorXbox.b().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
-        // // manipulatorXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT)); 
-
-        //manipulatorXbox.a().whileTrue(new Roll(rollSubsystem, RollConstants.L1_POSITION));
-        // manipulatorXbox.x().whileTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
-
-        // manipulatorXbox.b().whileTrue(new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION));
-        //manipulatorXbox.y().onTrue(new Pitch(pitchSubsystem, PitchConstants.UPRIGHT));
-
-        // driverXbox.button(10).whileTrue(new Arm(armSubsystem, 120));
-        // driverXbox.button(9).whileTrue(new Arm(armSubsystem, 45));
-        // driverXbox.leftTrigger().whileTrue(new Arm(armSubsystem, 115));
         
         //Reset Gyro
-        driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driverXbox.back().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
         drivetrain.registerTelemetry(logger::telemeterize);
-        
-        // xbox.rightTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(xbox.getRawAxis(3))));
-        // xbox.leftTrigger(0.03).onTrue(new InstantCommand(() -> intakeSubsystem.setSpeed(-xbox.getRawAxis(2))));
-        
-        // driverXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.CORAL));
-        // // driverXbox.x().toggleOnTrue(new Intake(intakeSubsystem, Mode.ALGAE));
-        // driverXbox.rightTrigger().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
     }
 
     public double getSetpoint(){
@@ -213,8 +183,7 @@ public class RobotContainer {
     }
 
     public Command l4Position() {
-        return new InstantCommand();
-        // return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
+        return new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
     }
 
     public Command basePosition() {
@@ -225,9 +194,10 @@ public class RobotContainer {
         return new Arm(armSubsystem, ArmConstants.GROUND_PICKUP).alongWith(new Roll(rollSubsystem, RollConstants.GROUND_PICKUP), new Pitch(pitchSubsystem, PitchConstants.GROUND_PICKUP), new Extender(extenderSubsystem, ExtenderConstants.GROUND_PICKUP));
     }
 
-    // public Command roll(double setpoint) {
-    //     return new Pitch(pitchSubsystem, PitchConstants.UPRIGHT).withTimeout(.5).andThen(new Roll(rollSubsystem, setpoint));
-    // }
+    public Command algaeL3Position() {
+        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)); 
+    }
+
 
         
     public Command getAutonomousCommand() {
