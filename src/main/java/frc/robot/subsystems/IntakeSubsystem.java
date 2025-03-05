@@ -22,6 +22,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Intake").addNumber("Distance", () -> getDistance());
         Shuffleboard.getTab("Intake").addBoolean("Distance Sensor", () -> colorSensor.isConnected());
+        Shuffleboard.getTab("Intake").addNumber("Blue", () -> colorSensor.getBlue());
     }
 
     public void run(double speed) {
@@ -30,6 +31,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public int getDistance() {
         return colorSensor.getProximity();
+    }
+
+    public int getBlue() {
+        return colorSensor.getBlue();
     }
 
     public void stop() {

@@ -10,7 +10,7 @@ import frc.robot.subsystems.RollSubsystem;
 public class Roll extends Command {
 
   private RollSubsystem rollSubsystem;
-  private double setpoint;
+  public double setpoint;
 
   /**
    * Create a new command that runs the roll subsystem to the specified setpoint.

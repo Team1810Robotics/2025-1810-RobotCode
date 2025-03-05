@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonUtils;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
@@ -16,6 +17,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -28,29 +30,27 @@ public class VisionSubsystem extends SubsystemBase {
     public static PhotonPipelineResult result;
     List<PhotonPipelineResult> allResults;
     double targetYaw, targetRange;
-    boolean targetVisible;
 
     public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
     public PIDController driveControllerY = new PIDController(VisionConstants.VY_Kp,VisionConstants.VY_Ki,VisionConstants.VY_Kd);
     public PIDController driveControllerX = new PIDController(VisionConstants.VX_Kp,VisionConstants.VX_Ki,VisionConstants.VX_Kd);
 
-    
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-
-    
     
     public static final Transform3d CAMERA_TO_ROBOT =
         new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
-        camera = new PhotonCamera(VisionConstants.TARGET_CAMERA_LEFT);
+        camera = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
         photonPoseEstimator =
                 new PhotonPoseEstimator(
                         aprilTagFieldLayout,
                         PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
                         CAMERA_TO_ROBOT);
         result = camera.getLatestResult();
+
+        Shuffleboard.getTab("Vision").addBoolean("Has Camera", () -> camera.isConnected());
 
         Shuffleboard.getTab("Vision").add("Vision Rotiation PID", rotController);
         Shuffleboard.getTab("Vision").add("Vision Y PID", driveControllerY);
@@ -60,6 +60,10 @@ public class VisionSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Vision").addNumber("Pitch", () -> getPitch().get());
         Shuffleboard.getTab("Vision").addNumber("Range", () -> getRange().get());
         Shuffleboard.getTab("Vision").addNumber("Range - X", () -> getXRange().get());
+
+        Shuffleboard.getTab("Vision").addBoolean("Has Target", () -> hasTarget());
+        Shuffleboard.getTab("Vision").addBoolean("Range Present", () -> getRange().isPresent());
+
 
         Shuffleboard.getTab("Vision").addNumber("Distance Error", () -> getRangeError().get());
 
@@ -82,7 +86,7 @@ public class VisionSubsystem extends SubsystemBase {
     public Optional<Double> getRange() {
         if (hasTarget()) {
             // Get the range to the target using the best target's pose
-            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getNorm());
+            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.of(1000.0);
     } //bennett martin is evil

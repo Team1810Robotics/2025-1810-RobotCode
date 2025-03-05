@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.Mode;
@@ -27,33 +28,29 @@ public class Intake extends Command {
 
     @Override
     public void initialize() {
-        if (mode == Mode.ALGAE) {
-        }
+
         
     }
 
     @Override
     public void execute() {
-        if (mode == Mode.CORAL) {
+        int blue = intakeSubsystem.getBlue();
+        int distance = intakeSubsystem.getDistance();
+        if (mode == Mode.IN && blue < 10 && distance > 1800) {
+            intakeSubsystem.run(.1);
+        } else if (mode == Mode.IN) {
             intakeSubsystem.run(1);
-        } else if (mode == Mode.ALGAE){
-            intakeSubsystem.run(.75);
-        } else if (mode == Mode.IDLE){
-            if (intakeSubsystem.getDistance() > 1500){
-            intakeSubsystem.run(.3);
-            }
-        } else if (mode == Mode.OUT){
-            intakeSubsystem.run(-.25);
-        } else {
-            intakeSubsystem.run(.05);
+        } else if (mode == Mode.OUT) {
+            intakeSubsystem.run(-.15);
         }
     }
 
     @Override
     public boolean isFinished() {
         int distance = intakeSubsystem.getDistance();
+        int blue = intakeSubsystem.getBlue();
 
-        if (distance > 2000 && mode == Mode.CORAL) {
+        if (distance > 2000 && mode == Mode.IN && blue > 10) {
             return true;
         } 
 

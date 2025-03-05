@@ -16,7 +16,7 @@ public class RollSubsystem extends SubsystemBase {
     private SparkMax rollMotor;
     private DutyCycleEncoder encoder;
 
-    private PIDController rollPIDController;
+    public PIDController rollPIDController;
 
     private SparkMaxConfig config;
 
