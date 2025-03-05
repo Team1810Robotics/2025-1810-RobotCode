@@ -31,6 +31,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         config = new SparkMaxConfig();
         config.idleMode(IdleMode.kBrake);
+        config.smartCurrentLimit(40);
         extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
