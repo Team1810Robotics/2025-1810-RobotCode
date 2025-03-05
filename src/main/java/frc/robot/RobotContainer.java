@@ -110,7 +110,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX((visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
                     .withVelocityY((visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
-                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalc(-driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalcLeft(-driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.rightTrigger().whileTrue(
@@ -223,7 +223,7 @@ public class RobotContainer {
                     
                     // Standard deviations based on target distance
                     // The further the target, the higher the standard deviation
-                    double distance = visionSubsystem.getRange().orElse(5.0);
+                    double distance = visionSubsystem.getRangeLeft().orElse(5.0);
                     double xStdDev = 0.1 + distance * 0.05; // Higher std dev with distance
                     double yStdDev = 0.1 + distance * 0.05;
                     double thetaStdDev = 0.1 + distance * 0.01;
