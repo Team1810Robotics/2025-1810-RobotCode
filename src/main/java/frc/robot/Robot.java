@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -14,6 +15,8 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   public final RobotContainer m_robotContainer;
+
+  public AutoFactory autoFactory;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
@@ -45,6 +48,8 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
+
+    m_robotContainer.l2Position();
   }
 
   @Override
@@ -58,6 +63,7 @@ public class Robot extends TimedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
+    m_robotContainer.drivetrain.seedFieldCentric();
   }
 
   @Override

@@ -66,8 +66,8 @@ public class VisionSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Vision").addNumber("Distance Error Left", () -> getRangeErrorLeft().get());
 
-        Shuffleboard.getTab("Vision").addNumber("driveYOut Left", () -> visionDrive(0.0, 0.5, true, false, driveControllerY));
-        Shuffleboard.getTab("Vision").addNumber("driveXOut Left", () -> visionDrive(0.0, 0.0, true, false, driveControllerX));
+        Shuffleboard.getTab("Vision").addNumber("driveYOut Left", () -> visionYDrive(0.0, 0.5, true, false, driveControllerY));
+        Shuffleboard.getTab("Vision").addNumber("driveXOut Left", () -> visionXDrive(0.0, 0.0, true, false, driveControllerX));
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -164,11 +164,19 @@ public class VisionSubsystem extends SubsystemBase {
        * @param driveMode True/False input for if we do want to drive towards the apriltag.
        * @return
        */
-      public double visionDrive(double altDrive, double distance, boolean driveModeLeft, boolean driveModeRight, PIDController pid){
+      public double visionYDrive(double altDrive, double distance, boolean driveModeLeft, boolean driveModeRight, PIDController pid){
         if (getRangeLeft().isPresent() && driveModeLeft && hasTarget()){
             return pid.calculate(getYawLeft().get() - distance);
         } if (getRangeRight().isPresent() && driveModeRight && hasTarget()){
             return pid.calculate(getYawRight().get() - distance);
+        } else return altDrive;
+      }
+
+      public double visionXDrive(double altDrive, double distance, boolean driveModeLeft, boolean driveModeRight, PIDController pid){
+        if (getRangeLeft().isPresent() && driveModeLeft && hasTarget()){
+            return pid.calculate(getRangeLeft().get() - distance);
+        } if (getRangeRight().isPresent() && driveModeRight && hasTarget()){
+            return pid.calculate(getRangeRight().get() - distance);
         } else return altDrive;
       }
     

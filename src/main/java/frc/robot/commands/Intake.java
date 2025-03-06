@@ -41,7 +41,7 @@ public class Intake extends Command {
         } else if (mode == Mode.IN) {
             intakeSubsystem.run(1);
         } else if (mode == Mode.OUT) {
-            intakeSubsystem.run(-.15);
+            intakeSubsystem.run(-.25);
         }
     }
 

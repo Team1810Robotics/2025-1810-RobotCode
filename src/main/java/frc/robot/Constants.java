@@ -26,7 +26,7 @@ public class Constants {
             public static final double L1_POSITION = 140 - 25;
             public static final double L2_POSITION = 225 + 35;
             public static final double L3_POSITION = 225 + 35;
-            public static final double L4_POSITION = 225 + 35;
+            public static final double L4_POSITION = 225 + 25;
             public static final double BASE_POSITION = 140; //Check This
             public static final double UPSIDE_DOWN = 35;
         }
@@ -44,9 +44,9 @@ public class Constants {
             public static final double INTAKE_POSITION = 126 + 4 ; // 45
             public static final double GROUND_PICKUP = 148;
             public static final double L1_POSITION = 120;
-            public static final double L2_POSITION = 130;
+            public static final double L2_POSITION = 130 - 6;
             public static final double L3_POSITION = 136;
-            public static final double L4_POSITION = 135;
+            public static final double L4_POSITION = 135 - 5;
             public static final double BASE_POSITION = 116; //Check This
 
 
@@ -82,7 +82,7 @@ public class Constants {
         public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 97.5;
-        public static final double L4_POSITION = 92.3;
+        public static final double L4_POSITION = 95;
 
         public static final double BASE_POSITION = 94;
     }
@@ -121,12 +121,12 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp = 0.5;
+        public static double VY_Kp = 0.9;
         public static double VY_Ki = 0.0;
         public static double VY_Kd = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp = 0.05;
+        public static double VX_Kp = 0.08;
         public static double VX_Ki = 0.0;
         public static double VX_Kd = 0.0;
     }

@@ -35,11 +35,11 @@ public class Extender extends Command {
             extenderSubsystem.extend(height);
         }
         
-        // if (height == ExtenderConstants.BASE_HEIGHT) {
-        //    extenderSubsystem.run(-.25);
-        // } else if (height == ExtenderConstants.L2_HEIGHT) {
-        //    extenderSubsystem.run(.8);
-        // }
+/*         if (height == ExtenderConstants.BASE_HEIGHT) {
+           extenderSubsystem.run(-.25);
+        } else if (height == ExtenderConstants.L2_HEIGHT) {
+           extenderSubsystem.run(.8);
+        } */
 
     }
 

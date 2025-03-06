@@ -56,6 +56,9 @@ import frc.robot.subsystems.VisionSubsystem;
 
 import com.pathplanner.lib.auto.NamedCommands;
 
+import choreo.auto.AutoChooser;
+import choreo.auto.AutoFactory;
+
 @SuppressWarnings("unused") // For now :) 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -82,12 +85,16 @@ public class RobotContainer {
     public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
     public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
-
-    private final SendableChooser<Command> autoChooser;
+    //private final SendableChooser<Command> autoChooser;
 
     public double currentPitch;
     public double currentArm;
     public double currentExtenstion;
+
+    /* Path follower */
+    private final AutoFactory autoFactory;
+    private final AutoRoutines autoRoutines;
+    private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
         // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
@@ -95,26 +102,36 @@ public class RobotContainer {
         addNamedCommands();
         configureVisionPoseEstimation();
 
-        autoChooser = AutoBuilder.buildAutoChooser("");
-        Shuffleboard.getTab("Automonus").add("Auto Chooser", autoChooser);
+        autoFactory = drivetrain.createAutoFactory();
+        autoRoutines = new AutoRoutines(autoFactory);
+
+        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
+
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
 
         Shuffleboard.getTab("Swerve").addNumber("S Velo", () -> drivetrain.getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
 
         Shuffleboard.getTab("Swerve").addNumber("FL Turn Error", () -> drivetrain.getState().ModulePositions[2].angle.getDegrees());
+
+        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
     }
 
     private void configureBindings() {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((visionSubsystem.visionDrive(driverXbox.getLeftY(), 0.3, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-                    .withVelocityY((visionSubsystem.visionDrive(driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
-                    .withRotationalRate(-visionSubsystem.visionTargetPIDCalcLeft(-driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                    .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                    .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.rightTrigger().whileTrue(
-            drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 8))
+            drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 1).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 1).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 1))
+        );
+
+        driverXbox.leftTrigger().whileTrue(
+            drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
         );
 
         manipulatorXbox.a().onTrue(l1Position());
@@ -151,6 +168,20 @@ public class RobotContainer {
     //     return new Roll(rollSubsystem, RollConstants.UPSIDE_DOWN).alongWith(new Pitch(pitchSubsystem, currentPitch), new Arm(armSubsystem, currentArm), new Extender(extenderSubsystem, currentExtenstion));
     // }
 
+    public Command visionDriveLeft() {
+        return drivetrain.applyRequest(() ->
+        drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, true, false, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, true, false, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+            .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
+    }
+
+    public Command visionDriveRight() {
+        return drivetrain.applyRequest(() ->
+        drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, false, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, false, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+            .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
+    }
+
     public Command intakePostition() {
         return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)), (new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)), updateCurrentPositions(currentArm, currentExtenstion, currentPitch));
     }
@@ -186,10 +217,6 @@ public class RobotContainer {
     public Command updateCurrentPositions(double arm, double extend, double pitch) {
         return new RunCommand(() -> currentArm = arm).alongWith(new RunCommand(() -> currentExtenstion = extend), new RunCommand(() -> currentPitch = pitch));
     }
-        
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
-    }
 
     public void addNamedCommands(){
         NamedCommands.registerCommand("Base Position", basePosition());
@@ -200,6 +227,13 @@ public class RobotContainer {
         NamedCommands.registerCommand("Algae L3", algaeL3Position());
         NamedCommands.registerCommand("Ground Pickup", groundPickup());
         NamedCommands.registerCommand("Intake Position", intakePostition());
+        NamedCommands.registerCommand("Vis Drive Left", visionDriveLeft());
+        NamedCommands.registerCommand("Vis Drive Right", visionDriveRight());
+    }
+
+    public Command getAutonomousCommand() {
+        /* Run the routine selected from the auto chooser */
+        return autoChooser.selectedCommand();
     }
 
     private void configureVisionPoseEstimation() {
