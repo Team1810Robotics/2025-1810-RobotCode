@@ -21,14 +21,14 @@ public class Constants {
 
             public static final double SCORE_POSITION = 163;
             
-            public static final double INTAKE_POSITION = 140;
-            public static final double GROUND_PICKUP = 141;
-            public static final double L1_POSITION = 140 - 25;
-            public static final double L2_POSITION = 225 + 35;
-            public static final double L3_POSITION = 225 + 35;
-            public static final double L4_POSITION = 225 + 25;
-            public static final double BASE_POSITION = 140; //Check This
-            public static final double UPSIDE_DOWN = 35;
+            public static final double INTAKE_POSITION = 140 - 8;
+            public static final double GROUND_PICKUP = 141 - 8;
+            public static final double L1_POSITION = 140 - 25 - 8;
+            public static final double L2_POSITION = 225 + 35 ;
+            public static final double L3_POSITION = 225 + 35 ;
+            public static final double L4_POSITION = 225 + 25 ;
+            public static final double BASE_POSITION = 140 - 8; //Check This
+            public static final double UPSIDE_DOWN = 35 - 8;
         }
         
         public class PitchConstants {
@@ -82,7 +82,7 @@ public class Constants {
         public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 97.5;
-        public static final double L4_POSITION = 95;
+        public static final double L4_POSITION = 92;
 
         public static final double BASE_POSITION = 94;
     }
@@ -126,7 +126,7 @@ public class Constants {
         public static double VY_Kd = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp = 0.08;
+        public static double VX_Kp = 0.099;
         public static double VX_Ki = 0.0;
         public static double VX_Kd = 0.0;
     }

@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.swerve.SwerveRequest;
+
 import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -36,7 +38,7 @@ public class Robot extends TimedRobot {
   public void disabledInit() {}
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {m_robotContainer.drivetrain.applyRequest(() -> m_robotContainer.brake);}
 
   @Override
   public void disabledExit() {}

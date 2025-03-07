@@ -35,8 +35,11 @@ public class VisionSubsystem extends SubsystemBase {
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     
-    public static final Transform3d CAMERA_TO_ROBOT =
+    public static final Transform3d CAMERA_TO_ROBOT_RIGHT =
         new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
+    
+        public static final Transform3d CAMERA_TO_ROBOT_LEFT =
+        new Transform3d(new Translation3d(0.127, -0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
@@ -46,7 +49,7 @@ public class VisionSubsystem extends SubsystemBase {
                 new PhotonPoseEstimator(
                         aprilTagFieldLayout,
                         PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
-                        CAMERA_TO_ROBOT);
+                        CAMERA_TO_ROBOT_RIGHT);
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
 

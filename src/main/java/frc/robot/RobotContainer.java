@@ -10,7 +10,8 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.pathplanner.lib.auto.AutoBuilder;
+//import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -53,11 +54,14 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.AutoRoutines;
 
-import com.pathplanner.lib.auto.NamedCommands;
+//import com.pathplanner.lib.auto.NamedCommands;
 
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
+import choreo.auto.AutoRoutine;
+import choreo.auto.AutoTrajectory;
 
 @SuppressWarnings("unused") // For now :) 
 public class RobotContainer {
@@ -68,16 +72,19 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.RobotCentric visDrive = new SwerveRequest.RobotCentric()
+            .withDeadband(MaxSpeed * 0.1)
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+    public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController driverXbox = new CommandXboxController(0);
-    private final CommandXboxController manipulatorXbox = new CommandXboxController(1);
+    public final static CommandXboxController driverXbox = new CommandXboxController(0);
+    public final static CommandXboxController manipulatorXbox = new CommandXboxController(1);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final static IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static ArmSubsystem armSubsystem = new ArmSubsystem();
     public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
@@ -97,15 +104,21 @@ public class RobotContainer {
     private final AutoChooser autoChooser = new AutoChooser();
 
     public RobotContainer() {
-        // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
-        configureBindings();
-        addNamedCommands();
-        configureVisionPoseEstimation();
 
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory);
 
-        autoChooser.addRoutine("SimplePath", autoRoutines::simplePathAuto);
+        autoFactory
+        .bind("IN", new Intake(intakeSubsystem, Mode.IN))
+        .bind("score", new Intake(intakeSubsystem, Mode.OUT))
+        .bind("L2", l2Position());
+
+        // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
+        configureBindings();
+        addNamedCommands();
+
+        autoChooser.addRoutine("Line Test", autoRoutines::lineTest);
+        autoChooser.addRoutine("Leave", autoRoutines::leave);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
@@ -121,9 +134,9 @@ public class RobotContainer {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                    .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
-                    .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                drive.withVelocityX((-driverXbox.getLeftY() * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                    .withVelocityY((-driverXbox.getLeftX() * MaxSpeed) / 4) // Drive left with negative X (left)
+                    .withRotationalRate(driverXbox.getRightX() * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.rightTrigger().whileTrue(
@@ -132,6 +145,18 @@ public class RobotContainer {
 
         driverXbox.leftTrigger().whileTrue(
             drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
+        );
+
+        driverXbox.x().whileTrue(
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.5, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+        );
+
+        driverXbox.b().whileTrue(
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.5, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         manipulatorXbox.a().onTrue(l1Position());
@@ -163,6 +188,8 @@ public class RobotContainer {
         
         drivetrain.registerTelemetry(logger::telemeterize);
     }
+
+
 
     // public Command flipIntake(){
     //     return new Roll(rollSubsystem, RollConstants.UPSIDE_DOWN).alongWith(new Pitch(pitchSubsystem, currentPitch), new Arm(armSubsystem, currentArm), new Extender(extenderSubsystem, currentExtenstion));
@@ -234,51 +261,6 @@ public class RobotContainer {
     public Command getAutonomousCommand() {
         /* Run the routine selected from the auto chooser */
         return autoChooser.selectedCommand();
-    }
-
-    private void configureVisionPoseEstimation() {
-        // Run vision-based pose estimation on a separate thread
-        new Thread(() -> {
-            while (true) {
-                // Get the current estimated pose from the drivetrain
-                Pose2d currentPose = drivetrain.getState().Pose;
-                
-                // Get vision-estimated pose
-                Optional<EstimatedRobotPose> visionEstimate = 
-                    visionSubsystem.getEstimatedGlobalPose(currentPose);
-                
-                // If we have a vision measurement, add it to the drivetrain
-                if (visionEstimate.isPresent()) {
-                    EstimatedRobotPose pose = visionEstimate.get();
-                    
-                    // Timestamped pose from PhotonVision
-                    Pose2d visionPose = pose.estimatedPose.toPose2d();
-                    double timestamp = pose.timestampSeconds;
-                    
-                    // Standard deviations based on target distance
-                    // The further the target, the higher the standard deviation
-                    double distance = visionSubsystem.getRangeLeft().orElse(5.0);
-                    double xStdDev = 0.1 + distance * 0.05; // Higher std dev with distance
-                    double yStdDev = 0.1 + distance * 0.05;
-                    double thetaStdDev = 0.1 + distance * 0.01;
-                    
-                    // Create standard deviation matrix for vision measurement
-                    Matrix<N3, N1> visionStdDevs = VecBuilder.fill(xStdDev, yStdDev, thetaStdDev);
-                    
-                    // Add vision measurement to drivetrain pose estimator
-                    drivetrain.addVisionMeasurement(visionPose, timestamp, visionStdDevs);
-                }
-                
-                // Sleep to avoid overwhelming CPU
-                try {
-                    Thread.sleep(20); // 50Hz update rate
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    
+    }  
 }
 
