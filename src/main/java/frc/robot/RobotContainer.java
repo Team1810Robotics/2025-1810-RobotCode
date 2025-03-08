@@ -10,8 +10,6 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-//import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -43,6 +41,7 @@ import frc.robot.Constants.WristConstants.RollConstants;
 import frc.robot.commands.Arm;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
+import frc.robot.commands.ManualExtender;
 import frc.robot.commands.Pitch;
 import frc.robot.commands.Roll;
 import frc.robot.generated.TunerConstants;
@@ -88,11 +87,11 @@ public class RobotContainer {
     public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     public final static ArmSubsystem armSubsystem = new ArmSubsystem();
     public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
-    public final static LedSubsystem ledSubsystem = new LedSubsystem();
+    //public final static LedSubsystem ledSubsystem = new LedSubsystem();
     public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
     public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
-    //private final SendableChooser<Command> autoChooser;
+    private final SendableChooser<Command> autoChooserS = new SendableChooser<>();
 
     public double currentPitch;
     public double currentArm;
@@ -115,10 +114,12 @@ public class RobotContainer {
 
         // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
         configureBindings();
-        addNamedCommands();
 
         autoChooser.addRoutine("Line Test", autoRoutines::lineTest);
+        autoChooser.addRoutine("Line Test Str", autoRoutines::lineTestStraight);
         autoChooser.addRoutine("Leave", autoRoutines::leave);
+        autoChooser.addRoutine("Move", () -> autoRoutines.move());
+        autoChooser.addRoutine("Dis", () -> autoRoutines.dis());
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
@@ -127,7 +128,7 @@ public class RobotContainer {
 
         Shuffleboard.getTab("Swerve").addNumber("FL Turn Error", () -> drivetrain.getState().ModulePositions[2].angle.getDegrees());
 
-        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
+        //Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
     }
 
     private void configureBindings() {
@@ -140,11 +141,11 @@ public class RobotContainer {
         );
 
         driverXbox.rightTrigger().whileTrue(
-            drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 1).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 1).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 1))
+            drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 1).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 1).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 1))
         );
 
         driverXbox.leftTrigger().whileTrue(
-            drivetrain.applyRequest(() -> drive.withVelocityX(driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
+            drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
         );
 
         driverXbox.x().whileTrue(
@@ -161,6 +162,7 @@ public class RobotContainer {
 
         manipulatorXbox.a().onTrue(l1Position());
         manipulatorXbox.b().onTrue(l2Position());
+        // driverXbox.leftStick().onTrue(basePosition());
         manipulatorXbox.x().onTrue(l3Position());
         manipulatorXbox.y().onTrue(l4Position());
         manipulatorXbox.back().onTrue(algaeL3Position());
@@ -169,8 +171,8 @@ public class RobotContainer {
         manipulatorXbox.leftBumper().onTrue(basePosition());
         //manipulatorXbox.start().onTrue(flipIntake());
 
-        //driverXbox.a().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
-        //driverXbox.y().whileTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        driverXbox.a().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
+        driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
 
         // manipulatorXbox.a().onTrue(new Roll(rollSubsystem, RollConstants.L2_POSITION));
         //manipulatorXbox.y().onTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
@@ -243,19 +245,6 @@ public class RobotContainer {
 
     public Command updateCurrentPositions(double arm, double extend, double pitch) {
         return new RunCommand(() -> currentArm = arm).alongWith(new RunCommand(() -> currentExtenstion = extend), new RunCommand(() -> currentPitch = pitch));
-    }
-
-    public void addNamedCommands(){
-        NamedCommands.registerCommand("Base Position", basePosition());
-        NamedCommands.registerCommand("L1 Position", l1Position());
-        NamedCommands.registerCommand("L2 Position", l2Position());
-        NamedCommands.registerCommand("L3 Position", l3Position());
-        NamedCommands.registerCommand("L4 Position", l4Position());
-        NamedCommands.registerCommand("Algae L3", algaeL3Position());
-        NamedCommands.registerCommand("Ground Pickup", groundPickup());
-        NamedCommands.registerCommand("Intake Position", intakePostition());
-        NamedCommands.registerCommand("Vis Drive Left", visionDriveLeft());
-        NamedCommands.registerCommand("Vis Drive Right", visionDriveRight());
     }
 
     public Command getAutonomousCommand() {

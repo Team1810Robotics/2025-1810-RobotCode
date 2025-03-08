@@ -44,8 +44,14 @@ public class PitchSubsystem extends SubsystemBase {
      * @param setPoint Setpoint for wrist
      */
     public void run(double setPoint) {
-      if (encoder.isConnected())  pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
-      else stop();
+      if (encoder.isConnected()) {
+        pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
+      }
+      else {
+        System.out.println("Pitch Encoder Disconnected");
+        stop();
+        pitchMotor.disable();
+      }
     }
 
 

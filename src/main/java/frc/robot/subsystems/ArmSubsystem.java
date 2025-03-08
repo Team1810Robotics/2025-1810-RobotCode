@@ -70,6 +70,7 @@ public class ArmSubsystem extends SubsystemBase {
             double output = armPIDController.calculate(getMeasurement(), setpoint);
             armMotor1.set(-output);
         } else {
+            System.out.println("Arm Encoder Disconnected");
             stop();
             Elastic.sendNotification(notification.withAutomaticHeight());
         }

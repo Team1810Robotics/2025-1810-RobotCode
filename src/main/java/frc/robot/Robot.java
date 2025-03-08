@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,7 +29,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
-    RobotContainer.ledSubsystem.periodic();
+    //RobotContainer.ledSubsystem.periodic();
   }
 
   @Override
@@ -51,7 +49,7 @@ public class Robot extends TimedRobot {
       m_autonomousCommand.schedule();
     }
 
-    m_robotContainer.l2Position();
+    m_robotContainer.basePosition();
   }
 
   @Override

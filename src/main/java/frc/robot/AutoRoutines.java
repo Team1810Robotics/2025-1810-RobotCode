@@ -8,10 +8,8 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import choreo.auto.AutoFactory;
 import choreo.auto.AutoRoutine;
 import choreo.auto.AutoTrajectory;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ExtenderConstants;
@@ -25,7 +23,6 @@ import frc.robot.commands.Pitch;
 import frc.robot.commands.Roll;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
@@ -33,7 +30,7 @@ import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
 public class AutoRoutines {
-    private final AutoFactory m_factory;
+    public final AutoFactory m_factory;
     ArmSubsystem armSubsystem = RobotContainer.armSubsystem;
     RollSubsystem rollSubsystem = RobotContainer.rollSubsystem;
     PitchSubsystem pitchSubsystem = RobotContainer.pitchSubsystem;
@@ -43,10 +40,10 @@ public class AutoRoutines {
     CommandXboxController driverXbox = RobotContainer.driverXbox;
     CommandXboxController manipulatorXbox = RobotContainer.manipulatorXbox;
 
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
+    public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    public double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    public final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
@@ -82,16 +79,100 @@ public class AutoRoutines {
         // When the routine begins, reset odometry and start the first trajectory (1)
         routine_linetest.active().onTrue(
             Commands.sequence(
-                
+                //new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)),
                 driveToMiddle.resetOdometry(),
                 driveToMiddle.cmd()
             )
         );
 
-        driveToMiddle.atTime(2).onTrue(l2Position());
-        driveToMiddle.atTime(3).onTrue(l3Position());
-        driveToMiddle.atTime(3).onTrue(l4Position());
-        driveToMiddle.atTime(4).onTrue(new Intake(intakeSubsystem, Mode.OUT));
+        //driveToMiddle.done().onTrue(new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L3_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)));;
+        driveToMiddle.done(30).onTrue(new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT)));
+        driveToMiddle.done(120).onTrue(new Intake(intakeSubsystem, Mode.OUT));
+        driveToMiddle.done(150).onTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));
+        driveToMiddle.done(200).onTrue(new Intake(intakeSubsystem, Mode.STOP));
+
+        //driveToMiddle.atTime(5).onTrue()
+
+        return routine_linetest;
+    }
+
+    public AutoRoutine proper() {
+        AutoRoutine routine_linetest = m_factory.newRoutine("Proper Fac");
+
+        // Load the routine's trajectories
+        AutoTrajectory driveToMiddle = routine_linetest.trajectory("Proper");
+
+        // When the routine begins, reset odometry and start the first trajectory (1)
+        routine_linetest.active().onTrue(
+            Commands.sequence(
+                //new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)),
+                driveToMiddle.resetOdometry(),
+                driveToMiddle.cmd()
+            )
+        );
+
+        //driveToMiddle.done().onTrue(new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L3_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)));;
+        // driveToMiddle.done(30).onTrue(new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT)));
+        // driveToMiddle.done(120).onTrue(new Intake(intakeSubsystem, Mode.OUT));
+        // driveToMiddle.done(150).onTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));
+        // driveToMiddle.done(200).onTrue(new Intake(intakeSubsystem, Mode.STOP));
+
+        //driveToMiddle.atTime(5).onTrue()
+
+        return routine_linetest;
+    }
+
+    public AutoRoutine dis() {
+        AutoRoutine routine_linetest = m_factory.newRoutine("Dis Fac");
+
+        AutoTrajectory driveToMiddle = routine_linetest.trajectory("DisTest");
+
+        routine_linetest.active().onTrue(
+            Commands.sequence(
+                driveToMiddle.resetOdometry(),
+                driveToMiddle.cmd()
+            )
+        );
+
+        return routine_linetest;
+    }
+
+    public AutoRoutine lineTestStraight() {
+        AutoRoutine routine_linetest = m_factory.newRoutine("Reef Straight");
+
+        // Load the routine's trajectories
+        AutoTrajectory driveToMiddle = routine_linetest.trajectory("LineTestChoSt");
+
+        // When the routine begins, reset odometry and start the first trajectory (1)
+        routine_linetest.active().onTrue(
+            Commands.sequence(
+                //new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)),
+                driveToMiddle.resetOdometry(),
+                driveToMiddle.cmd()
+            )
+        );
+
+        //driveToMiddle.done().onTrue(new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L3_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)));;
+        driveToMiddle.done(100).onTrue(new Arm(armSubsystem, ArmConstants.L4_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.L4_POSITION), new Pitch(pitchSubsystem, PitchConstants.L4_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L4_HEIGHT)));
+        driveToMiddle.done(190).onTrue(new Intake(intakeSubsystem, Mode.OUT));
+        driveToMiddle.done(300).onTrue(new Arm(armSubsystem, ArmConstants.BASE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.BASE_POSITION), new Pitch(pitchSubsystem, PitchConstants.BASE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));
+        driveToMiddle.done(300).onTrue(new Intake(intakeSubsystem, Mode.STOP));
+
+        //driveToMiddle.atTime(5).onTrue()
+
+        return routine_linetest;
+    }
+    public AutoRoutine move() {
+        AutoRoutine routine_linetest = m_factory.newRoutine("Super Leave");
+
+        // Load the routine's trajectories
+        AutoTrajectory driveToMiddle = routine_linetest.trajectory("Leave");
+
+        // When the routine begins, reset odometry and start the first trajectory (1)
+        routine_linetest.active().onTrue(
+            driveToMiddle.cmd()
+        );
+
 
         //driveToMiddle.atTime(5).onTrue()
 
@@ -99,19 +180,19 @@ public class AutoRoutines {
     }
 
     public AutoRoutine leave() {
-        AutoRoutine routine_linetest = m_factory.newRoutine("Leave");
+        AutoRoutine routine_leave = m_factory.newRoutine("Leave");
 
-        AutoTrajectory driveToMiddle = routine_linetest.trajectory("Leave");
+        AutoTrajectory leaveTrj = routine_leave.trajectory("Leave");
 
-        routine_linetest.active().onTrue(
+        routine_leave.active().onTrue(
             Commands.sequence(
-                
-                driveToMiddle.resetOdometry(),
-                driveToMiddle.cmd()
+                leaveTrj.resetOdometry(),
+                leaveTrj.cmd(),
+                Commands.print("Running Leave Auto")
             )
         );
 
-        return routine_linetest;
+        return routine_leave;
     }
 
     public AutoRoutine simplePathAuto() {
@@ -131,7 +212,7 @@ public class AutoRoutines {
     } */
 
 /*     public Command visionDriveRight() {
-        return drivetrain.applyRequest(() ->
+        drivetrain.applyRequest(() ->
         drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, false, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
             .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, false, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)); // Drive counterclockwise with negative X (left)

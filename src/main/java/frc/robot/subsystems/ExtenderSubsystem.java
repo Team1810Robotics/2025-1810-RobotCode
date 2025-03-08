@@ -104,6 +104,10 @@ public class ExtenderSubsystem extends SubsystemBase {
     public void extend(double height) {
         if (encoder.isConnected()) {    
             extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
+        } else {
+            stop();
+            extenderMotor.disable();
+            System.out.println("Extender Encoder Disconnected");
         }
     }
 

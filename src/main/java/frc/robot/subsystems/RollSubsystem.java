@@ -54,8 +54,14 @@ public class RollSubsystem extends SubsystemBase {
      * @param setPoint setpoint for wrist
      */
     public void run(double setpoint) {
-      if(encoder.isConnected()) rollMotor.set(rollPIDController.calculate(getMeasurment(), setpoint));
-      else stop();
+      if(encoder.isConnected()) {
+        rollMotor.set(rollPIDController.calculate(getMeasurment(), setpoint));
+      }
+      else {
+        System.out.println("Roll Encoder Disconnected");
+        stop();
+        rollMotor.disable();
+      }
     }
 
     public void stop() {

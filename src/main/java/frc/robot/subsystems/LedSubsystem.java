@@ -21,13 +21,13 @@ public class LedSubsystem extends SubsystemBase {
         CANdleConfiguration configAll = new CANdleConfiguration();
         configAll.statusLedOffWhenActive = true;
         configAll.disableWhenLOS = false;
-        configAll.stripType = CANdle.LEDStripType.GRB; //TODO: make sure this is right if the leds do not turn on
+        configAll.stripType = CANdle.LEDStripType.GRB;
         configAll.brightnessScalar = 0.1;
         configAll.vBatOutputMode = CANdle.VBatOutputMode.Modulated;
         m_candle.configAllSettings(configAll, 100);
     }
 
-    public void manageLed(){ //TODO: Need leds to be put on / Get right counts
+    public void manageLed(){
         m_candle.setLEDs(255, 0, 0, 0, 0, LedConstants.CANdle_COUNT); //Candle leds - 8
         m_candle.setLEDs(0, 150, 150, 0, LedConstants.CANdle_COUNT+1, LedConstants.ARM_L_COUNT); //Left Arm leds - ?
         m_candle.setLEDs(255, 0, 0, 0, LedConstants.ARM_L_COUNT+1, LedConstants.ARM_R_COUNT); //Right Arm leds - ?

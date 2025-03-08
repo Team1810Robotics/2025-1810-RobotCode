@@ -15,8 +15,6 @@ public class Constants {
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            //TODO: Figure out setpoints more
-
             //public static final double INTAKE_POSITION = 65;
 
             public static final double SCORE_POSITION = 163;
@@ -60,6 +58,7 @@ public class Constants {
         public enum Mode {
             IN,
             OUT,
+            STOP
         }
     }
 
@@ -100,8 +99,8 @@ public class Constants {
 
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.2;
-        public static final double L3_HEIGHT = 6.72;
-        public static final double L4_HEIGHT = 14;
+        public static final double L3_HEIGHT = 6.72 - 1;
+        public static final double L4_HEIGHT = 14 - 1;
         public static final double BASE_HEIGHT = 0.1;
         public static final double GROUND_PICKUP = L2_HEIGHT;
 
