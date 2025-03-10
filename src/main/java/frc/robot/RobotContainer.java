@@ -19,6 +19,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -105,7 +108,7 @@ public class RobotContainer {
     public RobotContainer() {
 
         autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory);
+        autoRoutines = new AutoRoutines(autoFactory, drivetrain);
 
         autoFactory
         .bind("IN", new Intake(intakeSubsystem, Mode.IN))
@@ -118,8 +121,10 @@ public class RobotContainer {
         autoChooser.addRoutine("Line Test", autoRoutines::lineTest);
         autoChooser.addRoutine("Line Test Str", autoRoutines::lineTestStraight);
         autoChooser.addRoutine("Leave", autoRoutines::leave);
-        autoChooser.addRoutine("Move", () -> autoRoutines.move());
-        autoChooser.addRoutine("Dis", () -> autoRoutines.dis());
+        autoChooser.addRoutine("Move", autoRoutines::move);
+        autoChooser.addRoutine("Dis", autoRoutines::dis);
+        //autoChooser.addRoutine("VisTest", autoRoutines::visionTest);
+        autoChooser.addRoutine("Proper", autoRoutines::proper);
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
@@ -127,6 +132,8 @@ public class RobotContainer {
         Shuffleboard.getTab("Swerve").addNumber("S Velo", () -> drivetrain.getModule(0).getDriveMotor().getVelocity().getValueAsDouble());
 
         Shuffleboard.getTab("Swerve").addNumber("FL Turn Error", () -> drivetrain.getState().ModulePositions[2].angle.getDegrees());
+
+        Shuffleboard.getTab("Teleop").addNumber("Battery Voltage",() -> RobotController.getBatteryVoltage());
 
         //Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
     }
@@ -137,7 +144,7 @@ public class RobotContainer {
             drivetrain.applyRequest(() ->
                 drive.withVelocityX((-driverXbox.getLeftY() * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                     .withVelocityY((-driverXbox.getLeftX() * MaxSpeed) / 4) // Drive left with negative X (left)
-                    .withRotationalRate(driverXbox.getRightX() * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+                    .withRotationalRate(driverXbox.getRightX() * MaxAngularRate)) // Drive counterclockwise with negative X (left
         );
 
         driverXbox.rightTrigger().whileTrue(
@@ -149,15 +156,15 @@ public class RobotContainer {
         );
 
         driverXbox.x().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.5, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
-                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.b().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.5, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, driverXbox.x().getAsBoolean(), driverXbox.b().getAsBoolean(), visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
-                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+                .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         manipulatorXbox.a().onTrue(l1Position());
@@ -173,6 +180,9 @@ public class RobotContainer {
 
         driverXbox.a().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
         driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+
 
         // manipulatorXbox.a().onTrue(new Roll(rollSubsystem, RollConstants.L2_POSITION));
         //manipulatorXbox.y().onTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
@@ -199,15 +209,15 @@ public class RobotContainer {
 
     public Command visionDriveLeft() {
         return drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, true, false, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, true, false, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
     }
 
     public Command visionDriveRight() {
         return drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, false, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, false, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+        drive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
     }
 

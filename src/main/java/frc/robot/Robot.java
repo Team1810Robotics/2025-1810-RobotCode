@@ -6,6 +6,8 @@ package frc.robot;
 
 import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -24,6 +26,11 @@ public class Robot extends TimedRobot {
     CameraServer.startAutomaticCapture();
 
     Shuffleboard.getTab("Teleoperated").add(CommandScheduler.getInstance());
+  }
+
+  @Override
+  public void robotInit(){
+    WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
   @Override

@@ -111,8 +111,8 @@ public class Constants {
     }
 
     public class VisionConstants {
-        public static final String TARGET_CAMERA_RIGHT = "Arducam_OV9281_USB_Camera";
-        public static final String TARGET_CAMERA_LEFT = "USB_Camera";
+        public static final String TARGET_CAMERA_LEFT = "RIGHT_TARGET_CAM";
+        public static final String TARGET_CAMERA_RIGHT = "LEFT_TARGET_CAM";
         
         //Vision Rotation PID vars
         public static double VR_Kp = 0.07;

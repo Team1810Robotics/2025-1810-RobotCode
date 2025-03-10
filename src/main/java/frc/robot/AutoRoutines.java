@@ -23,6 +23,7 @@ import frc.robot.commands.Pitch;
 import frc.robot.commands.Roll;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
@@ -40,6 +41,8 @@ public class AutoRoutines {
     CommandXboxController driverXbox = RobotContainer.driverXbox;
     CommandXboxController manipulatorXbox = RobotContainer.manipulatorXbox;
 
+    CommandSwerveDrivetrain drivetrain;
+
     public double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
 
@@ -47,27 +50,9 @@ public class AutoRoutines {
         .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
-    public AutoRoutines(AutoFactory factory) {
+    public AutoRoutines(AutoFactory factory, CommandSwerveDrivetrain drivetrain) {
+        this.drivetrain = drivetrain;
         m_factory = factory;
-    }
-
-    public AutoRoutine pickupAndScoreAuto() {
-        AutoRoutine routine = m_factory.newRoutine("taxi");
-
-        // Load the routine's trajectories
-        AutoTrajectory driveToMiddle = routine.trajectory("test");
-
-        // When the routine begins, reset odometry and start the first trajectory (1)
-        routine.active().onTrue(
-            Commands.sequence(
-                driveToMiddle.resetOdometry(),
-                driveToMiddle.cmd()
-            )
-        );
-
-        //driveToMiddle.atTime(5).onTrue()
-
-        return routine;
     }
 
     public AutoRoutine lineTest() {
@@ -137,6 +122,30 @@ public class AutoRoutines {
         return routine_linetest;
     }
 
+    public AutoRoutine visionTest() {
+        AutoRoutine routine_linetest = m_factory.newRoutine("Dis Fac");
+
+        AutoTrajectory vistest = routine_linetest.trajectory("VisionTest");
+        AutoTrajectory vistest2 = routine_linetest.trajectory("VisionTest");
+
+        routine_linetest.active().onTrue(
+            Commands.sequence(
+                vistest.resetOdometry(),
+                vistest.cmd()
+            )
+        );
+
+        vistest.done(50).whileTrue(drivetrain.applyRequest(() ->
+        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+            .withRotationalRate(0)));
+        vistest.done(100).onTrue(new Intake(intakeSubsystem, Mode.OUT));
+        vistest.done(200).onTrue(new Intake(intakeSubsystem, Mode.STOP));
+        vistest.done(201).onTrue(vistest2.resetOdometry().alongWith(vistest2.cmd()));
+
+        return routine_linetest;
+    }
+
     public AutoRoutine lineTestStraight() {
         AutoRoutine routine_linetest = m_factory.newRoutine("Reef Straight");
 
@@ -162,17 +171,20 @@ public class AutoRoutines {
 
         return routine_linetest;
     }
+
     public AutoRoutine move() {
         AutoRoutine routine_linetest = m_factory.newRoutine("Super Leave");
 
         // Load the routine's trajectories
-        AutoTrajectory driveToMiddle = routine_linetest.trajectory("Leave");
+        AutoTrajectory driveToMiddle = routine_linetest.trajectory("BackLeftReefStart");
 
         // When the routine begins, reset odometry and start the first trajectory (1)
         routine_linetest.active().onTrue(
-            driveToMiddle.cmd()
+            Commands.sequence(
+                driveToMiddle.resetOdometry(),
+                driveToMiddle.cmd()
+            )
         );
-
 
         //driveToMiddle.atTime(5).onTrue()
 
@@ -195,28 +207,12 @@ public class AutoRoutines {
         return routine_leave;
     }
 
-    public AutoRoutine simplePathAuto() {
-        final AutoRoutine routine = m_factory.newRoutine("SimplePath Auto");
-        final AutoTrajectory simplePath = routine.trajectory("SimplePath");
-
-        routine.active().onTrue(
-            simplePath.resetOdometry()
-                .andThen(simplePath.cmd())
-        );
-        return routine;
-    }
-
-    
-/*     public Command visionDriveLeft() {
-        return RobotContainer.visionDriveLeft();
-    } */
-
-/*     public Command visionDriveRight() {
-        drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDrive(driverXbox.getLeftY(), -0.05, false, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDrive(-driverXbox.getLeftX(), 0.0, false, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+    public Command visionDriveRight() {
+        return drivetrain.applyRequest(() ->
+        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
-    } */
+    }
 
     public Command intakePostition() {
         return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)), (new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));

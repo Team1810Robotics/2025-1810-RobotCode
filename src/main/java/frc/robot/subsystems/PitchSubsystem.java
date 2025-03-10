@@ -54,8 +54,6 @@ public class PitchSubsystem extends SubsystemBase {
       }
     }
 
-
-
     public void stop() {
         pitchMotor.stopMotor();
     }
