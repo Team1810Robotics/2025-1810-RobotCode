@@ -1,5 +1,10 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,8 +20,13 @@ import frc.robot.Constants.ExtenderConstants;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
-    private SparkMax extenderMotor;
+    // private TalonFX extenderMotor;
     private DutyCycleEncoder encoder;
+
+    // private TalonFXConfigurator configuration;
+    // private CurrentLimitsConfigs currentLimitsConfigs;
+
+    private SparkMax extenderMotor;
     private SparkMaxConfig config;
 
     private PIDController extenderPIDController;
@@ -26,14 +36,23 @@ public class ExtenderSubsystem extends SubsystemBase {
 
 
     public ExtenderSubsystem() {
+        // extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
         config = new SparkMaxConfig();
-        config.idleMode(IdleMode.kBrake);
+
         config.smartCurrentLimit(40);
+        config.idleMode(IdleMode.kBrake);
         extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+        // configuration = extenderMotor.getConfigurator();
+
+        // currentLimitsConfigs.StatorCurrentLimit = 40;
+        // currentLimitsConfigs.StatorCurrentLimitEnable = true;
+
+        // configuration.apply(currentLimitsConfigs);
+        
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
@@ -43,8 +62,6 @@ public class ExtenderSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Extender").addNumber("Cumulative Rotations", () -> cumulativeRotations);
 
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
-
-        Shuffleboard.getTab("Extender").addNumber("Applied Motor Power", () -> extenderMotor.getAppliedOutput());
 
         Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
     }

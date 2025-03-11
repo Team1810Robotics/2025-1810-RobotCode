@@ -69,6 +69,8 @@ import choreo.auto.AutoTrajectory;
 @SuppressWarnings("unused") // For now :) 
 public class RobotContainer {
 
+    private int ethanCulver;
+
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
 
@@ -109,6 +111,8 @@ public class RobotContainer {
 
     public RobotContainer() {
 
+        ethanCulver = 0;
+
         autoFactory = drivetrain.createAutoFactory();
         autoRoutines = new AutoRoutines(autoFactory, drivetrain);
 
@@ -132,6 +136,7 @@ public class RobotContainer {
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
 
         Shuffleboard.getTab("Teleop").addNumber("Battery Voltage",() -> RobotController.getBatteryVoltage());
+        Shuffleboard.getTab("Teleoperated").addNumber("ETHAN CULVER WILL FEEL MY VENGANCE", () -> ethanCulver);
 
         //Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
     }
@@ -164,6 +169,10 @@ public class RobotContainer {
                 .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
+
+        driverXbox.x().onTrue(Commands.runOnce(() -> ethanCulver++));
+        driverXbox.b().onTrue(Commands.runOnce(() -> ethanCulver++));
+
 
         manipulatorXbox.a().onTrue(l1Position());
         manipulatorXbox.b().onTrue(l2Position());

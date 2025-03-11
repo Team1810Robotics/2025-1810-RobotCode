@@ -9,22 +9,23 @@ public class Constants {
             public static final int ENCODER_ID = 2;
             public static final double ENCODER_OFFSET = .1; 
 
-            public static double kP = 0.002;
-            public static double kI = 0.0;
-            public static double kD = 0.0;
+            public static double kPI = 0.05; 
+            public static double kII = 0.0;
+            public static double kDI = 0.00001;
 
-            //public static final double INTAKE_POSITION = 65;
+            public static double kPD = 0.006;
+            public static double kID = 0.0;
+            public static double kDD = 0.0;
 
-            public static final double SCORE_POSITION = 163;
+
             
-            public static final double INTAKE_POSITION = 140 - 8;
-            public static final double GROUND_PICKUP = 141 - 8;
-            public static final double L1_POSITION = 140 - 25 - 8;
-            public static final double L2_POSITION = 225 + 35 ;
-            public static final double L3_POSITION = 225 + 35 ;
-            public static final double L4_POSITION = 225 + 25 ;
-            public static final double BASE_POSITION = 140 - 8; //Check This
-            public static final double UPSIDE_DOWN = 35 - 8;
+            public static final double INTAKE_POSITION = 200;
+            public static final double GROUND_PICKUP = 200;
+            public static final double L1_POSITION = 290;
+            public static final double L2_POSITION = 290 ;
+            public static final double L3_POSITION = 290 ;
+            public static final double L4_POSITION = 290 ;
+            public static final double BASE_POSITION = 200; 
         }
         
         public class PitchConstants {
@@ -90,7 +91,7 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .23;
 
-        public static double kP = 1;
+        public static double kP = 4.9;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
@@ -118,7 +119,7 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp = 0.9;
+        public static double VY_Kp = 2;
         public static double VY_Ki = 0.0;
         public static double VY_Kd = 0.0;
 

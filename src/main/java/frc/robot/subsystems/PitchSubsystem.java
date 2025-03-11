@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -12,10 +14,14 @@ public class PitchSubsystem extends SubsystemBase {
     private SparkMax pitchMotor;
     private DutyCycleEncoder encoder;
 
+    // private TalonFX pitchMotor;
+
+
     private PIDController pitchPIDController;
 
     public PitchSubsystem() {
         pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
+        // pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
         pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
@@ -34,7 +40,7 @@ public class PitchSubsystem extends SubsystemBase {
 
     public double getMeasurment(){
       double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
-      double degrees = position * 360;
+      double degrees = Units.rotationsToDegrees(position);
      
       return degrees; 
     }
