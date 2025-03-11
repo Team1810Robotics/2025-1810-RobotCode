@@ -9,7 +9,7 @@ public class Constants {
             public static final int ENCODER_ID = 2;
             public static final double ENCODER_OFFSET = .1; 
 
-            public static double kPI = 0.05; 
+            public static double kPI = 0.06; 
             public static double kII = 0.0;
             public static double kDI = 0.00001;
 
@@ -98,8 +98,8 @@ public class Constants {
 
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.2;
-        public static final double L3_HEIGHT = 6.72 - 1;
-        public static final double L4_HEIGHT = 14 - 1;
+        public static final double L3_HEIGHT = 6.72;
+        public static final double L4_HEIGHT = 14;
         public static final double BASE_HEIGHT = 0.1;
         public static final double GROUND_PICKUP = L2_HEIGHT;
 

@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -98,40 +99,25 @@ public class RobotContainer {
     public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
     public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
-    private final SendableChooser<Command> autoChooserS = new SendableChooser<>();
+    private final SendableChooser<Command> evilAutoChooser = new SendableChooser<>();
+    private final SendableChooser<Command> autoChooser ;
 
     public double currentPitch;
     public double currentArm;
     public double currentExtenstion;
 
-    /* Path follower */
-    private final AutoFactory autoFactory;
-    private final AutoRoutines autoRoutines;
-    private final AutoChooser autoChooser = new AutoChooser();
-
     public RobotContainer() {
-
         ethanCulver = 0;
 
-        autoFactory = drivetrain.createAutoFactory();
-        autoRoutines = new AutoRoutines(autoFactory, drivetrain);
-
-        autoFactory
-        .bind("IN", new Intake(intakeSubsystem, Mode.IN))
-        .bind("score", new Intake(intakeSubsystem, Mode.OUT))
-        .bind("L2", l2Position());
+        autoChooser = AutoBuilder.buildAutoChooser("");
+        evilAutoChooser.addOption("One Note BAD EVIL", autoOneNoteBAD());
 
         // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
         configureBindings();
+        getAutonomousCommand();
 
-        autoChooser.addRoutine("Line Test", autoRoutines::lineTest);
-        autoChooser.addRoutine("Line Test Str", autoRoutines::lineTestStraight);
-        autoChooser.addRoutine("Leave", autoRoutines::leave);
-        autoChooser.addRoutine("Move", autoRoutines::move);
-        autoChooser.addRoutine("Dis", autoRoutines::dis);
-        //autoChooser.addRoutine("VisTest", autoRoutines::visionTest);
-        autoChooser.addRoutine("Proper", autoRoutines::proper);
-        SmartDashboard.putData("Auto Chooser", autoChooser);
+        SmartDashboard.putData("Auto Chooser A", autoChooser);
+        Shuffleboard.getTab("Autonomous").add(evilAutoChooser);
 
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
 
@@ -158,13 +144,13 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
         );
 
-        driverXbox.x().whileTrue(
+        driverXbox.b().whileTrue(
             drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                 .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
-        driverXbox.b().whileTrue(
+        driverXbox.x().whileTrue(
             drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                 .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
@@ -265,8 +251,21 @@ public class RobotContainer {
     }
 
     public Command getAutonomousCommand() {
-        /* Run the routine selected from the auto chooser */
-        return autoChooser.selectedCommand();
+        //autoChooser.setDefaultOption("No Auto", new InstantCommand());
+
+        if (autoChooser.getSelected() != null){
+            return autoChooser.getSelected();
+        } else {
+            return Commands.print("No autonomous command configured, if a path was chosen, this is an error.");
+        }
     }  
+
+    public Command autoOneNoteBAD() {
+        return Commands.runOnce(
+            () -> drivetrain.applyRequest(
+                () -> drive.withVelocityX(visionSubsystem.visionXDriveLeft(0, 0, true, visionSubsystem.driveControllerX)).withVelocityY(visionSubsystem.visionYDriveLeft(0, 0, true, visionSubsystem.driveControllerY)).withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(0, true))
+            ), 
+            visionSubsystem).withTimeout(5).andThen(l4Position()).withTimeout(3).andThen(new Intake(intakeSubsystem, Mode.OUT)).withTimeout(.5).andThen(basePosition());
+    }
 }
 
