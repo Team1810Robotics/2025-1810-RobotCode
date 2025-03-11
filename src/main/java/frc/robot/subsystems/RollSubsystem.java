@@ -34,7 +34,6 @@ public class RollSubsystem extends SubsystemBase {
 
         rollMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-
         Shuffleboard.getTab("Roll").addNumber("Roll Rad Raw", () -> encoder.get());
         Shuffleboard.getTab("Roll").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);
         Shuffleboard.getTab("Roll").addNumber("Roll Deg", () -> getMeasurment());

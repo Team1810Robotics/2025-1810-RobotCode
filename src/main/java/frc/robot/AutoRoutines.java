@@ -136,8 +136,8 @@ public class AutoRoutines {
         );
 
         vistest.done(50).whileTrue(drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)));
         vistest.done(100).onTrue(new Intake(intakeSubsystem, Mode.OUT));
         vistest.done(200).onTrue(new Intake(intakeSubsystem, Mode.STOP));
@@ -209,8 +209,8 @@ public class AutoRoutines {
 
     public Command visionDriveRight() {
         return drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
+        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 3.5) // Drive left with negative X (left)
             .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
     }
 

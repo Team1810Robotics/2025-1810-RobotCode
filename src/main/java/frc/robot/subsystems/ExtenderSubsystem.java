@@ -48,7 +48,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         // configuration.apply(currentLimitsConfigs);
         
-        extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
+        extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Adj", () -> getEncoder());
@@ -132,7 +132,4 @@ public class ExtenderSubsystem extends SubsystemBase {
     public void periodic() {
         totalRotations();
     }
-
-    
-
 }

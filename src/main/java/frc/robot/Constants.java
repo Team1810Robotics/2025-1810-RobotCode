@@ -119,14 +119,24 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp = 2;
-        public static double VY_Ki = 0.0;
-        public static double VY_Kd = 0.0;
+        public static double VY_Kp_Right = 2;
+        public static double VY_Ki_Right = 0.0;
+        public static double VY_Kd_Right = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp = 0.099;
-        public static double VX_Ki = 0.0;
-        public static double VX_Kd = 0.0;
+        public static double VX_Kp_Right = 0.099;
+        public static double VX_Ki_Right = 0.0;
+        public static double VX_Kd_Right = 0.0;
+
+        //Vision Drive PID vars
+        public static double VY_Kp_Left = 2;
+        public static double VY_Ki_Left = 0.0;
+        public static double VY_Kd_Left = 0.0;
+
+        //Vision Drive PID var
+        public static double VX_Kp_Left = 0.099;
+        public static double VX_Ki_Left = 0.0;
+        public static double VX_Kd_Left = 0.0;
     }
 
     public class LedConstants {

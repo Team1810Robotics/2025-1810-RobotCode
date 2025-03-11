@@ -10,8 +10,10 @@ import org.photonvision.EstimatedRobotPose;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
@@ -84,6 +86,7 @@ public class RobotContainer {
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    private final SwerveRequest.FieldCentricFacingAngle angle = new SwerveRequest.FieldCentricFacingAngle();
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -99,45 +102,45 @@ public class RobotContainer {
     public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
     public final static RollSubsystem rollSubsystem = new RollSubsystem();
 
-    private final SendableChooser<Command> evilAutoChooser = new SendableChooser<>();
     private final SendableChooser<Command> autoChooser ;
 
-    public double currentPitch;
-    public double currentArm;
-    public double currentExtenstion;
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     public RobotContainer() {
         ethanCulver = 0;
 
-        autoChooser = AutoBuilder.buildAutoChooser("");
-        evilAutoChooser.addOption("One Note BAD EVIL", autoOneNoteBAD());
-
-        // intakeSubsystem.setDefaultCommand(new Intake(intakeSubsystem, Mode.IDLE));
+        addNamedCommands();
         configureBindings();
-        getAutonomousCommand();
+        autoChooser = AutoBuilder.buildAutoChooser("");
+        configureAutonomus();
 
-        SmartDashboard.putData("Auto Chooser A", autoChooser);
-        Shuffleboard.getTab("Autonomous").add(evilAutoChooser);
+        SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
 
         Shuffleboard.getTab("Teleop").addNumber("Battery Voltage",() -> RobotController.getBatteryVoltage());
         Shuffleboard.getTab("Teleoperated").addNumber("ETHAN CULVER WILL FEEL MY VENGANCE", () -> ethanCulver);
 
-        //Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
+        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
+
+        Shuffleboard.getTab("Vision").addNumber("VisPara", () -> visionSubsystem.visionPara(0, true, drivetrain.getPigeon2().getAngle()));
     }
 
     private void configureBindings() {
 
         drivetrain.setDefaultCommand(
             drivetrain.applyRequest(() ->
-                drive.withVelocityX((-driverXbox.getLeftY() * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                    .withVelocityY((-driverXbox.getLeftX() * MaxSpeed) / 4) // Drive left with negative X (left)
-                    .withRotationalRate(driverXbox.getRightX() * MaxAngularRate)) // Drive counterclockwise with negative X (left
+                drive.withVelocityX((-driverXbox.getLeftY() * MaxSpeed) / 4)
+                    .withVelocityY((-driverXbox.getLeftX() * MaxSpeed) / 4)
+                    .withRotationalRate(driverXbox.getRightX() * MaxAngularRate))
         );
 
         driverXbox.rightTrigger().whileTrue(
             drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 1).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 1).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 1))
+        );
+
+        driverXbox.a().whileTrue(
+            drivetrain.applyRequest(() -> visDrive.withRotationalRate(-visionSubsystem.visionPara(driverXbox.getRightX(), true, drivetrain.getPigeon2().getAngle())))
         );
 
         driverXbox.leftTrigger().whileTrue(
@@ -145,77 +148,71 @@ public class RobotContainer {
         );
 
         driverXbox.b().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.x().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerY) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-                .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 4) // Drive left with negative X (left)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYLeft) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+                .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXLeft) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
         driverXbox.x().onTrue(Commands.runOnce(() -> ethanCulver++));
         driverXbox.b().onTrue(Commands.runOnce(() -> ethanCulver++));
 
-
         manipulatorXbox.a().onTrue(l1Position());
         manipulatorXbox.b().onTrue(l2Position());
-        // driverXbox.leftStick().onTrue(basePosition());
         manipulatorXbox.x().onTrue(l3Position());
         manipulatorXbox.y().onTrue(l4Position());
         manipulatorXbox.back().onTrue(algaeL3Position());
         manipulatorXbox.rightBumper().onTrue(intakePostition()); //Base
         manipulatorXbox.back().onTrue(groundPickup());
         manipulatorXbox.leftBumper().onTrue(basePosition());
-        //manipulatorXbox.start().onTrue(flipIntake());
 
         driverXbox.a().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
         driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        driverXbox.rightStick().onTrue(drivetrain.runOnce(() -> drivetrain.getPigeon2().setYaw(0)));
         manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
         manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
-
-
-        // manipulatorXbox.a().onTrue(new Roll(rollSubsystem, RollConstants.L2_POSITION));
-        //manipulatorXbox.y().onTrue(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION));
-
-        // manipulatorXbox.leftBumper().onTrue(new Pitch(pitchSubsystem, PitchConstants.UPRIGHT));
-
-        // manipulatorXbox.b().onTrue(new Extender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
-        // manipulatorXbox.x().onTrue(new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT));
 
         manipulatorXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, Mode.IN));
         manipulatorXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
         
         //Reset Gyro
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        
-        drivetrain.registerTelemetry(logger::telemeterize);
     }
 
+    public void addNamedCommands(){
+        NamedCommands.registerCommand("Intake", intakePostition());
+        NamedCommands.registerCommand("Base", basePosition());
+        NamedCommands.registerCommand("L2", l2Position());
+        NamedCommands.registerCommand("L3", l3Position());
+        NamedCommands.registerCommand("L4", l4Position());
 
+        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT));
+        NamedCommands.registerCommand("Intake", new Intake(intakeSubsystem, Mode.IN));
 
-    // public Command flipIntake(){
-    //     return new Roll(rollSubsystem, RollConstants.UPSIDE_DOWN).alongWith(new Pitch(pitchSubsystem, currentPitch), new Arm(armSubsystem, currentArm), new Extender(extenderSubsystem, currentExtenstion));
-    // }
-
-    public Command visionDriveLeft() {
-        return drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
-            .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
+        //NamedCommands.registerCommand("Test",  drivetrain.applyRequest(() -> drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
+        NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)));
+        NamedCommands.registerCommand("RightTag",  drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)));
     }
 
-    public Command visionDriveRight() {
-        return drivetrain.applyRequest(() ->
-        drive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerY) * MaxSpeed) / 3.5) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerX) * MaxSpeed) / 3.5) // Drive left with negative X (left)
-            .withRotationalRate(0)); // Drive counterclockwise with negative X (left)
-    }
+    public Command configureAutonomus() {
+        if (autoChooser.getSelected() != null){
+            return autoChooser.getSelected();
+        } else {
+            return Commands.print("No autonomous command configured, if a path was chosen, this is an error.");
+        }
+    }  
 
     public Command intakePostition() {
-        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)), (new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)), updateCurrentPositions(currentArm, currentExtenstion, currentPitch));
+        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)), (new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));
     }
 
     public Command l1Position() {
@@ -245,27 +242,4 @@ public class RobotContainer {
     public Command algaeL3Position() {
         return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)); 
     }
-
-    public Command updateCurrentPositions(double arm, double extend, double pitch) {
-        return new RunCommand(() -> currentArm = arm).alongWith(new RunCommand(() -> currentExtenstion = extend), new RunCommand(() -> currentPitch = pitch));
-    }
-
-    public Command getAutonomousCommand() {
-        //autoChooser.setDefaultOption("No Auto", new InstantCommand());
-
-        if (autoChooser.getSelected() != null){
-            return autoChooser.getSelected();
-        } else {
-            return Commands.print("No autonomous command configured, if a path was chosen, this is an error.");
-        }
-    }  
-
-    public Command autoOneNoteBAD() {
-        return Commands.runOnce(
-            () -> drivetrain.applyRequest(
-                () -> drive.withVelocityX(visionSubsystem.visionXDriveLeft(0, 0, true, visionSubsystem.driveControllerX)).withVelocityY(visionSubsystem.visionYDriveLeft(0, 0, true, visionSubsystem.driveControllerY)).withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(0, true))
-            ), 
-            visionSubsystem).withTimeout(5).andThen(l4Position()).withTimeout(3).andThen(new Intake(intakeSubsystem, Mode.OUT)).withTimeout(.5).andThen(basePosition());
-    }
 }
-

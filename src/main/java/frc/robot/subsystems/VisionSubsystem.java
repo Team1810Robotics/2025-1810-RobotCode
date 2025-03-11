@@ -30,17 +30,20 @@ public class VisionSubsystem extends SubsystemBase {
     double targetYawRight, targetRangeRight;
 
     public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
-    public PIDController driveControllerY = new PIDController(VisionConstants.VY_Kp,VisionConstants.VY_Ki,VisionConstants.VY_Kd);
-    public PIDController driveControllerX = new PIDController(VisionConstants.VX_Kp,VisionConstants.VX_Ki,VisionConstants.VX_Kd);
+    public PIDController driveControllerYRight = new PIDController(VisionConstants.VY_Kp_Right, VisionConstants.VY_Ki_Right, VisionConstants.VY_Kd_Right);
+    public PIDController driveControllerXRight = new PIDController(VisionConstants.VX_Kp_Right, VisionConstants.VX_Ki_Right, VisionConstants.VX_Kd_Right);
 
+    //public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
+    public PIDController driveControllerYLeft = new PIDController(VisionConstants.VY_Kp_Left, VisionConstants.VY_Ki_Left, VisionConstants.VY_Kd_Left);
+    public PIDController driveControllerXLeft = new PIDController(VisionConstants.VX_Kp_Left, VisionConstants.VX_Ki_Left, VisionConstants.VX_Kd_Left);
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     
     public static final Transform3d CAMERA_TO_ROBOT_RIGHT =
-        new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
+        new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0));
     
         public static final Transform3d CAMERA_TO_ROBOT_LEFT =
-        new Transform3d(new Translation3d(0.127, -0.17145, 0.3175), new Rotation3d(0, 0, 0)); //13.5 6 6.4
+        new Transform3d(new Translation3d(0.127, -0.17145, 0.3175), new Rotation3d(0, 0, 0));
     
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
@@ -58,25 +61,8 @@ public class VisionSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Vision").addBoolean("Has Camera Left", () -> cameraLeft.isConnected());
 
         Shuffleboard.getTab("Vision/Test").add("Vision Rotiation PID", rotController);
-        Shuffleboard.getTab("Vision/Test").add("Vision Y PID", driveControllerY);
-        Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerX);
-
-
-/*         Shuffleboard.getTab("Vision").addNumber("Yaw Left", () -> getYawLeft().get());
-        Shuffleboard.getTab("Vision").addNumber("Pitch Left", () -> getPitchLeft().get());
-        Shuffleboard.getTab("Vision").addNumber("Range Left", () -> getRangeLeft().get());
-        Shuffleboard.getTab("Vision").addNumber("Range - X Left", () -> getXRangeLeft().get());
-
-        Shuffleboard.getTab("Vision").addBoolean("Has Target", () -> hasTarget());
-        Shuffleboard.getTab("Vision").addBoolean("Range Present Left", () -> getRangeLeft().isPresent());
-
-        Shuffleboard.getTab("Vision").addNumber("Distance Error Left", () -> getRangeErrorLeft().get());
-
-        Shuffleboard.getTab("Vision").addNumber("driveYOut Left", () -> visionYDriveLeft(0.0, 0.5, true, driveControllerY));
-        Shuffleboard.getTab("Vision").addNumber("driveXOut Left", () -> visionXDriveLeft(0.0, 0.0, true, driveControllerX));
-        
-        Shuffleboard.getTab("Vision").addNumber("driveYOut Right", () -> visionYDriveRight(0.0, 0.5, true, driveControllerY));
-        Shuffleboard.getTab("Vision").addNumber("driveXOut Right", () -> visionXDriveRight(0.0, 0.0, true, driveControllerX)); */
+        Shuffleboard.getTab("Vision/Test").add("Vision Y PID", driveControllerYRight);
+        Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerXRight);
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -153,6 +139,17 @@ public class VisionSubsystem extends SubsystemBase {
             return -rotController.calculate(getYawLeft().get());
         }
         if ((visionModeLeft == true) && !target) {
+            return altRotation;
+        }
+         return altRotation;
+     }
+
+      public double visionPara(double altRotation, boolean visionModeLeft, double gyro) {
+
+        if (visionModeLeft) {
+            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(7).get().getZ());
+        }
+        if ((visionModeLeft == true)) {
             return altRotation;
         }
          return altRotation;

@@ -9,7 +9,7 @@
         "containers": [
           {
             "title": "Pose",
-            "x": 512.0,
+            "x": 256.0,
             "y": 0.0,
             "width": 512.0,
             "height": 256.0,
@@ -162,6 +162,20 @@
               "topic": "/Shuffleboard/Teleoperated/Scheduler",
               "period": 0.06
             }
+          },
+          {
+            "title": "ETHAN CULVER WILL FEEL MY VENGANCE",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 768.0,
+            "height": 640.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Teleoperated/ETHAN CULVER WILL FEEL MY VENGANCE",
+              "period": 0.033,
+              "data_type": "double",
+              "show_submit_button": false
+            }
           }
         ]
       }
@@ -203,19 +217,6 @@
             }
           },
           {
-            "title": "Auto Chooser",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "ComboBox Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/Auto Chooser",
-              "period": 0.06,
-              "sort_options": false
-            }
-          },
-          {
             "title": "Pose",
             "x": 0.0,
             "y": 128.0,
@@ -246,342 +247,43 @@
               "topic": "/SmartDashboard/Choreo Alerts",
               "period": 0.06
             }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Intake",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
+          },
           {
-            "title": "Pitch Rad Adjust",
-            "x": 128.0,
+            "title": "SendableChooser[0]",
+            "x": 1024.0,
             "y": 0.0,
-            "width": 128.0,
+            "width": 384.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/Shuffleboard/Intake/Pitch Rad Adjust",
+              "topic": "/Shuffleboard/Autonomous/SendableChooser[0]",
               "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "sort_options": false
             }
           },
           {
-            "title": "Pitch PID",
-            "x": 0.0,
+            "title": "PathPlanner",
+            "x": 1024.0,
             "y": 128.0,
             "width": 256.0,
             "height": 384.0,
-            "type": "PIDController",
+            "type": "Alerts",
             "properties": {
-              "topic": "/Shuffleboard/Intake/Pitch PID",
+              "topic": "/SmartDashboard/PathPlanner",
               "period": 0.06
             }
           },
           {
-            "title": "Roll PID",
-            "x": 768.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 384.0,
-            "type": "PIDController",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Roll PID",
-              "period": 0.06
-            }
-          },
-          {
-            "title": "Pitch Deg",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Pitch Deg",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Pitch Rad Raw",
+            "title": "Auto Chooser A",
             "x": 0.0,
             "y": 0.0,
-            "width": 128.0,
+            "width": 384.0,
             "height": 128.0,
-            "type": "Text Display",
+            "type": "ComboBox Chooser",
             "properties": {
-              "topic": "/Shuffleboard/Intake/Pitch Rad Raw",
+              "topic": "/SmartDashboard/Auto Chooser A",
               "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Pitch Deg",
-            "x": 256.0,
-            "y": 128.0,
-            "width": 512.0,
-            "height": 512.0,
-            "type": "Graph",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Pitch Deg",
-              "period": 0.033,
-              "data_type": "double",
-              "time_displayed": 5.0,
-              "min_value": -10.0,
-              "max_value": 180.0,
-              "color": 4278238420,
-              "line_width": 2.0
-            }
-          },
-          {
-            "title": "Roll Deg",
-            "x": 1024.0,
-            "y": 128.0,
-            "width": 512.0,
-            "height": 512.0,
-            "type": "Graph",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Roll Deg",
-              "period": 0.033,
-              "data_type": "double",
-              "time_displayed": 5.0,
-              "min_value": 0.0,
-              "max_value": 270.0,
-              "color": 4278238420,
-              "line_width": 2.0
-            }
-          },
-          {
-            "title": "Roll Deg",
-            "x": 1024.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Roll Deg",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Roll Rad Adj",
-            "x": 896.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Roll Rad Adj",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Roll Rad Raw",
-            "x": 768.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Roll Rad Raw",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Distance",
-            "x": 128.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Distance",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Distance Sensor",
-            "x": 0.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Distance Sensor",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Pitch Encoder",
-            "x": 768.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/Shuffleboard/Encoder/Pitch Encoder",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Roll Encoder",
-            "x": 896.0,
-            "y": 512.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/Shuffleboard/Encoder/Roll Encoder",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "None",
-              "false_icon": "None"
-            }
-          },
-          {
-            "title": "Distance",
-            "x": 512.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Intake/Distance",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          }
-        ]
-      }
-    },
-    {
-      "name": "Vision",
-      "grid_layout": {
-        "layouts": [],
-        "containers": [
-          {
-            "title": "Yaw",
-            "x": 0.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/Yaw",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Pitch",
-            "x": 256.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/Pitch",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Range",
-            "x": 128.0,
-            "y": 0.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/Range",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Range - X",
-            "x": 128.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/Range - X",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Distance Error",
-            "x": 128.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/Distance Error",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "driveYOut",
-            "x": 0.0,
-            "y": 256.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/driveYOut",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "driveXOut",
-            "x": 0.0,
-            "y": 128.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/Shuffleboard/Vision/driveXOut",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "sort_options": false
             }
           }
         ]
@@ -825,8 +527,8 @@
               "period": 0.033,
               "data_type": "double",
               "time_displayed": 5.0,
-              "min_value": -5.0,
-              "max_value": 20.0,
+              "min_value": -1.0,
+              "max_value": 15.0,
               "color": 4278238420,
               "line_width": 2.0
             }
@@ -917,35 +619,267 @@
       }
     },
     {
-      "name": "Swerve",
+      "name": "Intake",
       "grid_layout": {
         "layouts": [],
         "containers": [
           {
-            "title": "S Velo",
-            "x": 0.0,
+            "title": "Pitch Rad Adjust",
+            "x": 128.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/Shuffleboard/Swerve/S Velo",
+              "topic": "/Shuffleboard/Intake/Pitch Rad Adjust",
               "period": 0.06,
               "data_type": "double",
               "show_submit_button": false
             }
           },
           {
-            "title": "FL Turn Error",
+            "title": "Pitch PID",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "PIDController",
+            "properties": {
+              "topic": "/Shuffleboard/Intake/Pitch PID",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Pitch Deg",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Intake/Pitch Deg",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pitch Rad Raw",
             "x": 0.0,
             "y": 0.0,
             "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/Shuffleboard/Swerve/FL Turn Error",
+              "topic": "/Shuffleboard/Intake/Pitch Rad Raw",
               "period": 0.06,
               "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Pitch Deg",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 512.0,
+            "height": 512.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Shuffleboard/Intake/Pitch Deg",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": -10.0,
+              "max_value": 180.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Distance",
+            "x": 128.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Intake/Distance",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Distance Sensor",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Shuffleboard/Intake/Distance Sensor",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tab 9",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "USB Camera 0",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 768.0,
+            "height": 512.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/USB Camera 0",
+              "period": 0.06
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Roll",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Roll PID Decreasing",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "PIDController",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll PID Decreasing",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Roll PID Increasing",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 384.0,
+            "type": "PIDController",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll PID Increasing",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Roll Deg",
+            "x": 256.0,
+            "y": 128.0,
+            "width": 512.0,
+            "height": 512.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll Deg",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 5.0,
+              "min_value": 190.0,
+              "max_value": 290.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Roll Deg",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll Deg",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Roll Rad Raw",
+            "x": 128.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll Rad Raw",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Roll Rad Adj",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Roll/Roll Rad Adj",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Vision",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Has Camera Right",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/Shuffleboard/Vision/Has Camera Right",
+              "period": 0.06,
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Teleop",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Battery Voltage",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Shuffleboard/Teleop/Battery Voltage",
+              "period": 0.06,
               "show_submit_button": false
             }
           }

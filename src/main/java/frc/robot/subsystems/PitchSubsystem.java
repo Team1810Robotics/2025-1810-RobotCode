@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.hardware.TalonFX;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
@@ -19,7 +18,6 @@ public class PitchSubsystem extends SubsystemBase {
 
     // private TalonFX pitchMotor;
 
-
     private PIDController pitchPIDController;
 
     public PitchSubsystem() {
@@ -28,7 +26,6 @@ public class PitchSubsystem extends SubsystemBase {
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
         config = new SparkMaxConfig();
-
         config.smartCurrentLimit(40);
 
         pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);

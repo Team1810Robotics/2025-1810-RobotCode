@@ -15,7 +15,6 @@ import frc.robot.lib.Elastic;
 import frc.robot.Constants.ArmConstants;
 import com.revrobotics.spark.SparkBase.ResetMode;
 
-
 public class ArmSubsystem extends SubsystemBase {
    
     private SparkMax armMotor1;
@@ -65,7 +64,6 @@ public class ArmSubsystem extends SubsystemBase {
         return degrees; 
     }
 
-
     public void run(double setpoint) {
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
@@ -85,7 +83,6 @@ public class ArmSubsystem extends SubsystemBase {
         return armMotor1.getOutputCurrent();
     }
 
-
     public void setSpeed(double speed){
         armMotor1.set(speed);
     }
@@ -95,9 +92,3 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2.stopMotor();
     }
 }
-
-
-
-
-
-
