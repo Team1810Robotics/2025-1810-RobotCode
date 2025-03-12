@@ -16,7 +16,7 @@ public class Roll extends Command {
    * Create a new command that runs the roll subsystem to the specified setpoint.
    *
    * @param rollSubsystem the subsystem to control
-   * @param setpoint the setpoint to run to
+   * @param setpoint Setpoint in degreees, setpoints found in {@link RollConstants}
    */
   public Roll(RollSubsystem rollSubsystem, double setpoint) {
     this.rollSubsystem = rollSubsystem;

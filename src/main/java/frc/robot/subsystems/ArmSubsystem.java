@@ -24,7 +24,7 @@ public class ArmSubsystem extends SubsystemBase {
     private SparkMaxConfig config1;
     private SparkMaxConfig config2;
 
-    Elastic.Notification notification;
+    private Elastic.Notification notification;
    
     private final PIDController armPIDController;
 

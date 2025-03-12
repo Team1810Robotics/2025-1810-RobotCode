@@ -1,11 +1,8 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
@@ -15,14 +12,14 @@ import frc.robot.Constants.ExtenderConstants;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
-    // private TalonFX extenderMotor;
+    private TalonFX extenderMotor;
     private DutyCycleEncoder encoder;
 
-    // private TalonFXConfigurator configuration;
-    // private CurrentLimitsConfigs currentLimitsConfigs;
+    private TalonFXConfigurator configuration;
+    private CurrentLimitsConfigs currentLimitsConfigs;
 
-    private SparkMax extenderMotor;
-    private SparkMaxConfig config;
+    //private SparkMax extenderMotor;
+    //private SparkMaxConfig config;
 
     private PIDController extenderPIDController;
 
@@ -31,22 +28,22 @@ public class ExtenderSubsystem extends SubsystemBase {
 
 
     public ExtenderSubsystem() {
-        // extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
-        extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
+        extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
+        //extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        config = new SparkMaxConfig();
+        //config = new SparkMaxConfig();
 
-        config.smartCurrentLimit(40);
-        config.idleMode(IdleMode.kBrake);
-        extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        //config.smartCurrentLimit(40);
+        //config.idleMode(IdleMode.kBrake);
+        //extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        // configuration = extenderMotor.getConfigurator();
+        configuration = extenderMotor.getConfigurator();
 
-        // currentLimitsConfigs.StatorCurrentLimit = 40;
-        // currentLimitsConfigs.StatorCurrentLimitEnable = true;
+        currentLimitsConfigs.StatorCurrentLimit = 40;
+        currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
-        // configuration.apply(currentLimitsConfigs);
+        configuration.apply(currentLimitsConfigs);
         
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
 

@@ -145,9 +145,8 @@ public class VisionSubsystem extends SubsystemBase {
      }
 
       public double visionPara(double altRotation, boolean visionModeLeft, double gyro) {
-
-        if (visionModeLeft) {
-            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(7).get().getZ());
+        if (visionModeLeft && rightHasTarget()) {
+            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
         }
         if ((visionModeLeft == true)) {
             return altRotation;

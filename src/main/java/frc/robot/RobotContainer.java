@@ -121,9 +121,9 @@ public class RobotContainer {
         Shuffleboard.getTab("Teleop").addNumber("Battery Voltage",() -> RobotController.getBatteryVoltage());
         Shuffleboard.getTab("Teleoperated").addNumber("ETHAN CULVER WILL FEEL MY VENGANCE", () -> ethanCulver);
 
-        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getAngle());
+        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
-        Shuffleboard.getTab("Vision").addNumber("VisPara", () -> visionSubsystem.visionPara(0, true, drivetrain.getPigeon2().getAngle()));
+        Shuffleboard.getTab("Vision").addNumber("VisPara", () -> visionSubsystem.visionPara(0, true, drivetrain.getPigeon2().getYaw().getValueAsDouble()));
     }
 
     private void configureBindings() {
@@ -140,7 +140,7 @@ public class RobotContainer {
         );
 
         driverXbox.a().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withRotationalRate(-visionSubsystem.visionPara(driverXbox.getRightX(), true, drivetrain.getPigeon2().getAngle())))
+            drivetrain.applyRequest(() -> visDrive.withRotationalRate(-visionSubsystem.visionPara(driverXbox.getRightX(), true, drivetrain.getPigeon2().getYaw().getValueAsDouble())))
         );
 
         driverXbox.leftTrigger().whileTrue(
@@ -159,8 +159,8 @@ public class RobotContainer {
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
-        driverXbox.x().onTrue(Commands.runOnce(() -> ethanCulver++));
-        driverXbox.b().onTrue(Commands.runOnce(() -> ethanCulver++));
+        driverXbox.x().or(driverXbox.a()).onTrue(Commands.runOnce(() -> ethanCulver++));
+        
 
         manipulatorXbox.a().onTrue(l1Position());
         manipulatorXbox.b().onTrue(l2Position());

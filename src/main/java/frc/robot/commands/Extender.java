@@ -33,12 +33,6 @@ public class Extender extends Command {
         if (currentTime - startTime > 4) {
             extenderSubsystem.extend(height);
         }
-        
-/*         if (height == ExtenderConstants.BASE_HEIGHT) {
-           extenderSubsystem.run(-.15);
-        } else if (height == ExtenderConstants.L2_HEIGHT) {
-           extenderSubsystem.run(.2);
-        } */
 
     }
 
