@@ -19,22 +19,22 @@ public class Constants {
 
 
             
-            public static final double INTAKE_POSITION = 200;
-            public static final double GROUND_PICKUP = 200;
-            public static final double L1_POSITION = 290;
-            public static final double L2_POSITION = 290 ;
-            public static final double L3_POSITION = 290 ;
-            public static final double L4_POSITION = 290 ;
-            public static final double BASE_POSITION = 200; 
+            public static final double INTAKE_POSITION = 140;
+            public static final double GROUND_PICKUP = 140;
+            public static final double L1_POSITION = 230;
+            public static final double L2_POSITION = 230;
+            public static final double L3_POSITION = 230;
+            public static final double L4_POSITION = 230;
+            public static final double BASE_POSITION = 140; 
         }
         
         public class PitchConstants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = .319 - (5.0/360.0);
+            public static final double ENCODER_OFFSET = 0;
         
-            public static double kP = 0.007;
+            public static double kP = 0.008;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
@@ -71,7 +71,7 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.000001;
 
-        public static final double ENCODER_OFFSET = .3034;
+        public static final double ENCODER_OFFSET = .465;
 
         public static final double INTAKE_POSITION = 104 - 5; //75 
 
@@ -89,7 +89,7 @@ public class Constants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double ENCODER_OFFSET = .23;
+        public static final double ENCODER_OFFSET = .75;
 
         public static double kP = 4.9;
         public static double kI = 0.0;
@@ -100,8 +100,8 @@ public class Constants {
         public static final double L2_HEIGHT = 0.2;
         public static final double L3_HEIGHT = 6.72;
         public static final double L4_HEIGHT = 14;
-        public static final double BASE_HEIGHT = 0.1;
-        public static final double GROUND_PICKUP = L2_HEIGHT;
+        public static final double BASE_HEIGHT = 0.2;
+        public static final double GROUND_PICKUP = 0.2;
 
 
         public static final double INCHES_PER_ROTATION = .5;

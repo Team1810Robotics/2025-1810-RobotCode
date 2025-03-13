@@ -13,8 +13,8 @@ public class ManualExtender extends Command {
      * Create a new Extender command.
      *
      * @param extenderSubsystem The {@link ExtenderSubsystem} to control.
-     * @param height            Runs up if {@link ExtenderConstants#L2_HEIGHT},
-     *                          run down if {@link ExtenderConstants#L4_HEIGHT}
+     * @param height            Runs up if {@link ExtenderConstants#L4_HEIGHT},
+     *                          run down if {@link ExtenderConstants#BASE_HEIGHT}
      */
     public ManualExtender(ExtenderSubsystem extenderSubsystem, double height) {
         this.extenderSubsystem = extenderSubsystem;
@@ -28,7 +28,7 @@ public class ManualExtender extends Command {
     public void execute() {
         if (height == ExtenderConstants.BASE_HEIGHT) {
            extenderSubsystem.run(-.15);
-        } else if (height == ExtenderConstants.L2_HEIGHT) {
+        } else if (height == ExtenderConstants.L4_HEIGHT) {
            extenderSubsystem.run(.2);
         }
 

@@ -126,13 +126,13 @@ public class VisionSubsystem extends SubsystemBase {
         return Optional.of(1000.0);
     }
     
-      @Override
-      public void periodic() {
+    @Override
+    public void periodic() {
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
-      }
+    }
 
-      public double visionTargetPIDCalcLeft(double altRotation, boolean visionModeLeft) {
+    public double visionTargetPIDCalcLeft(double altRotation, boolean visionModeLeft) {
         boolean target = leftHasTarget();
 
         if (target && visionModeLeft && getYawLeft().isPresent()) {
@@ -142,19 +142,9 @@ public class VisionSubsystem extends SubsystemBase {
             return altRotation;
         }
          return altRotation;
-     }
+    }
 
-      public double visionPara(double altRotation, boolean visionModeLeft, double gyro) {
-        if (visionModeLeft && rightHasTarget()) {
-            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
-        }
-        if ((visionModeLeft == true)) {
-            return altRotation;
-        }
-         return altRotation;
-     }
-
-      public double visionTargetPIDCalcRight(double altRotation, boolean visionModeRight) {
+    public double visionTargetPIDCalcRight(double altRotation, boolean visionModeRight) {
         boolean target = leftHasTarget();
 
         if (target && visionModeRight && getYawRight().isPresent()) {
@@ -164,71 +154,96 @@ public class VisionSubsystem extends SubsystemBase {
             return altRotation;
         }
          return altRotation;
-     }
+    }
 
-      /**
-       * Used to make the robot drive to a set distance away from an apriltag.
-       * 
-       * @param altDrive The input from the controller for then no tag is present.
-       * @param distance How far away from the apriltag do we want to be.
-       * @param driveMode True/False input for if we do want to drive towards the apriltag.
-       * @return
-       */
-      public double visionYDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
+    public double visionPara(double altRotation, boolean visionMode, double gyro) {
+        if (visionMode) {
+            if (rightHasTarget()) {
+                return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
+            }
+            if (leftHasTarget()) {
+                return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getZ());
+            }
+        }
+        if ((visionMode == true)) {
+            return altRotation;
+        }
+        return altRotation;
+    }
+
+    public double visionPara(double altRotation, boolean visionMode, double gyro, int tagId) {
+        if (visionMode) {
+            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
+        }
+        if ((visionMode == true)) {
+            return altRotation;
+        }
+        return altRotation;
+    }
+
+    /**
+    * Used to make the robot drive to a set distance away from an apriltag.
+    * 
+    * @param altDrive The input from the controller for then no tag is present.
+    * @param distance How far away from the apriltag do we want to be.
+    * @param driveMode True/False input for if we do want to drive towards the apriltag.
+    * @return
+    */
+    public double visionYDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
         if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()){
             return pid.calculate(getYawLeft().get() - distance);
         } else return altDrive;
-      }
+    }
 
-      public double visionYDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
+    public double visionYDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
         if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()){
             return pid.calculate(getYawRight().get() - distance);
         } else return altDrive;
-      }
+    }
 
-      public double visionXDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
+    public double visionXDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
         if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()){
             return pid.calculate(getRangeLeft().get() - distance);
         } else return altDrive;
-      }
+    }
 
-      public double visionXDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
+    public double visionXDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
         if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()){
             return pid.calculate(getRangeRight().get() - distance);
         } else return altDrive;
-      }
+    }
     
-      public Optional<Double> getYawLeft() {
-         if (leftHasTarget()) {
-              return Optional.of(resultLeft.getBestTarget().getYaw());
-          } else {
-              return Optional.of(1000.0);
-          }
-      }
-
-      public Optional<Double> getYawRight() {
-        if (rightHasTarget()) {
-             return Optional.of(resultRight.getBestTarget().getYaw());
-         } else {
-             return Optional.of(1000.0);
-         }
-     }
-
-      public Optional<Double> getPitchLeft() {
+    public Optional<Double> getYawLeft() {
         if (leftHasTarget()) {
-             return Optional.of(resultLeft.getBestTarget().getPitch());
-         } else {
-             return Optional.of(1000.0);
-         }
-     }
+            return Optional.of(resultLeft.getBestTarget().getYaw());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
 
-     public Optional<Double> getPitchRight() {
+    public Optional<Double> getYawRight() {
         if (rightHasTarget()) {
-             return Optional.of(resultRight.getBestTarget().getPitch());
-         } else {
-             return Optional.of(1000.0);
-         }
-     }
+            return Optional.of(resultRight.getBestTarget().getYaw());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
+
+     public Optional<Double> getPitchLeft() {
+        if (leftHasTarget()) {
+            return Optional.of(resultLeft.getBestTarget().getPitch());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
+
+    public Optional<Double> getPitchRight() {
+        if (rightHasTarget()) {
+            return Optional.of(resultRight.getBestTarget().getPitch());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
     
     public boolean leftHasTarget(){
         return resultLeft.hasTargets();

@@ -11,6 +11,7 @@ import org.photonvision.EstimatedRobotPose;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -28,6 +29,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -60,7 +62,6 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
-import frc.robot.AutoRoutines;
 
 //import com.pathplanner.lib.auto.NamedCommands;
 
@@ -73,6 +74,7 @@ import choreo.auto.AutoTrajectory;
 public class RobotContainer {
 
     private int ethanCulver;
+    private Field2d field2d;
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond)*1.5; // 3/4 of a rotation per second max angular velocity
@@ -108,6 +110,10 @@ public class RobotContainer {
 
     public RobotContainer() {
         ethanCulver = 0;
+
+        field2d = new Field2d();
+        field2d.setRobotPose(getPose());
+        SmartDashboard.putData("Field", field2d);
 
         addNamedCommands();
         configureBindings();
@@ -159,7 +165,7 @@ public class RobotContainer {
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
 
-        driverXbox.x().or(driverXbox.a()).onTrue(Commands.runOnce(() -> ethanCulver++));
+        driverXbox.x().or(driverXbox.b()).onTrue(Commands.runOnce(() -> ethanCulver++));
         
 
         manipulatorXbox.a().onTrue(l1Position());
@@ -171,8 +177,9 @@ public class RobotContainer {
         manipulatorXbox.back().onTrue(groundPickup());
         manipulatorXbox.leftBumper().onTrue(basePosition());
 
+
         driverXbox.a().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
-        driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
         driverXbox.rightStick().onTrue(drivetrain.runOnce(() -> drivetrain.getPigeon2().setYaw(0)));
         manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
         manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
@@ -241,5 +248,9 @@ public class RobotContainer {
 
     public Command algaeL3Position() {
         return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)); 
+    }
+
+    private Pose2d getPose() {
+        return drivetrain.getState().Pose;
     }
 }

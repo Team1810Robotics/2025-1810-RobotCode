@@ -58,7 +58,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public double getMeasurement() {
-        double position = armEncoder.get() - ArmConstants.ENCODER_OFFSET;
+        double position = armEncoder.get() - ArmConstants.ENCODER_OFFSET; 
         double degrees = Units.rotationsToDegrees(position);
        
         return degrees; 
@@ -73,6 +73,10 @@ public class ArmSubsystem extends SubsystemBase {
             stop();
             Elastic.sendNotification(notification.withAutomaticHeight());
         }
+    }
+
+    public boolean isEncoderConnected(){
+        return armEncoder.isConnected();
     }
 
     public void testNotif(){

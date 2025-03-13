@@ -22,6 +22,8 @@ public class Robot extends TimedRobot {
 
   public AutoFactory autoFactory;
 
+  public boolean encoderAllGood = true;
+
   public Robot() {
     m_robotContainer = new RobotContainer();
     
@@ -32,6 +34,8 @@ public class Robot extends TimedRobot {
     DriverStation.startDataLog(DataLogManager.getLog());
 
     Shuffleboard.getTab("Teleoperated").add(CommandScheduler.getInstance());
+
+    Shuffleboard.getTab("Teleoperated").addBoolean("Encoder Panic", () -> encoderAllGood);
   }
 
   @Override
@@ -39,10 +43,15 @@ public class Robot extends TimedRobot {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
+  @SuppressWarnings("static-access")
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
     //RobotContainer.ledSubsystem.periodic();
+
+    if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected() || !m_robotContainer.pitchSubsystem.isEncoderConnected() || !m_robotContainer.rollSubsystem.isEncoderConnected()){
+      encoderAllGood = false;
+    }
   }
 
   @Override

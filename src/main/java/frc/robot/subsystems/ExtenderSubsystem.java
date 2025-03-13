@@ -18,8 +18,6 @@ public class ExtenderSubsystem extends SubsystemBase {
     private TalonFXConfigurator configuration;
     private CurrentLimitsConfigs currentLimitsConfigs;
 
-    //private SparkMax extenderMotor;
-    //private SparkMaxConfig config;
 
     private PIDController extenderPIDController;
 
@@ -29,16 +27,12 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
-        //extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        //config = new SparkMaxConfig();
 
-        //config.smartCurrentLimit(40);
-        //config.idleMode(IdleMode.kBrake);
-        //extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         configuration = extenderMotor.getConfigurator();
+        currentLimitsConfigs = new CurrentLimitsConfigs();
 
         currentLimitsConfigs.StatorCurrentLimit = 40;
         currentLimitsConfigs.StatorCurrentLimitEnable = true;
@@ -58,10 +52,14 @@ public class ExtenderSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
     }
 
+    public boolean isEncoderConnected(){
+        return encoder.isConnected();
+    }
+
     /**
      * Get the total number of rotations the extender has gone through.
      *
-     * <p>This method detects when the encoder wraps around and adds one to the cumulative
+     * <p>This method detects when the encoder wraps \around and adds one to the cumulative
      * count. This is necessary because the DutyCycleEncoder wraps around to 0 after a certain
      * point, so simply adding up the positions would not give an accurate total.
      *

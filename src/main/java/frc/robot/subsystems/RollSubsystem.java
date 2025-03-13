@@ -22,6 +22,8 @@ public class RollSubsystem extends SubsystemBase {
 
     private SparkMaxConfig config;
 
+    public double currentSetpoint;
+
     public RollSubsystem() {
         rollMotor = new SparkMax(RollConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         encoder = new DutyCycleEncoder(RollConstants.ENCODER_ID);
@@ -30,7 +32,7 @@ public class RollSubsystem extends SubsystemBase {
         rollPIDControllerDecreasing = new PIDController(RollConstants.kPD, RollConstants.kID, RollConstants.kDD);
 
         config = new SparkMaxConfig();
-        config.smartCurrentLimit(25);
+        config.smartCurrentLimit(40);
 
         rollMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
@@ -43,6 +45,11 @@ public class RollSubsystem extends SubsystemBase {
 
 
         Shuffleboard.getTab("Encoder").addBoolean("Roll Encoder", () -> encoder.isConnected());
+
+        Shuffleboard.getTab("Roll").addDouble("Roll PID Increasing Out", () -> rollPIDControllerIncreasing.calculate(getMeasurment(), currentSetpoint));
+        Shuffleboard.getTab("Roll").addDouble("Roll PID Decreasing Out", () -> rollPIDControllerDecreasing.calculate(getMeasurment(), currentSetpoint));
+        Shuffleboard.getTab("Roll").addDouble("Current Setpoint", () -> currentSetpoint);
+
     }
 
     public double getMeasurment(){
@@ -52,15 +59,22 @@ public class RollSubsystem extends SubsystemBase {
       return degrees;
     }
 
+    public boolean isEncoderConnected(){
+      return encoder.isConnected();
+    }
+
     /**
      * Runs pitch motor with PID
      * @param setPoint setpoint for wrist
      */
     public void run(double setpoint) {
       if(encoder.isConnected()) {
+        currentSetpoint = setpoint;
         if (getMeasurment() < setpoint) {
+          System.out.println("Rolling to: " + setpoint);
           rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint));
         } else if (getMeasurment() > setpoint) {
+          System.out.println("Rolling to: " + setpoint);
           rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint));
         }
       } else {
@@ -68,6 +82,10 @@ public class RollSubsystem extends SubsystemBase {
         stop();
         rollMotor.disable();
       }
+    }
+
+    public void runManual(double speed) {
+      rollMotor.set(speed);
     }
 
     public void stop() {

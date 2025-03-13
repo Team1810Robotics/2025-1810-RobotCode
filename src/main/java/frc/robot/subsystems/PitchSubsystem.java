@@ -49,6 +49,10 @@ public class PitchSubsystem extends SubsystemBase {
       return degrees; 
     }
 
+    public boolean isEncoderConnected(){
+      return encoder.isConnected();
+    }
+
     /**
      * Runs the pitch motor with PID
      * @param setPoint Setpoint for wrist
