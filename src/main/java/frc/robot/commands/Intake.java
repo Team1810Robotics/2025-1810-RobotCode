@@ -47,7 +47,11 @@ public class Intake extends Command {
 
         if (distance > 2000 && mode == Mode.IN && blue > 10) {
             return true;
-        } 
+        }
+
+        if (distance < 1000 && mode == Mode.OUT){
+            return true;
+        }
 
         if (mode == Mode.STOP) {
             return true;
