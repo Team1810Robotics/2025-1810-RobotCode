@@ -4,7 +4,7 @@
 
 ## Team 1810 - CATATRONICS - code for the 2025 competition season
 
-### Bot Named [TBD]
+### Bot Named Luxo
 
 ---
 ### Controller Bindings
