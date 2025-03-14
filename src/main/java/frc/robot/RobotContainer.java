@@ -49,11 +49,13 @@ import frc.robot.Constants.IntakeConstants.Mode;
 import frc.robot.Constants.WristConstants.PitchConstants;
 import frc.robot.Constants.WristConstants.RollConstants;
 import frc.robot.commands.Arm;
+import frc.robot.commands.Auto;
 import frc.robot.commands.Extender;
 import frc.robot.commands.Intake;
 import frc.robot.commands.ManualExtender;
 import frc.robot.commands.Pitch;
 import frc.robot.commands.Roll;
+import frc.robot.commands.Auto.AutoMode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.LedSubsystem;
@@ -195,14 +197,20 @@ public class RobotContainer {
     }
 
     public void addNamedCommands(){
-        NamedCommands.registerCommand("Intake", intakePostition());
-        NamedCommands.registerCommand("Base", basePosition());
-        NamedCommands.registerCommand("L2", l2Position().withTimeout(2));
-        NamedCommands.registerCommand("L3", l3Position().withTimeout(3.5));
-        NamedCommands.registerCommand("L4", l4Position().withTimeout(5));
+/*         NamedCommands.registerCommand("Intake", intakePostition().withTimeout(1));
+        NamedCommands.registerCommand("Base", basePosition().withTimeout(2.3));
+        NamedCommands.registerCommand("L2", l2Position().withTimeout(1.8));
+        NamedCommands.registerCommand("L3", l3Position().withTimeout(2));
+        NamedCommands.registerCommand("L4", l4Position().withTimeout(2.5));
 
-        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT).withTimeout(1));
+        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT));
         NamedCommands.registerCommand("Intake", new Intake(intakeSubsystem, Mode.IN));
+ */
+        NamedCommands.registerCommand("L2", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l2));
+        NamedCommands.registerCommand("L3", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l3));
+        NamedCommands.registerCommand("L4", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l4));
+        NamedCommands.registerCommand("Base", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.base));
+        NamedCommands.registerCommand("Intake", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
 
         //NamedCommands.registerCommand("Test",  drivetrain.applyRequest(() -> drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
         NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
@@ -213,6 +221,26 @@ public class RobotContainer {
             .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2));
    
         NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
+    }
+
+    public Command autoL2() {
+        return new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l2);
+    }
+
+    public Command autoL3() {
+        return new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l3);
+    }
+
+    public Command autoL4() {
+        return new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l4);
+    }
+
+    public Command autoBase() {
+        return new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.base);
+    }
+
+    public Command autoIntake() {
+        return new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake);
     }
 
     public Command configureAutonomus() {

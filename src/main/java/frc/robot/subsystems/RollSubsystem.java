@@ -71,10 +71,10 @@ public class RollSubsystem extends SubsystemBase {
       if(encoder.isConnected()) {
         currentSetpoint = setpoint;
         if (getMeasurment() < setpoint) {
-          System.out.println("Rolling to: " + setpoint);
+          //System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
           rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint));
         } else if (getMeasurment() > setpoint) {
-          System.out.println("Rolling to: " + setpoint);
+          //System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
           rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint));
         }
       } else {

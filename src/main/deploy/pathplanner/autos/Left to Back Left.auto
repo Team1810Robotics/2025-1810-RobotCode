@@ -9,6 +9,30 @@
           "data": {
             "pathName": "Left_BackLeftReef"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RightTag"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Base"
+          }
         }
       ]
     }

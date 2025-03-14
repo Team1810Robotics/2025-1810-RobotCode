@@ -9,6 +9,24 @@
           "data": {
             "pathName": "Middle_backRightReef"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RightTag"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "L4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Base"
+          }
         }
       ]
     }
