@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
@@ -129,7 +130,9 @@ public class RobotContainer {
 
         Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
-        Shuffleboard.getTab("Vision").addNumber("VisPara", () -> visionSubsystem.visionPara(0, true, drivetrain.getPigeon2().getYaw().getValueAsDouble()));
+        Shuffleboard.getTab("Vision").addNumber("VisPara", () -> visionSubsystem.visionPara(0, true, drivetrain.getPigeon2().getYaw().getValueAsDouble(), 8));
+
+        drivetrain.registerTelemetry(logger::telemeterize);
     }
 
     private void configureBindings() {
@@ -145,16 +148,16 @@ public class RobotContainer {
             drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 1).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 1).withRotationalRate(driverXbox.getRightX() * MaxSpeed / 1))
         );
 
-        driverXbox.a().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withRotationalRate(-visionSubsystem.visionPara(driverXbox.getRightX(), true, drivetrain.getPigeon2().getYaw().getValueAsDouble())))
-        );
+        // driverXbox.a().whileTrue(
+        //     drivetrain.applyRequest(() -> visDrive.withRotationalRate(-visionSubsystem.visionPara(driverXbox.getRightX(), true, drivetrain.getPigeon2().getYaw().getValueAsDouble(), 8)))
+        // );
 
         driverXbox.leftTrigger().whileTrue(
             drivetrain.applyRequest(() -> drive.withVelocityX(-driverXbox.getLeftY() * MaxSpeed / 8).withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 8).withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8))
         );
 
         driverXbox.b().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                 .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
@@ -194,20 +197,22 @@ public class RobotContainer {
     public void addNamedCommands(){
         NamedCommands.registerCommand("Intake", intakePostition());
         NamedCommands.registerCommand("Base", basePosition());
-        NamedCommands.registerCommand("L2", l2Position());
-        NamedCommands.registerCommand("L3", l3Position());
-        NamedCommands.registerCommand("L4", l4Position());
+        NamedCommands.registerCommand("L2", l2Position().withTimeout(2));
+        NamedCommands.registerCommand("L3", l3Position().withTimeout(3.5));
+        NamedCommands.registerCommand("L4", l4Position().withTimeout(5));
 
-        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT));
+        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT).withTimeout(1));
         NamedCommands.registerCommand("Intake", new Intake(intakeSubsystem, Mode.IN));
 
         //NamedCommands.registerCommand("Test",  drivetrain.applyRequest(() -> drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
-        NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+        NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
             .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
-            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)));
-        NamedCommands.registerCommand("RightTag",  drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2));
+        NamedCommands.registerCommand("RightTag",  drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
             .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
-            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)));
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2));
+   
+        NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
     }
 
     public Command configureAutonomus() {
@@ -248,6 +253,10 @@ public class RobotContainer {
 
     public Command algaeL3Position() {
         return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)); 
+    }
+
+    public Command outtake() {
+        return new Intake(intakeSubsystem, Mode.OUT).alongWith(new Pitch(pitchSubsystem, pitchSubsystem.currentSetpoint), new Roll(rollSubsystem, rollSubsystem.currentSetpoint), new Extender(extenderSubsystem, extenderSubsystem.currentSetpoint));
     }
 
     private Pose2d getPose() {

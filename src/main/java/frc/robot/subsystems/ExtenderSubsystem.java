@@ -24,6 +24,8 @@ public class ExtenderSubsystem extends SubsystemBase {
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
 
+    public double currentSetpoint;
+
 
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
@@ -109,6 +111,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void extend(double height) {
+        currentSetpoint = height;
         if (encoder.isConnected()) {    
             extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
         } else {

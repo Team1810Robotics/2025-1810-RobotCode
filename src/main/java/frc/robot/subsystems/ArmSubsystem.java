@@ -28,6 +28,8 @@ public class ArmSubsystem extends SubsystemBase {
    
     private final PIDController armPIDController;
 
+    public double currentSetpoint;
+
     public ArmSubsystem() {
         armMotor1 = new SparkMax(ArmConstants.MOTOR_ID_1, MotorType.kBrushless);
         armMotor2 = new SparkMax(ArmConstants.MOTOR_ID_2, MotorType.kBrushless);
@@ -65,6 +67,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public void run(double setpoint) {
+        currentSetpoint = setpoint;
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
             armMotor1.set(-output);

@@ -159,10 +159,10 @@ public class VisionSubsystem extends SubsystemBase {
     public double visionPara(double altRotation, boolean visionMode, double gyro) {
         if (visionMode) {
             if (rightHasTarget()) {
-                return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
+                return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
             }
             if (leftHasTarget()) {
-                return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getZ());
+                return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getZ());
             }
         }
         if ((visionMode == true)) {
@@ -173,7 +173,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double visionPara(double altRotation, boolean visionMode, double gyro, int tagId) {
         if (visionMode) {
-            return -rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
+            return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
         }
         if ((visionMode == true)) {
             return altRotation;

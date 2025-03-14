@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Short"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Test"
+            "pathName": "Middle_backRightReef"
           }
         }
       ]

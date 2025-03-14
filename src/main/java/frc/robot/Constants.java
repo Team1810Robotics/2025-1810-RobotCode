@@ -91,17 +91,17 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .75;
 
-        public static double kP = 4.9;
+        public static double kP = 2.5;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
 
         public static final double L1_HEIGHT = 0.5;
-        public static final double L2_HEIGHT = 0.2;
+        public static final double L2_HEIGHT = 0.5;
         public static final double L3_HEIGHT = 6.72;
         public static final double L4_HEIGHT = 14;
-        public static final double BASE_HEIGHT = 0.2;
-        public static final double GROUND_PICKUP = 0.2;
+        public static final double BASE_HEIGHT = 0.5;
+        public static final double GROUND_PICKUP = 0.15;
 
 
         public static final double INCHES_PER_ROTATION = .5;
@@ -119,12 +119,12 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp_Right = 2;
+        public static double VY_Kp_Right = 1;
         public static double VY_Ki_Right = 0.0;
         public static double VY_Kd_Right = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp_Right = 0.099;
+        public static double VX_Kp_Right = 0.025;
         public static double VX_Ki_Right = 0.0;
         public static double VX_Kd_Right = 0.0;
 

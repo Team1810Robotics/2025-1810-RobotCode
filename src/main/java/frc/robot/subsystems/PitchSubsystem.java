@@ -20,13 +20,15 @@ public class PitchSubsystem extends SubsystemBase {
 
     private PIDController pitchPIDController;
 
+    public double currentSetpoint;
+
     public PitchSubsystem() {
         //pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
         config = new SparkMaxConfig();
-        config.smartCurrentLimit(40);
+        config.smartCurrentLimit(50);
 
         pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
@@ -59,6 +61,7 @@ public class PitchSubsystem extends SubsystemBase {
      */
     public void run(double setPoint) {
       if (encoder.isConnected()) {
+        currentSetpoint = setPoint;
         pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
       }
       else {
