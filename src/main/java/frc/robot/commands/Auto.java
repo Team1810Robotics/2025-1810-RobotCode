@@ -30,7 +30,7 @@ public class Auto extends Command {
 
   public enum AutoMode {
     l2, l3, l4,
-    base, intake
+    base, intake, score
   }
 
   public Auto(ArmSubsystem armSubsystem, ExtenderSubsystem extenderSubsystem, PitchSubsystem pitchSubsystem,
@@ -98,7 +98,10 @@ public class Auto extends Command {
     pitchSubsystem.run(pitchSetpoint);
     rollSubsystem.run(rollSetpoint);
 
-    if (currentTime - startTime > 4) {
+    if (extenderSubsystem.getLimitSwitch()) {
+      extenderSubsystem.reset();
+      extenderSubsystem.extend(.5);
+    } else if (currentTime - startTime > 4) {
       extenderSubsystem.extend(extenderDistance);
     }
 
@@ -113,9 +116,8 @@ public class Auto extends Command {
         intakeSubsystem.run(.1);
       } else if (mode == AutoMode.intake) {
         intakeSubsystem.run(1);
-      } else {
-        intakeSubsystem.run(-.25);
-      }
+      }   
+      intakeSubsystem.run(-.25);
       if (intakeFinished) {
         intakeSubsystem.stop();
       }

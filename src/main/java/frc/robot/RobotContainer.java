@@ -114,10 +114,6 @@ public class RobotContainer {
     public RobotContainer() {
         ethanCulver = 0;
 
-        field2d = new Field2d();
-        field2d.setRobotPose(getPose());
-        SmartDashboard.putData("Field", field2d);
-
         addNamedCommands();
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser("");
@@ -211,6 +207,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("L4", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l4));
         NamedCommands.registerCommand("Base", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.base));
         NamedCommands.registerCommand("Intake", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
+        //NamedCommands.registerCommand("Score", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
 
         //NamedCommands.registerCommand("Test",  drivetrain.applyRequest(() -> drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
         NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)

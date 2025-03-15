@@ -210,8 +210,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                         .withWheelForceFeedforwardsY(feedforwards.robotRelativeForcesYNewtons())
                 ),
                 new PPHolonomicDriveController(
-                    new PIDConstants(0.5, 0, 0.03), //p=10     1.75
-                    new PIDConstants(1.1, 0, 0.000) //p=7        .9
+                    new PIDConstants(0.35, 0, 0), //p=0.5
+                    new PIDConstants(0.8, 0, 0) //p=1.1
                 ),
                 config,
                 () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,

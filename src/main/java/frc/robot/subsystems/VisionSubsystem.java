@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -63,6 +64,8 @@ public class VisionSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Vision/Test").add("Vision Rotiation PID", rotController);
         Shuffleboard.getTab("Vision/Test").add("Vision Y PID", driveControllerYRight);
         Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerXRight);
+
+        Shuffleboard.getTab("Vision").addNumber("Tag Rot", () -> Math.toDegrees(aprilTagFieldLayout.getTagPose(11).get().getRotation().getMeasureZ().magnitude()));
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -159,10 +162,10 @@ public class VisionSubsystem extends SubsystemBase {
     public double visionPara(double altRotation, boolean visionMode, double gyro) {
         if (visionMode) {
             if (rightHasTarget()) {
-                return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getZ());
+                return rotController.calculate(gyro%360 - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getRotation().getMeasureZ().magnitude()));
             }
             if (leftHasTarget()) {
-                return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getZ());
+                return rotController.calculate(gyro%360 - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getRotation().getMeasureZ().magnitude()));
             }
         }
         if ((visionMode == true)) {
@@ -173,7 +176,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double visionPara(double altRotation, boolean visionMode, double gyro, int tagId) {
         if (visionMode) {
-            return rotController.calculate(gyro - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
+            return rotController.calculate((gyro%360) - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
         }
         if ((visionMode == true)) {
             return altRotation;

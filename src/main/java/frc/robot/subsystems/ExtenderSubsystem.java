@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,12 +27,15 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public double currentSetpoint;
 
+    public DigitalInput limitSwitch;
+
 
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
 
+        limitSwitch = new DigitalInput(4);
 
         configuration = extenderMotor.getConfigurator();
         currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -52,6 +56,8 @@ public class ExtenderSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
         Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
+
+        Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> !limitSwitch.get());
     }
 
     public boolean isEncoderConnected(){
@@ -121,6 +127,15 @@ public class ExtenderSubsystem extends SubsystemBase {
         }
     }
 
+    public boolean getLimitSwitch() {
+        return !limitSwitch.get();
+    }
+
+    public void reset() {
+        cumulativeRotations = 0;
+        previousRotation = 0;
+        ExtenderConstants.ENCODER_OFFSET = encoder.get();
+    }
     
     public void stop() {
         extenderMotor.stopMotor();

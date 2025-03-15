@@ -89,7 +89,7 @@ public class Constants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double ENCODER_OFFSET = .75;
+        public static double ENCODER_OFFSET = .75;
 
         public static double kP = 2.5;
         public static double kI = 0.0;
