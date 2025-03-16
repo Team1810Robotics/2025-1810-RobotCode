@@ -41,7 +41,7 @@ public class PitchSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
 
-        Shuffleboard.getTab("Intake").addNumber("Setpoint", () -> pitchPIDController.getSetpoint());
+        Shuffleboard.getTab("Intake").addNumber("Current Setpont", () -> currentSetpoint);
     }
 
     public double getMeasurment(){

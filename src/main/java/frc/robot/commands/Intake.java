@@ -37,6 +37,8 @@ public class Intake extends Command {
             intakeSubsystem.run(1);
         } else if (mode == Mode.OUT) {
             intakeSubsystem.run(-.25);
+        } else if (mode == Mode.KICK) {
+            intakeSubsystem.run(-1);
         }
     }
 
@@ -47,11 +49,7 @@ public class Intake extends Command {
 
         if (distance > 2000 && mode == Mode.IN && blue > 10) {
             return true;
-        }
-
-        if (distance < 1000 && mode == Mode.OUT){
-            return true;
-        }
+        } 
 
         if (mode == Mode.STOP) {
             return true;

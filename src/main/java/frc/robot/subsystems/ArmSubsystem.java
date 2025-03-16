@@ -46,7 +46,7 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor1.configure(config1, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
         armMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        armPIDController = new PIDController(ArmConstants.kP , ArmConstants.kI , ArmConstants.kD);
+        armPIDController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
 
         SmartDashboard.putData("armPID", armPIDController);
         Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
@@ -55,6 +55,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
         Shuffleboard.getTab("Encoder").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
+
+        Shuffleboard.getTab("Arm").addNumber("Arm Setpoint", () -> currentSetpoint);
 
         notification = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "!!! Arm Error !!!", "Encoder Disconected");
     }

@@ -21,7 +21,7 @@ public class Constants {
             
             public static final double INTAKE_POSITION = 140;
             public static final double GROUND_PICKUP = 140;
-            public static final double L1_POSITION = 230;
+            public static final double L1_POSITION = 140;
             public static final double L2_POSITION = 230;
             public static final double L3_POSITION = 230;
             public static final double L4_POSITION = 230;
@@ -38,13 +38,17 @@ public class Constants {
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 126 + 4 ; // 45
-            public static final double GROUND_PICKUP = 148;
+            public static final double INTAKE_POSITION = 133; 
+            public static final double GROUND_PICKUP = 134;
             public static final double L1_POSITION = 120;
-            public static final double L2_POSITION = 130 - 6;
+            public static final double L2_POSITION = 124;
             public static final double L3_POSITION = 136;
-            public static final double L4_POSITION = 135 - 5;
-            public static final double BASE_POSITION = 116; //Check This
+            public static final double L4_POSITION = 130;
+            public static final double BASE_POSITION = 116; 
+
+            public static final double ALGAE_1_POSITION = 110;
+            public static final double ALGAE_2_POSITION = 137;
+
 
 
             public static final double UPRIGHT = 93;
@@ -57,7 +61,8 @@ public class Constants {
         public enum Mode {
             IN,
             OUT,
-            STOP
+            STOP,
+            KICK
         }
     }
 
@@ -73,14 +78,15 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .465;
 
-        public static final double INTAKE_POSITION = 104 - 5; //75 
+        public static final double INTAKE_POSITION = 100; //75 
 
 
-        public static final double GROUND_PICKUP = 183;
+        public static final double GROUND_PICKUP = 185;
         public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 97.5;
-        public static final double L4_POSITION = 92;
+        public static final double L4_POSITION = 92; 
+        public static final double ALGAE_2_POSITION = 112 - 10;
 
         public static final double BASE_POSITION = 94;
     }
@@ -98,10 +104,13 @@ public class Constants {
 
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.5;
-        public static final double L3_HEIGHT = 6.72;
+        public static final double L3_HEIGHT = 6.22;
         public static final double L4_HEIGHT = 14;
+
         public static final double BASE_HEIGHT = 0.5;
         public static final double GROUND_PICKUP = 0.15;
+
+        public static final double ALGAE_2_HEIGHT = 2.27 + .5;
 
 
         public static final double INCHES_PER_ROTATION = .5;

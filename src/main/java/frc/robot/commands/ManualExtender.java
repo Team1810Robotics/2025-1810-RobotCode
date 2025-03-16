@@ -1,6 +1,5 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ExtenderConstants;
 import frc.robot.subsystems.ExtenderSubsystem;
@@ -28,9 +27,9 @@ public class ManualExtender extends Command {
     @Override
     public void execute() {
 
-        if (height == ExtenderConstants.BASE_HEIGHT) {
+        if (!extenderSubsystem.getLimitSwitch() && height == ExtenderConstants.BASE_HEIGHT) {
            extenderSubsystem.run(-.15);
-        } else if (height == ExtenderConstants.L4_HEIGHT) {
+        } else if (!extenderSubsystem.getLimitSwitch() && height == ExtenderConstants.L4_HEIGHT) {
            extenderSubsystem.run(.2);
         }
 

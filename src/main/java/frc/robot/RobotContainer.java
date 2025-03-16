@@ -93,7 +93,7 @@ public class RobotContainer {
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final SwerveRequest.FieldCentricFacingAngle angle = new SwerveRequest.FieldCentricFacingAngle();
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+    private final Telemetry logger = new Telemetry(MaxSpeed); // 182393
 
     public final static CommandXboxController driverXbox = new CommandXboxController(0);
     public final static CommandXboxController manipulatorXbox = new CommandXboxController(1);
@@ -155,7 +155,7 @@ public class RobotContainer {
         );
 
         driverXbox.b().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.05, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                 .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
@@ -173,49 +173,57 @@ public class RobotContainer {
         manipulatorXbox.b().onTrue(l2Position());
         manipulatorXbox.x().onTrue(l3Position());
         manipulatorXbox.y().onTrue(l4Position());
-        manipulatorXbox.back().onTrue(algaeL3Position());
         manipulatorXbox.rightBumper().onTrue(intakePostition()); //Base
-        manipulatorXbox.back().onTrue(groundPickup());
+        manipulatorXbox.start().onTrue(groundPickup());
         manipulatorXbox.leftBumper().onTrue(basePosition());
 
 
         driverXbox.a().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
         driverXbox.y().and(driverXbox.start()).whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
         driverXbox.rightStick().onTrue(drivetrain.runOnce(() -> drivetrain.getPigeon2().setYaw(0)));
-        manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
-        manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L2_HEIGHT));
+        manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
+        manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
 
         manipulatorXbox.rightTrigger().onTrue(new Intake(intakeSubsystem, Mode.IN));
         manipulatorXbox.leftTrigger().whileTrue(new Intake(intakeSubsystem, Mode.OUT));
+
+        manipulatorXbox.button(10).onTrue(algae1());
+        manipulatorXbox.button(9).onTrue(algae2());
         
         //Reset Gyro
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
     }
 
     public void addNamedCommands(){
-/*         NamedCommands.registerCommand("Intake", intakePostition().withTimeout(1));
+        NamedCommands.registerCommand("Intake", intakePostition().withTimeout(1));
         NamedCommands.registerCommand("Base", basePosition().withTimeout(2.3));
-        NamedCommands.registerCommand("L2", l2Position().withTimeout(1.8));
+        NamedCommands.registerCommand("L2", l2Position().withTimeout(2));
         NamedCommands.registerCommand("L3", l3Position().withTimeout(2));
-        NamedCommands.registerCommand("L4", l4Position().withTimeout(2.5));
+        NamedCommands.registerCommand("L4", l4Position().withTimeout(3.5));
 
-        NamedCommands.registerCommand("Score", new Intake(intakeSubsystem, Mode.OUT));
+        NamedCommands.registerCommand("Print", Commands.print("This Print Command Ran"));
+
+        NamedCommands.registerCommand("Outtake", new Intake(intakeSubsystem, Mode.OUT).withTimeout(.5));
         NamedCommands.registerCommand("Intake", new Intake(intakeSubsystem, Mode.IN));
- */
-        NamedCommands.registerCommand("L2", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l2));
-        NamedCommands.registerCommand("L3", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l3));
-        NamedCommands.registerCommand("L4", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l4));
-        NamedCommands.registerCommand("Base", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.base));
-        NamedCommands.registerCommand("Intake", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
-        //NamedCommands.registerCommand("Score", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
+ 
+        // NamedCommands.registerCommand("L2", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l2));
+        // NamedCommands.registerCommand("L3", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l3));
+        // NamedCommands.registerCommand("L4", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.l4));
+        // NamedCommands.registerCommand("Base", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.base));
+        // NamedCommands.registerCommand("Intake", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.intake));
+        //NamedCommands.registerCommand("Score", new Auto(armSubsystem, extenderSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem, AutoMode.outtake));
 
         //NamedCommands.registerCommand("Test",  drivetrain.applyRequest(() -> drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
-        NamedCommands.registerCommand("LeftTag", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
-            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2));
-        NamedCommands.registerCommand("RightTag",  drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
-            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4)
-            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2));
+        NamedCommands.registerCommand("Left Align", drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYLeft) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXLeft) * MaxSpeed) / 4) // Drive left with negative X (left)
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2)
+        ); // Drive counterclockwise with negative X (left)
+
+        NamedCommands.registerCommand("Right Align", 
+        drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X (left)
+            .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)).withTimeout(2)
+        );
    
         NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
     }
@@ -276,12 +284,16 @@ public class RobotContainer {
         return new Arm(armSubsystem, ArmConstants.GROUND_PICKUP).alongWith(new Roll(rollSubsystem, RollConstants.GROUND_PICKUP), new Pitch(pitchSubsystem, PitchConstants.GROUND_PICKUP), new Extender(extenderSubsystem, ExtenderConstants.GROUND_PICKUP));
     }
 
-    public Command algaeL3Position() {
-        return new Arm(armSubsystem, ArmConstants.L3_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.L3_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L3_HEIGHT)); 
-    }
-
     public Command outtake() {
         return new Intake(intakeSubsystem, Mode.OUT).alongWith(new Pitch(pitchSubsystem, pitchSubsystem.currentSetpoint), new Roll(rollSubsystem, rollSubsystem.currentSetpoint), new Extender(extenderSubsystem, extenderSubsystem.currentSetpoint));
+    }
+
+    public Command algae1() {
+        return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(new Pitch(pitchSubsystem, PitchConstants.ALGAE_1_POSITION), new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.L1_HEIGHT), new Intake(intakeSubsystem, Mode.KICK));
+    }
+
+    public Command algae2() {
+        return new Arm(armSubsystem, ArmConstants.ALGAE_2_POSITION).alongWith(new Pitch(pitchSubsystem, PitchConstants.ALGAE_2_POSITION), new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.ALGAE_2_HEIGHT), new Intake(intakeSubsystem, Mode.KICK));
     }
 
     private Pose2d getPose() {

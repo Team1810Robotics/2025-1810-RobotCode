@@ -81,6 +81,7 @@ public class Auto extends Command {
         pitchSetpoint = pitchSubsystem.currentSetpoint;
         rollSetpoint = rollSubsystem.currentSetpoint;
         extenderDistance = extenderSubsystem.currentSetpoint;
+  
         break;
     }
 
@@ -89,6 +90,7 @@ public class Auto extends Command {
 
   @Override
   public void execute() {
+    System.out.println("Auto Commands ran, setpoints, Arm: " + armSetpoint + " Extender: " + extenderDistance + " Roll: " + rollSetpoint + " Pitch: " + pitchSetpoint);
     double currentTime = Timer.getFPGATimestamp();
 
     int blue = intakeSubsystem.getBlue();
@@ -105,10 +107,15 @@ public class Auto extends Command {
       extenderSubsystem.extend(extenderDistance);
     }
 
+    if (extenderSubsystem.getLimitSwitch()) {
+      extenderSubsystem.reset();
+      extenderSubsystem.extend(.5);
+    }
+
     armFinished = isClose(armSubsystem.getMeasurement(), armSetpoint, 5);
-    extenderFinished = isClose(extenderSubsystem.getDistance(), extenderDistance, 0.1);
-    pitchFinished = isClose(pitchSubsystem.getMeasurment(), pitchSetpoint, 3);
-    rollFinished = isClose(rollSubsystem.getMeasurment(), rollSetpoint, 3);
+    extenderFinished = isClose(extenderSubsystem.getDistance(), extenderDistance, 1);
+    pitchFinished = isClose(pitchSubsystem.getMeasurment(), pitchSetpoint, 10);
+    rollFinished = isClose(rollSubsystem.getMeasurment(), rollSetpoint, 10);
 
     if (armFinished && extenderFinished && pitchFinished && rollFinished) {
       intakeFinished = isIntakeFinished();
@@ -139,7 +146,7 @@ public class Auto extends Command {
       return false;
     }
 
-    if (distance < 1000 && mode != AutoMode.intake) {
+    if (distance < 85 && mode != AutoMode.intake) {
       return true;
     }
     
