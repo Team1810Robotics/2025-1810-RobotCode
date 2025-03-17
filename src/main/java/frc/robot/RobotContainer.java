@@ -155,7 +155,7 @@ public class RobotContainer {
         );
 
         driverXbox.b().whileTrue(
-            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
+            drivetrain.applyRequest(() -> visDrive.withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true, visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y (forward)
                 .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true, visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X (left)
                 .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(), driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with negative X (left)
         );
@@ -257,7 +257,7 @@ public class RobotContainer {
     }  
 
     public Command intakePostition() {
-        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), (new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION)), (new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT)));
+        return new Arm(armSubsystem, ArmConstants.INTAKE_POSITION).alongWith(new Roll(rollSubsystem, RollConstants.INTAKE_POSITION), new Pitch(pitchSubsystem, PitchConstants.INTAKE_POSITION), new Extender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
     }
 
     public Command l1Position() {

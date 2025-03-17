@@ -22,13 +22,15 @@ public class PitchSubsystem extends SubsystemBase {
 
     public double currentSetpoint;
 
+    public boolean badEncoder = false;
+
     public PitchSubsystem() {
         //pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
         pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
         config = new SparkMaxConfig();
-        config.smartCurrentLimit(50);
+        config.smartCurrentLimit(45);
 
         pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
@@ -60,11 +62,12 @@ public class PitchSubsystem extends SubsystemBase {
      * @param setPoint Setpoint for wrist
      */
     public void run(double setPoint) {
-      if (encoder.isConnected()) {
+      if (encoder.isConnected() && !badEncoder) {
         currentSetpoint = setPoint;
         pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
       }
       else {
+        badEncoder = true;
         System.out.println("Pitch Encoder Disconnected");
         stop();
         pitchMotor.disable();

@@ -34,7 +34,7 @@ public class Constants {
             public static final int ENCODER_ID = 3;
             public static final double ENCODER_OFFSET = 0;
         
-            public static double kP = 0.008;
+            public static double kP = 0.0075;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
@@ -104,7 +104,7 @@ public class Constants {
 
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.5;
-        public static final double L3_HEIGHT = 6.22;
+        public static final double L3_HEIGHT = 6.22-.25;
         public static final double L4_HEIGHT = 14;
 
         public static final double BASE_HEIGHT = 0.5;
@@ -138,12 +138,12 @@ public class Constants {
         public static double VX_Kd_Right = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp_Left = 1;
+        public static double VY_Kp_Left = 1-.2;
         public static double VY_Ki_Left = 0.0;
         public static double VY_Kd_Left = 0.0;
 
         //Vision Drive PID var
-        public static double VX_Kp_Left = 0.099;
+        public static double VX_Kp_Left = 0.099-.072;
         public static double VX_Ki_Left = 0.0;
         public static double VX_Kd_Left = 0.0;
     }
