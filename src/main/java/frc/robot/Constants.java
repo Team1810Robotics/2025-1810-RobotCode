@@ -128,7 +128,7 @@ public class Constants {
         public static double VR_Kd = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp_Right = 1;
+        public static double VY_Kp_Right = 0.8;
         public static double VY_Ki_Right = 0.0;
         public static double VY_Kd_Right = 0.0;
 
@@ -138,7 +138,7 @@ public class Constants {
         public static double VX_Kd_Right = 0.0;
 
         //Vision Drive PID vars
-        public static double VY_Kp_Left = 2;
+        public static double VY_Kp_Left = 1;
         public static double VY_Ki_Left = 0.0;
         public static double VY_Kd_Left = 0.0;
 
