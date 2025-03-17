@@ -1,13 +1,11 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,26 +13,39 @@ import frc.robot.Constants.ExtenderConstants;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
-    private SparkMax extenderMotor;
+    private TalonFX extenderMotor;
     private DutyCycleEncoder encoder;
-    private SparkMaxConfig config;
+
+    private TalonFXConfigurator configuration;
+    private CurrentLimitsConfigs currentLimitsConfigs;
+
 
     private PIDController extenderPIDController;
 
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
 
+    public double currentSetpoint;
+
+    public DigitalInput limitSwitch;
+
 
     public ExtenderSubsystem() {
-        extenderMotor = new SparkMax(ExtenderConstants.MOTOR_ID, MotorType.kBrushless);
+        extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        config = new SparkMaxConfig();
-        config.idleMode(IdleMode.kBrake);
-        config.smartCurrentLimit(40);
-        extenderMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD); //I have no clue if this will work
+        limitSwitch = new DigitalInput(4);
+
+        configuration = extenderMotor.getConfigurator();
+        currentLimitsConfigs = new CurrentLimitsConfigs();
+
+        currentLimitsConfigs.StatorCurrentLimit = 40;
+        currentLimitsConfigs.StatorCurrentLimitEnable = true;
+
+        configuration.apply(currentLimitsConfigs);
+        
+        extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Adj", () -> getEncoder());
@@ -44,15 +55,19 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
-        Shuffleboard.getTab("Extender").addNumber("Applied Motor Power", () -> extenderMotor.getAppliedOutput());
-
         Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
+
+        Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> !limitSwitch.get());
+    }
+
+    public boolean isEncoderConnected(){
+        return encoder.isConnected();
     }
 
     /**
      * Get the total number of rotations the extender has gone through.
      *
-     * <p>This method detects when the encoder wraps around and adds one to the cumulative
+     * <p>This method detects when the encoder wraps \around and adds one to the cumulative
      * count. This is necessary because the DutyCycleEncoder wraps around to 0 after a certain
      * point, so simply adding up the positions would not give an accurate total.
      *
@@ -102,6 +117,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void extend(double height) {
+        currentSetpoint = height;
         if (encoder.isConnected()) {    
             extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
         } else {
@@ -111,6 +127,15 @@ public class ExtenderSubsystem extends SubsystemBase {
         }
     }
 
+    public boolean getLimitSwitch() {
+        return !limitSwitch.get();
+    }
+
+    public void reset() {
+        cumulativeRotations = 0;
+        previousRotation = 0;
+        ExtenderConstants.ENCODER_OFFSET = encoder.get();
+    }
     
     public void stop() {
         extenderMotor.stopMotor();
@@ -120,7 +145,4 @@ public class ExtenderSubsystem extends SubsystemBase {
     public void periodic() {
         totalRotations();
     }
-
-    
-
 }

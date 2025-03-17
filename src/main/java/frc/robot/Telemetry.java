@@ -58,6 +58,18 @@ public class Telemetry {
         new Mechanism2d(1, 1),
         new Mechanism2d(1, 1),
     };
+
+    public void states(){
+        
+    }
+
+    SwerveModuleState[] states = new SwerveModuleState[] {
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState(),
+        new SwerveModuleState()
+    };
+
     /* A direction and length changing ligament for speed representation */
     private final MechanismLigament2d[] m_moduleSpeeds = new MechanismLigament2d[] {
         m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),

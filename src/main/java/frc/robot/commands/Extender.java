@@ -30,15 +30,12 @@ public class Extender extends Command {
     public void execute() {
         double currentTime = Timer.getFPGATimestamp();
 
-        if (currentTime - startTime > 4) {
+        if (extenderSubsystem.getLimitSwitch()) {
+            extenderSubsystem.reset();
+            extenderSubsystem.extend(.5);
+        } else if (currentTime - startTime > 4) {
             extenderSubsystem.extend(height);
         }
-        
-/*         if (height == ExtenderConstants.BASE_HEIGHT) {
-           extenderSubsystem.run(-.15);
-        } else if (height == ExtenderConstants.L2_HEIGHT) {
-           extenderSubsystem.run(.2);
-        } */
 
     }
 

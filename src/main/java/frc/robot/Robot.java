@@ -7,6 +7,8 @@ package frc.robot;
 import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.net.WebServer;
+import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -20,12 +22,20 @@ public class Robot extends TimedRobot {
 
   public AutoFactory autoFactory;
 
+  public boolean encoderAllGood = true;
+
   public Robot() {
     m_robotContainer = new RobotContainer();
     
     CameraServer.startAutomaticCapture();
 
+    DataLogManager.start();
+
+    DriverStation.startDataLog(DataLogManager.getLog());
+
     Shuffleboard.getTab("Teleoperated").add(CommandScheduler.getInstance());
+
+    Shuffleboard.getTab("Teleoperated").addBoolean("Encoder Panic", () -> encoderAllGood);
   }
 
   @Override
@@ -33,10 +43,15 @@ public class Robot extends TimedRobot {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
+  @SuppressWarnings("static-access")
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run(); 
     //RobotContainer.ledSubsystem.periodic();
+
+    if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected() || !m_robotContainer.pitchSubsystem.isEncoderConnected() || !m_robotContainer.rollSubsystem.isEncoderConnected()){
+      encoderAllGood = false;
+    }
   }
 
   @Override
@@ -50,7 +65,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.configureAutonomus();
 
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();

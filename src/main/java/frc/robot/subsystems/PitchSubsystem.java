@@ -1,22 +1,36 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.PitchConstants;
 
 public class PitchSubsystem extends SubsystemBase {
-    private SparkMax pitchMotor;
+    //private SparkMax pitchMotor;
     private DutyCycleEncoder encoder;
+
+    private SparkMaxConfig config;
+
+    private TalonFX pitchMotor;
 
     private PIDController pitchPIDController;
 
+    public double currentSetpoint;
+
+    public boolean badEncoder = false;
+
     public PitchSubsystem() {
-        pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
+        //pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
+        pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
+
+        config = new SparkMaxConfig();
+        config.smartCurrentLimit(45);
 
         pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
@@ -29,14 +43,18 @@ public class PitchSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
 
-        Shuffleboard.getTab("Intake").addNumber("Setpoint", () -> pitchPIDController.getSetpoint());
+        Shuffleboard.getTab("Intake").addNumber("Current Setpont", () -> currentSetpoint);
     }
 
     public double getMeasurment(){
       double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
-      double degrees = position * 360;
+      double degrees = Units.rotationsToDegrees(position);
      
       return degrees; 
+    }
+
+    public boolean isEncoderConnected(){
+      return encoder.isConnected();
     }
 
     /**
@@ -44,10 +62,12 @@ public class PitchSubsystem extends SubsystemBase {
      * @param setPoint Setpoint for wrist
      */
     public void run(double setPoint) {
-      if (encoder.isConnected()) {
+      if (encoder.isConnected() && !badEncoder) {
+        currentSetpoint = setPoint;
         pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
       }
       else {
+        badEncoder = true;
         System.out.println("Pitch Encoder Disconnected");
         stop();
         pitchMotor.disable();
