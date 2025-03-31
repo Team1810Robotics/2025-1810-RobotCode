@@ -2,48 +2,22 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.lang.reflect.Field;
-import java.security.cert.CertPathValidatorException.BasicReason;
-import java.util.Optional;
-
-import org.photonvision.EstimatedRobotPose;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.networktables.GenericEntry;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ExtenderConstants;
 import frc.robot.Constants.IntakeConstants.Mode;
@@ -52,7 +26,6 @@ import frc.robot.Constants.WristConstants.RollConstants;
 import frc.robot.commands.Arm;
 import frc.robot.commands.Auto;
 import frc.robot.commands.Extender;
-import frc.robot.commands.Home;
 import frc.robot.commands.Intake;
 import frc.robot.commands.ManualExtender;
 import frc.robot.commands.Pitch;
@@ -60,7 +33,6 @@ import frc.robot.commands.Roll;
 import frc.robot.commands.Auto.AutoMode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.LedSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -68,18 +40,8 @@ import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
 
-@SuppressWarnings("unused") // For now :)
 public class RobotContainer {
-
-    
-
-    private int ethanCulver;
-    private Field2d field2d;
 
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(1).in(RadiansPerSecond) * 1.5; // 3/4 of a rotation per second
@@ -93,8 +55,7 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
     public final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.FieldCentricFacingAngle angle = new SwerveRequest.FieldCentricFacingAngle();
+
 
     private final Telemetry logger = new Telemetry(MaxSpeed); // 182393
 
@@ -115,7 +76,6 @@ public class RobotContainer {
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     public RobotContainer() {
-        ethanCulver = 0;
 
         addNamedCommands();
         configureBindings();
@@ -127,7 +87,6 @@ public class RobotContainer {
         Shuffleboard.getTab("Arm").add("Arm Subsystem", armSubsystem);
 
         Shuffleboard.getTab("Teleop").addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage());
-        Shuffleboard.getTab("Teleoperated").addNumber("ETHAN CULVER WILL FEEL MY VENGANCE", () -> ethanCulver);
 
         Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
 
@@ -186,8 +145,6 @@ public class RobotContainer {
                                                                                   // negative X (left)
         );
 
-        driverXbox.x().or(driverXbox.b()).onTrue(Commands.runOnce(() -> ethanCulver++));
-
         // manipulatorXbox.leftStick().onTrue(new Home(extenderSubsystem));
 
         manipulatorXbox.a().onTrue(l1Position());
@@ -225,7 +182,6 @@ public class RobotContainer {
         NamedCommands.registerCommand("L3", l3Position().withTimeout(2));
         NamedCommands.registerCommand("L4", l4Position().withTimeout(3.5));
 
-        NamedCommands.registerCommand("Print", Commands.print("This Print Command Ran"));
 
         NamedCommands.registerCommand("Outtake", new Intake(intakeSubsystem, Mode.OUT).withTimeout(.5));
         NamedCommands.registerCommand("Intake", new Intake(intakeSubsystem, Mode.IN));
@@ -402,7 +358,4 @@ public class RobotContainer {
                 new Extender(extenderSubsystem, 1, true));
     }
 
-    private Pose2d getPose() {
-        return drivetrain.getState().Pose;
-    }
 }
