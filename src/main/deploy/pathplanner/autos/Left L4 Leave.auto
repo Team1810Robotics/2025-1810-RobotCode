@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Left_BackLeftReef"
+            "pathName": "Copy of Right_BackRightReef"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.2
           }
         },
         {
@@ -39,7 +39,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.0
+                        "waitTime": 2.5
                       }
                     },
                     {
@@ -58,6 +58,18 @@
           "type": "named",
           "data": {
             "name": "Base"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.2
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "FrontLeftReef_to_intake"
           }
         }
       ]

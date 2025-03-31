@@ -11,6 +11,7 @@ public class Pitch extends Command {
 
   private PitchSubsystem pitchSubsystem;
   private double setpoint;
+  private boolean die = false;
 
 
   /**
@@ -26,6 +27,13 @@ public class Pitch extends Command {
     addRequirements(pitchSubsystem);
   }
 
+  public Pitch(PitchSubsystem pitchSubsystem, boolean die) {
+    this.pitchSubsystem = pitchSubsystem;
+    this.die = die;
+
+    addRequirements(pitchSubsystem);
+  }
+
 
   @Override
   public void execute() {
@@ -34,7 +42,7 @@ public class Pitch extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;
+    return die;
   }
 
   @Override

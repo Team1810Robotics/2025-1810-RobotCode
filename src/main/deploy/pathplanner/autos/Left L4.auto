@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right_BackRightReef"
+            "pathName": "Copy of Right_BackRightReef"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
+            "waitTime": 0.2
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Left Align"
+            "name": "Right Align"
           }
         },
         {
@@ -39,7 +39,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 3.0
+                        "waitTime": 2.8
                       }
                     },
                     {

@@ -19,7 +19,6 @@ public class ExtenderSubsystem extends SubsystemBase {
     private TalonFXConfigurator configuration;
     private CurrentLimitsConfigs currentLimitsConfigs;
 
-
     private PIDController extenderPIDController;
 
     private double cumulativeRotations = 0;
@@ -29,22 +28,20 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public DigitalInput limitSwitch;
 
-
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
-
 
         limitSwitch = new DigitalInput(4);
 
         configuration = extenderMotor.getConfigurator();
         currentLimitsConfigs = new CurrentLimitsConfigs();
 
-        currentLimitsConfigs.StatorCurrentLimit = 40;
+        currentLimitsConfigs.StatorCurrentLimit = 45;
         currentLimitsConfigs.StatorCurrentLimitEnable = true;
 
         configuration.apply(currentLimitsConfigs);
-        
+
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
@@ -60,36 +57,39 @@ public class ExtenderSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> !limitSwitch.get());
     }
 
-    public boolean isEncoderConnected(){
+    public boolean isEncoderConnected() {
         return encoder.isConnected();
     }
 
     /**
      * Get the total number of rotations the extender has gone through.
      *
-     * <p>This method detects when the encoder wraps \around and adds one to the cumulative
-     * count. This is necessary because the DutyCycleEncoder wraps around to 0 after a certain
+     * <p>
+     * This method detects when the encoder wraps \around and adds one to the
+     * cumulative
+     * count. This is necessary because the DutyCycleEncoder wraps around to 0 after
+     * a certain
      * point, so simply adding up the positions would not give an accurate total.
      *
      * @return the total number of rotations the extender has gone through
      */
-    
-     public void totalRotations() {
+
+    public void totalRotations() {
         double currentRotation = getEncoder();
-        
+
         // Calculate the delta, accounting for wraparound
         double delta = currentRotation - previousRotation;
-        
+
         // Adjust for wraparound cases
         if (delta > 0.5) {
             delta -= 1.0; // Wrapped from 1.0 to 0.0 (moving backward)
         } else if (delta < -0.5) {
             delta += 1.0; // Wrapped from 0.0 to 1.0 (moving forward)
         }
-        
+
         // Update cumulative position without relying on fullRotations counter
         cumulativeRotations -= delta; // Keep negative sign if needed for direction
-        
+
         // Store for next calculation
         previousRotation = currentRotation;
     }
@@ -99,7 +99,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     public void run(double speed) {
-        if (encoder.isConnected()){
+        if (encoder.isConnected()) {
             extenderMotor.set(speed);
         }
     }
@@ -107,7 +107,8 @@ public class ExtenderSubsystem extends SubsystemBase {
     /**
      * Returns the total distance the extender has extended, in inches.
      *
-     * <p>This method uses the total number of rotations the encoder has gone through,
+     * <p>
+     * This method uses the total number of rotations the encoder has gone through,
      * as calculated by the {@link #totalRotations()} method.
      *
      * @return the total distance the extender has extended, in inches
@@ -118,7 +119,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public void extend(double height) {
         currentSetpoint = height;
-        if (encoder.isConnected()) {    
+        if (encoder.isConnected()) {
             extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
         } else {
             stop();
@@ -136,11 +137,11 @@ public class ExtenderSubsystem extends SubsystemBase {
         previousRotation = 0;
         ExtenderConstants.ENCODER_OFFSET = encoder.get();
     }
-    
+
     public void stop() {
         extenderMotor.stopMotor();
     }
-    
+
     @Override
     public void periodic() {
         totalRotations();

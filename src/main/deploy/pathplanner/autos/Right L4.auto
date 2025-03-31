@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Middle_BackReef"
+            "pathName": "Right_BackRightReef"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Right Align"
+            "name": "Left Align"
           }
         },
         {

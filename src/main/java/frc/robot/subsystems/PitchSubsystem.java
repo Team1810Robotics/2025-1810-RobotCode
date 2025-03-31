@@ -11,71 +11,86 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.PitchConstants;
 
 public class PitchSubsystem extends SubsystemBase {
-    //private SparkMax pitchMotor;
-    private DutyCycleEncoder encoder;
+  // private SparkMax pitchMotor;
+  private DutyCycleEncoder encoder;
 
-    private SparkMaxConfig config;
+  private SparkMaxConfig config;
 
-    private TalonFX pitchMotor;
+  private TalonFX pitchMotor;
 
-    private PIDController pitchPIDController;
+  private PIDController pitchPIDController;
 
-    public double currentSetpoint;
+  public double currentSetpoint;
 
-    public boolean badEncoder = false;
+  public boolean badEncoder = false;
 
-    public PitchSubsystem() {
-        //pitchMotor = new SparkMax(PitchConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
-        pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
-        encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
+  public double highestPower = 0;
 
-        config = new SparkMaxConfig();
-        config.smartCurrentLimit(45);
+  public PitchSubsystem() {
+    // pitchMotor = new SparkMax(PitchConstants.MOTOR_ID,
+    // SparkMax.MotorType.kBrushless);
+    pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
+    encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
-        pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
+    config = new SparkMaxConfig();
+    config.smartCurrentLimit(45);
 
-        Shuffleboard.getTab("Intake").addNumber("Pitch Rad Adjust", () -> encoder.get() - PitchConstants.ENCODER_OFFSET);
-        Shuffleboard.getTab("Intake").addNumber("Pitch Rad Raw", () -> encoder.get());
-        Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
-        Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchPIDController.calculate(getMeasurment(), 0));
+    pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
-        Shuffleboard.getTab("Intake").add("Pitch PID", pitchPIDController);
+    Shuffleboard.getTab("Intake").addNumber("Pitch Rad Adjust", () -> encoder.get() - PitchConstants.ENCODER_OFFSET);
+    Shuffleboard.getTab("Intake").addNumber("Pitch Rad Raw", () -> encoder.get());
+    Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
+    Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchPIDController.calculate(getMeasurment(), 0));
 
-        Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
+    Shuffleboard.getTab("Intake").add("Pitch PID", pitchPIDController);
 
-        Shuffleboard.getTab("Intake").addNumber("Current Setpont", () -> currentSetpoint);
-    }
+    Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
 
-    public double getMeasurment(){
-      double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
-      double degrees = Units.rotationsToDegrees(position);
-     
-      return degrees; 
-    }
+    Shuffleboard.getTab("Intake").addNumber("Current Setpont", () -> currentSetpoint);
+    Shuffleboard.getTab("Pitch").addNumber("Highest Power", () -> highestPower);
+    Shuffleboard.getTab("Pitch").addNumber("Clamp Power",
+        () -> clamp(pitchPIDController.calculate(getMeasurment(), 135)));
+  }
 
-    public boolean isEncoderConnected(){
-      return encoder.isConnected();
-    }
+  public double getMeasurment() {
+    double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
+    double degrees = Units.rotationsToDegrees(position);
 
-    /**
-     * Runs the pitch motor with PID
-     * @param setPoint Setpoint for wrist
-     */
-    public void run(double setPoint) {
-      if (encoder.isConnected() && !badEncoder) {
-        currentSetpoint = setPoint;
-        pitchMotor.set(pitchPIDController.calculate(getMeasurment(), setPoint));
+    return degrees;
+  }
+
+  public boolean isEncoderConnected() {
+    return encoder.isConnected();
+  }
+
+  public static double clamp(double value) {
+    // return value;
+    return Math.max(-.3, Math.min(value, 0.3));
+  }
+
+  /**
+   * Runs the pitch motor with PID
+   * 
+   * @param setPoint Setpoint for wrist
+   */
+  public void run(double setPoint) {
+    if (encoder.isConnected() && !badEncoder) {
+      currentSetpoint = setPoint;
+
+      pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint)));
+      if (pitchPIDController.calculate(getMeasurment(), setPoint) > highestPower) {
+        highestPower = pitchPIDController.calculate(getMeasurment(), setPoint);
       }
-      else {
-        badEncoder = true;
-        System.out.println("Pitch Encoder Disconnected");
-        stop();
-        pitchMotor.disable();
-      }
+    } else {
+      badEncoder = true;
+      System.out.println("Pitch Encoder Disconnected");
+      stop();
+      pitchMotor.disable();
     }
+  }
 
-    public void stop() {
-        pitchMotor.stopMotor();
-    }
-    
+  public void stop() {
+    pitchMotor.stopMotor();
+  }
+
 }

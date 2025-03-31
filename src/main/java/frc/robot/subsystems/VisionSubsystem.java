@@ -23,37 +23,43 @@ import frc.robot.Constants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    public PhotonCamera cameraRight, cameraLeft;
+    public PhotonCamera cameraRight, cameraLeft, evilCamera;
     PhotonPoseEstimator photonPoseEstimator;
     public static PhotonPipelineResult resultRight, resultLeft;
     List<PhotonPipelineResult> allResults;
     double targetYawRight, targetRangeRight;
 
-    public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
-    public PIDController driveControllerYRight = new PIDController(VisionConstants.VY_Kp_Right, VisionConstants.VY_Ki_Right, VisionConstants.VY_Kd_Right);
-    public PIDController driveControllerXRight = new PIDController(VisionConstants.VX_Kp_Right, VisionConstants.VX_Ki_Right, VisionConstants.VX_Kd_Right);
+    public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki,
+            VisionConstants.VR_Kd);
+    public PIDController driveControllerYRight = new PIDController(VisionConstants.VY_Kp_Right,
+            VisionConstants.VY_Ki_Right, VisionConstants.VY_Kd_Right);
+    public PIDController driveControllerXRight = new PIDController(VisionConstants.VX_Kp_Right,
+            VisionConstants.VX_Ki_Right, VisionConstants.VX_Kd_Right);
 
-    //public PIDController rotController = new PIDController(VisionConstants.VR_Kp, VisionConstants.VR_Ki, VisionConstants.VR_Kd);
-    public PIDController driveControllerYLeft = new PIDController(VisionConstants.VY_Kp_Left, VisionConstants.VY_Ki_Left, VisionConstants.VY_Kd_Left);
-    public PIDController driveControllerXLeft = new PIDController(VisionConstants.VX_Kp_Left, VisionConstants.VX_Ki_Left, VisionConstants.VX_Kd_Left);
+    // public PIDController rotController = new PIDController(VisionConstants.VR_Kp,
+    // VisionConstants.VR_Ki, VisionConstants.VR_Kd);
+    public PIDController driveControllerYLeft = new PIDController(VisionConstants.VY_Kp_Left,
+            VisionConstants.VY_Ki_Left, VisionConstants.VY_Kd_Left);
+    public PIDController driveControllerXLeft = new PIDController(VisionConstants.VX_Kp_Left,
+            VisionConstants.VX_Ki_Left, VisionConstants.VX_Kd_Left);
 
     AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
-    
-    public static final Transform3d CAMERA_TO_ROBOT_RIGHT =
-        new Transform3d(new Translation3d(0.127, 0.17145, 0.3175), new Rotation3d(0, 0, 0));
-    
-        public static final Transform3d CAMERA_TO_ROBOT_LEFT =
-        new Transform3d(new Translation3d(0.127, -0.17145, 0.3175), new Rotation3d(0, 0, 0));
-    
+
+    public static final Transform3d CAMERA_TO_ROBOT_RIGHT = new Transform3d(new Translation3d(0.127, 0.17145, 0.3175),
+            new Rotation3d(0, 0, 0));
+
+    public static final Transform3d CAMERA_TO_ROBOT_LEFT = new Transform3d(new Translation3d(0.127, -0.17145, 0.3175),
+            new Rotation3d(0, 0, 0));
+
     public VisionSubsystem() {
         SmartDashboard.putData(rotController);
         cameraRight = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
         cameraLeft = new PhotonCamera(VisionConstants.TARGET_CAMERA_LEFT);
-        photonPoseEstimator =
-                new PhotonPoseEstimator(
-                        aprilTagFieldLayout,
-                        PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
-                        CAMERA_TO_ROBOT_RIGHT);
+        evilCamera = new PhotonCamera("Evil");
+        photonPoseEstimator = new PhotonPoseEstimator(
+                aprilTagFieldLayout,
+                PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+                CAMERA_TO_ROBOT_RIGHT);
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
 
@@ -64,7 +70,12 @@ public class VisionSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Vision/Test").add("Vision Y PID", driveControllerYRight);
         Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerXRight);
 
-        Shuffleboard.getTab("Vision").addNumber("Tag Rot", () -> Math.toDegrees(aprilTagFieldLayout.getTagPose(11).get().getRotation().getMeasureZ().magnitude()));
+        // Shuffleboard.getTab("Vision").addNumber("13 TAg", () ->
+        // getRangeLeftID(13).get());
+        Shuffleboard.getTab("Vision").addString("Tags", () -> resultLeft.getTargets().toString());
+
+        Shuffleboard.getTab("Vision").addNumber("Tag Rot",
+                () -> Math.toDegrees(aprilTagFieldLayout.getTagPose(11).get().getRotation().getMeasureZ().magnitude()));
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
@@ -72,18 +83,22 @@ public class VisionSubsystem extends SubsystemBase {
         return photonPoseEstimator.update(resultRight);
     }
 
-    public Optional<Double> getRangeErrorLeft(){
-        if (leftHasTarget()) {
-            return Optional.of(getRangeLeft().get() - 0.5);
-        }
-        else return Optional.of(1000.0);
+    public void getEvil() {
+        evilCamera.getLatestResult().getBestTarget().getYaw();
     }
 
-    public Optional<Double> getRangeErrorRight(){
+    public Optional<Double> getRangeErrorLeft() {
+        if (leftHasTarget()) {
+            return Optional.of(getRangeLeft().get() - 0.5);
+        } else
+            return Optional.of(1000.0);
+    }
+
+    public Optional<Double> getRangeErrorRight() {
         if (rightHasTarget()) {
             return Optional.of(getRangeRight().get() - 0.5);
-        }
-        else return Optional.of(1000.0);
+        } else
+            return Optional.of(1000.0);
     }
 
     public Optional<Double> getRangeLeft() {
@@ -92,7 +107,15 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(resultLeft.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.of(1000.0);
-    } //bennett martin is evil
+    } // bennett martin is evil
+
+    public Optional<Double> getRangeLeftID(int id) {
+        if (leftHasTarget()) {
+            // Get the range to the target using the best target's pose
+            return Optional.of(resultLeft.getTargets().get(id).getBestCameraToTarget().getTranslation().getX());
+        }
+        return Optional.of(1000.0);
+    } // bennett martin is evil
 
     public Optional<Double> getRangeRight() {
         if (rightHasTarget()) {
@@ -100,34 +123,46 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(resultRight.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.of(1000.0);
-    } //bennett martin is evil
+    } // bennett martin is evil
 
-    public Optional<Double> getXRangeLeft(){
-        if (leftHasTarget()){
+    public Optional<Double> getRangeRightID(int id) {
+        if (rightHasTarget()) {
+            // Get the range to the target using the best target's pose
+            return Optional.of(resultRight.getTargets().get(id).getBestCameraToTarget().getTranslation().getX());
+        }
+        return Optional.of(1000.0);
+    } // bennett martin is evil
+
+    public Optional<Double> getXRangeLeft() {
+        if (leftHasTarget()) {
             return Optional.of(resultLeft.getBestTarget().bestCameraToTarget.getY());
-        } else return Optional.of(1000.0);
+        } else
+            return Optional.of(1000.0);
     }
 
-    public Optional<Double> getXRangeRight(){
-        if (rightHasTarget()){
+    public Optional<Double> getXRangeRight() {
+        if (rightHasTarget()) {
             return Optional.of(resultRight.getBestTarget().bestCameraToTarget.getY());
-        } else return Optional.of(1000.0);
+        } else
+            return Optional.of(1000.0);
     }
 
-    public Optional<Double> getTagRYawLeft(){
-        if(leftHasTarget()){
-            return Optional.of(aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getRotation().getZ());
+    public Optional<Double> getTagRYawLeft() {
+        if (leftHasTarget()) {
+            return Optional.of(aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get()
+                    .getRotation().getZ());
         }
         return Optional.of(1000.0);
     }
 
-    public Optional<Double> getTagRYawRight(){
-        if(rightHasTarget()){
-            return Optional.of(aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getRotation().getZ());
+    public Optional<Double> getTagRYawRight() {
+        if (rightHasTarget()) {
+            return Optional.of(aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get()
+                    .getRotation().getZ());
         }
         return Optional.of(1000.0);
     }
-    
+
     @Override
     public void periodic() {
         resultRight = cameraRight.getLatestResult();
@@ -143,7 +178,7 @@ public class VisionSubsystem extends SubsystemBase {
         if ((visionModeLeft == true) && !target) {
             return altRotation;
         }
-         return altRotation;
+        return altRotation;
     }
 
     public double visionTargetPIDCalcRight(double altRotation, boolean visionModeRight) {
@@ -155,16 +190,20 @@ public class VisionSubsystem extends SubsystemBase {
         if ((visionModeRight == true) && !target) {
             return altRotation;
         }
-         return altRotation;
+        return altRotation;
     }
 
     public double visionPara(double altRotation, boolean visionMode, double gyro) {
         if (visionMode) {
             if (rightHasTarget()) {
-                return rotController.calculate(gyro%360 - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId()).get().getRotation().getMeasureZ().magnitude()));
+                return rotController.calculate(gyro % 360
+                        - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultRight.getBestTarget().getFiducialId())
+                                .get().getRotation().getMeasureZ().magnitude()));
             }
             if (leftHasTarget()) {
-                return rotController.calculate(gyro%360 - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId()).get().getRotation().getMeasureZ().magnitude()));
+                return rotController.calculate(gyro % 360
+                        - Math.toDegrees(aprilTagFieldLayout.getTagPose(resultLeft.getBestTarget().getFiducialId())
+                                .get().getRotation().getMeasureZ().magnitude()));
             }
         }
         if ((visionMode == true)) {
@@ -175,7 +214,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double visionPara(double altRotation, boolean visionMode, double gyro, int tagId) {
         if (visionMode) {
-            return rotController.calculate((gyro%360) - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
+            return rotController.calculate((gyro % 360) - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
         }
         if ((visionMode == true)) {
             return altRotation;
@@ -184,37 +223,74 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     /**
-    * Used to make the robot drive to a set distance away from an apriltag.
-    * 
-    * @param altDrive The input from the controller for then no tag is present.
-    * @param distance How far away from the apriltag do we want to be.
-    * @param driveMode True/False input for if we do want to drive towards the apriltag.
-    * @return
-    */
-    public double visionYDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
-        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()){
+     * Used to make the robot drive to a set distance away from an apriltag.
+     * 
+     * @param altDrive  The input from the controller for then no tag is present.
+     * @param distance  How far away from the apriltag do we want to be.
+     * @param driveMode True/False input for if we do want to drive towards the
+     *                  apriltag.
+     * @return
+     */
+    public double visionYDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid) {
+        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
             return pid.calculate(getYawLeft().get() - distance);
-        } else return altDrive;
+        } else
+            return altDrive;
     }
 
-    public double visionYDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
-        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()){
+    public double visionYDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid) {
+        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
             return pid.calculate(getYawRight().get() - distance);
-        } else return altDrive;
+        } else
+            return altDrive;
     }
 
-    public double visionXDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid){
-        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()){
+    public double visionYDriveLeftID(int id, double altDrive, double distance, boolean driveModeLeft,
+            PIDController pid) {
+        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
+            return pid.calculate(getYawLeftID(id).get() - distance);
+        } else
+            return altDrive;
+    }
+
+    public double visionYDriveRightID(int id, double altDrive, double distance, boolean driveModeRight,
+            PIDController pid) {
+        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
+            return pid.calculate(getYawRightID(id).get() - distance);
+        } else
+            return altDrive;
+    }
+
+    public double visionXDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid) {
+        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
             return pid.calculate(getRangeLeft().get() - distance);
-        } else return altDrive;
+        } else
+            return altDrive;
     }
 
-    public double visionXDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid){
-        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()){
+    public double visionXDriveRight(double altDrive, double distance, boolean driveModeRight, PIDController pid) {
+        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
             return pid.calculate(getRangeRight().get() - distance);
-        } else return altDrive;
+        } else
+            return altDrive;
     }
-    
+
+    public double visionXDriveLeftID(int id, double altDrive, double distance, boolean driveModeLeft,
+            PIDController pid) {
+        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
+            return pid.calculate(getRangeLeftID(id).get() - distance);
+        } else
+            return altDrive;
+    }
+
+    public double visionXDriveRightID(int id, double altDrive, double distance, boolean driveModeRight,
+            PIDController pid) {
+        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
+            return pid.calculate(getRangeRightID(id).get() - distance);
+        } else
+            return altDrive;
+    }
+
     public Optional<Double> getYawLeft() {
         if (leftHasTarget()) {
             return Optional.of(resultLeft.getBestTarget().getYaw());
@@ -231,7 +307,23 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-     public Optional<Double> getPitchLeft() {
+    public Optional<Double> getYawLeftID(int id) {
+        if (leftHasTarget()) {
+            return Optional.of(resultLeft.getTargets().get(id).getYaw());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
+
+    public Optional<Double> getYawRightID(int id) {
+        if (rightHasTarget()) {
+            return Optional.of(resultRight.getTargets().get(id).getYaw());
+        } else {
+            return Optional.of(1000.0);
+        }
+    }
+
+    public Optional<Double> getPitchLeft() {
         if (leftHasTarget()) {
             return Optional.of(resultLeft.getBestTarget().getPitch());
         } else {
@@ -246,12 +338,12 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(1000.0);
         }
     }
-    
-    public boolean leftHasTarget(){
+
+    public boolean leftHasTarget() {
         return resultLeft.hasTargets();
     }
 
-    public boolean rightHasTarget(){
+    public boolean rightHasTarget() {
         return resultRight.hasTargets();
     }
 }

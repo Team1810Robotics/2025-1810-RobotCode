@@ -26,7 +26,7 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     m_robotContainer = new RobotContainer();
-    
+
     CameraServer.startAutomaticCapture();
 
     DataLogManager.start();
@@ -39,29 +39,35 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void robotInit(){
+  public void robotInit() {
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
   @SuppressWarnings("static-access")
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
-    //RobotContainer.ledSubsystem.periodic();
+    CommandScheduler.getInstance().run();
+    // RobotContainer.ledSubsystem.periodic();
 
-    if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected() || !m_robotContainer.pitchSubsystem.isEncoderConnected() || !m_robotContainer.rollSubsystem.isEncoderConnected()){
+    if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected()
+        || !m_robotContainer.pitchSubsystem.isEncoderConnected()
+        || !m_robotContainer.rollSubsystem.isEncoderConnected()) {
       encoderAllGood = false;
     }
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {m_robotContainer.drivetrain.applyRequest(() -> m_robotContainer.brake);}
+  public void disabledPeriodic() {
+    m_robotContainer.drivetrain.applyRequest(() -> m_robotContainer.brake);
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -75,10 +81,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -89,10 +97,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -100,11 +110,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }
