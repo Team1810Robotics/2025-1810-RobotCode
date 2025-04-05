@@ -23,7 +23,7 @@ import frc.robot.Constants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
-    public PhotonCamera cameraRight, cameraLeft, evilCamera;
+    public PhotonCamera cameraRight, cameraLeft;
     PhotonPoseEstimator photonPoseEstimator;
     public static PhotonPipelineResult resultRight, resultLeft;
     List<PhotonPipelineResult> allResults;
@@ -55,7 +55,6 @@ public class VisionSubsystem extends SubsystemBase {
         SmartDashboard.putData(rotController);
         cameraRight = new PhotonCamera(VisionConstants.TARGET_CAMERA_RIGHT);
         cameraLeft = new PhotonCamera(VisionConstants.TARGET_CAMERA_LEFT);
-        evilCamera = new PhotonCamera("Evil");
         photonPoseEstimator = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
                 PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
@@ -83,9 +82,6 @@ public class VisionSubsystem extends SubsystemBase {
         return photonPoseEstimator.update(resultRight);
     }
 
-    public void getEvil() {
-        evilCamera.getLatestResult().getBestTarget().getYaw();
-    }
 
     public Optional<Double> getRangeErrorLeft() {
         if (leftHasTarget()) {
@@ -107,15 +103,8 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(resultLeft.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.of(1000.0);
-    } // bennett martin is evil
+    } 
 
-    public Optional<Double> getRangeLeftID(int id) {
-        if (leftHasTarget()) {
-            // Get the range to the target using the best target's pose
-            return Optional.of(resultLeft.getTargets().get(id).getBestCameraToTarget().getTranslation().getX());
-        }
-        return Optional.of(1000.0);
-    } // bennett martin is evil
 
     public Optional<Double> getRangeRight() {
         if (rightHasTarget()) {
@@ -123,15 +112,8 @@ public class VisionSubsystem extends SubsystemBase {
             return Optional.of(resultRight.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.of(1000.0);
-    } // bennett martin is evil
+    } 
 
-    public Optional<Double> getRangeRightID(int id) {
-        if (rightHasTarget()) {
-            // Get the range to the target using the best target's pose
-            return Optional.of(resultRight.getTargets().get(id).getBestCameraToTarget().getTranslation().getX());
-        }
-        return Optional.of(1000.0);
-    } // bennett martin is evil
 
     public Optional<Double> getXRangeLeft() {
         if (leftHasTarget()) {
@@ -212,15 +194,6 @@ public class VisionSubsystem extends SubsystemBase {
         return altRotation;
     }
 
-    public double visionPara(double altRotation, boolean visionMode, double gyro, int tagId) {
-        if (visionMode) {
-            return rotController.calculate((gyro % 360) - aprilTagFieldLayout.getTagPose(tagId).get().getZ());
-        }
-        if ((visionMode == true)) {
-            return altRotation;
-        }
-        return altRotation;
-    }
 
     /**
      * Used to make the robot drive to a set distance away from an apriltag.
@@ -245,21 +218,7 @@ public class VisionSubsystem extends SubsystemBase {
             return altDrive;
     }
 
-    public double visionYDriveLeftID(int id, double altDrive, double distance, boolean driveModeLeft,
-            PIDController pid) {
-        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
-            return pid.calculate(getYawLeftID(id).get() - distance);
-        } else
-            return altDrive;
-    }
 
-    public double visionYDriveRightID(int id, double altDrive, double distance, boolean driveModeRight,
-            PIDController pid) {
-        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
-            return pid.calculate(getYawRightID(id).get() - distance);
-        } else
-            return altDrive;
-    }
 
     public double visionXDriveLeft(double altDrive, double distance, boolean driveModeLeft, PIDController pid) {
         if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
@@ -275,21 +234,8 @@ public class VisionSubsystem extends SubsystemBase {
             return altDrive;
     }
 
-    public double visionXDriveLeftID(int id, double altDrive, double distance, boolean driveModeLeft,
-            PIDController pid) {
-        if (getRangeLeft().isPresent() && driveModeLeft && leftHasTarget()) {
-            return pid.calculate(getRangeLeftID(id).get() - distance);
-        } else
-            return altDrive;
-    }
 
-    public double visionXDriveRightID(int id, double altDrive, double distance, boolean driveModeRight,
-            PIDController pid) {
-        if (getRangeRight().isPresent() && driveModeRight && rightHasTarget()) {
-            return pid.calculate(getRangeRightID(id).get() - distance);
-        } else
-            return altDrive;
-    }
+
 
     public Optional<Double> getYawLeft() {
         if (leftHasTarget()) {
@@ -307,21 +253,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
     }
 
-    public Optional<Double> getYawLeftID(int id) {
-        if (leftHasTarget()) {
-            return Optional.of(resultLeft.getTargets().get(id).getYaw());
-        } else {
-            return Optional.of(1000.0);
-        }
-    }
-
-    public Optional<Double> getYawRightID(int id) {
-        if (rightHasTarget()) {
-            return Optional.of(resultRight.getTargets().get(id).getYaw());
-        } else {
-            return Optional.of(1000.0);
-        }
-    }
 
     public Optional<Double> getPitchLeft() {
         if (leftHasTarget()) {
