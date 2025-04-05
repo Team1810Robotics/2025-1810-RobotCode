@@ -60,7 +60,7 @@ public class Superstructure {
             Commands.run(() -> pitchSubsystem.run(mode.pitchSetpoint)),
             Commands.run(() -> rollSubsystem.run(mode.rollSetpoint)),
             Commands.run(() -> intakeSubsystem.run(mode.intakeMode)).until(() -> intakeSubsystem.end(mode.intakeMode)),
-            Commands.run(() -> DataLogManager.log("Superstructue mode: " + mode.name() + " applied"))
+            Commands.run(() -> DataLogManager.log("Superstructue mode: " + mode.toString() + " applied"))
         );
     }
 

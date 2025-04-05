@@ -163,7 +163,7 @@ public class RobotContainer {
 
     public Command l2Position() {
         return superstructure.applyRequest(SuperstructureMode.L2);
-        }
+    }
 
     public Command l3Position() {
         return superstructure.applyRequest(SuperstructureMode.L3);
