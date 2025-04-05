@@ -7,8 +7,6 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -61,8 +59,6 @@ public class RobotContainer {
     public static final Superstructure superstructure = new Superstructure(extenderSubsystem, armSubsystem, pitchSubsystem, rollSubsystem, intakeSubsystem);
 
     private final SendableChooser<Command> autoChooser;
-
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     public RobotContainer() {
         addNamedCommands();

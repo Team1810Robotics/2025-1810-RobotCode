@@ -9,6 +9,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.RollConstants;
 
@@ -69,21 +72,21 @@ public class RollSubsystem extends SubsystemBase {
    * 
    * @param setPoint setpoint for wrist
    */
-  public void run(double setpoint) {
+  public Command run(double setpoint) {
     if (encoder.isConnected()) {
       currentSetpoint = setpoint;
       if (getMeasurment() < setpoint) {
-        // System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
-        rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint));
+        return Commands.startEnd(() -> rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint)), () -> stop(), this);
       } else if (getMeasurment() > setpoint) {
-        // System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
-        rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint));
+        return Commands.startEnd(() -> rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint)), () -> stop(), this);
       }
     } else {
       System.out.println("Roll Encoder Disconnected");
       stop();
       rollMotor.disable();
+      return new InstantCommand();
     }
+    return new InstantCommand();
   }
 
   public void runManual(double speed) {

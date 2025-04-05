@@ -121,14 +121,15 @@ public class ExtenderSubsystem extends SubsystemBase {
         return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
 
-    public void run(double height) {
+    public Command run(double height) {
         currentSetpoint = height;
         if (encoder.isConnected()) {
-            extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
+            return Commands.startEnd(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), () -> stop(), this);
         } else {
             stop();
             extenderMotor.disable();
             System.out.println("Extender Encoder Disconnected");
+            return new InstantCommand();
         }
     }
 

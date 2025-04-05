@@ -6,6 +6,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.I2C.Port;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakeMode;
@@ -25,7 +27,7 @@ public class IntakeSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("Blue", () -> colorSensor.getBlue());
     }
 
-    public void run(IntakeConstants.IntakeMode mode) {
+    public Command run(IntakeConstants.IntakeMode mode) {
         int blue = getBlue();
         int distance = getDistance();
         
@@ -34,23 +36,18 @@ public class IntakeSubsystem extends SubsystemBase {
             case IN:
                 if (blue < 10 && distance > 1800) {
                     // Detects if an algae has been intaked and idles it instead
-                    intakeMotor.set(0.1);
+                    return Commands.startEnd(() -> intakeMotor.set(0.15), () -> stop(), this).until(() -> end(mode));
                 } else {
-                    intakeMotor.set(1);
+                    return Commands.startEnd(() -> intakeMotor.set(1), () -> stop(), this).until(() -> end(mode));
                 }
-                break;
             case OUT:
-                intakeMotor.set(-0.15);
-                break;
+                return Commands.startEnd(() -> intakeMotor.set(-0.15), () -> stop(), this);
             case KICK:
-                intakeMotor.set(-1);
-                break;
+                return Commands.startEnd(() -> intakeMotor.set(-1), () -> stop(), this).until(() -> end(mode));
             case STOP:
-                intakeMotor.stopMotor();
-                break;
+                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> end(mode));
             default:
-                intakeMotor.stopMotor();
-                break;
+                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> end(mode));
         }
     }
 

@@ -43,7 +43,7 @@ public class VisionSubsystem extends SubsystemBase {
     public PIDController driveControllerXLeft = new PIDController(VisionConstants.VX_Kp_Left,
             VisionConstants.VX_Ki_Left, VisionConstants.VX_Kd_Left);
 
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
     public static final Transform3d CAMERA_TO_ROBOT_RIGHT = new Transform3d(new Translation3d(0.127, 0.17145, 0.3175),
             new Rotation3d(0, 0, 0));

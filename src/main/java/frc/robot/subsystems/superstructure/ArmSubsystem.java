@@ -10,6 +10,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.Elastic;
 import frc.robot.Constants.ArmConstants;
@@ -68,15 +71,16 @@ public class ArmSubsystem extends SubsystemBase {
         return degrees; 
     }
 
-    public void run(double setpoint) {
+    public Command run(double setpoint) {
         currentSetpoint = setpoint;
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
-            armMotor1.set(-output);
+            return Commands.startEnd(() -> armMotor1.set(-output), () -> stop(), this);
         } else {
             System.out.println("Arm Encoder Disconnected");
             stop();
             Elastic.sendNotification(notification.withAutomaticHeight());
+            return new InstantCommand();
         }
     }
 

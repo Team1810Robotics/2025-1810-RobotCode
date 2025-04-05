@@ -5,6 +5,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.PitchConstants;
 
@@ -54,14 +57,15 @@ public class PitchSubsystem extends SubsystemBase {
    * 
    * @param setPoint Setpoint for wrist
    */
-  public void run(double setPoint) {
+  public Command run(double setPoint) {
     if (encoder.isConnected() && !badEncoder) {
-      pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint)));
+      return Commands.startEnd(() -> pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint))), () -> stop(), this);
     } else {
       badEncoder = true;
       System.out.println("Pitch Encoder Disconnected");
       stop();
       pitchMotor.disable();
+      return new InstantCommand();
     }
   }
 

@@ -55,11 +55,11 @@ public class Superstructure {
 
     public Command applyRequest(SuperstructureMode mode) {
         return Commands.parallel(
-            Commands.run(() -> extenderSubsystem.run(mode.extenderSetpoint)),
-            Commands.run(() -> armSubsystem.run(mode.armSetpoint)),
-            Commands.run(() -> pitchSubsystem.run(mode.pitchSetpoint)),
-            Commands.run(() -> rollSubsystem.run(mode.rollSetpoint)),
-            Commands.run(() -> intakeSubsystem.run(mode.intakeMode)).until(() -> intakeSubsystem.end(mode.intakeMode)),
+            extenderSubsystem.run(mode.extenderSetpoint),
+            armSubsystem.run(mode.armSetpoint),
+            pitchSubsystem.run(mode.pitchSetpoint),
+            rollSubsystem.run(mode.rollSetpoint),
+            intakeSubsystem.run(mode.intakeMode),
             Commands.run(() -> DataLogManager.log("Superstructue mode: " + mode.toString() + " applied"))
         );
     }
