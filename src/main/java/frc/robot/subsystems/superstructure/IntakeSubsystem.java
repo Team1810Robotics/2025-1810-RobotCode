@@ -27,6 +27,12 @@ public class IntakeSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("Blue", () -> colorSensor.getBlue());
     }
 
+    /**
+     * Runs the intake motor with the specified mode
+     * 
+     * @param mode The mode to run the intake in
+     * @return Command to run the motor
+     */
     public Command run(IntakeConstants.IntakeMode mode) {
         int blue = getBlue();
         int distance = getDistance();
@@ -63,10 +69,17 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor.stopMotor();
     }
 
+    /**
+     * Checks if the intake should stop based on the mode and sensor readings
+     * 
+     * @param mode The current mode of the intake
+     * @return true if the intake should stop, false otherwise
+     */
     public boolean end(IntakeMode mode) {
         int distance = getDistance();
         int blue = getBlue();
 
+        //If we are intaking, the piece is a coral, and it is closer than 2000, stop
         if (distance > 2000 && mode == IntakeMode.IN && blue > 10) {
             return true;
         } 

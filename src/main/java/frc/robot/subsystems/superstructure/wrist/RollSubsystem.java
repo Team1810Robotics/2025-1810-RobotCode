@@ -71,26 +71,32 @@ public class RollSubsystem extends SubsystemBase {
    * Runs pitch motor with PID
    * 
    * @param setPoint setpoint for wrist
+   * @return command to run the motor
    */
   public Command run(double setpoint) {
     if (encoder.isConnected()) {
       currentSetpoint = setpoint;
       if (getMeasurment() < setpoint) {
-        return Commands.startEnd(() -> rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint)), () -> stop(), this);
+        return Commands.run(() -> rollMotor.set(rollPIDControllerIncreasing.calculate(getMeasurment(), setpoint)), this)
+            .finallyDo(() -> stop());
       } else if (getMeasurment() > setpoint) {
-        return Commands.startEnd(() -> rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint)), () -> stop(), this);
+        return Commands.run(() -> rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint)), this)
+            .finallyDo(() -> stop());
       }
     } else {
       System.out.println("Roll Encoder Disconnected");
       stop();
       rollMotor.disable();
-      return new InstantCommand();
     }
     return new InstantCommand();
   }
 
   public void runManual(double speed) {
     rollMotor.set(speed);
+  }
+
+  public boolean atSetpoint() {
+    return Math.abs(getMeasurment() - currentSetpoint) < RollConstants.TOLERANCE;
   }
 
   public void stop() {

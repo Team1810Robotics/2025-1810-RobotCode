@@ -56,10 +56,11 @@ public class PitchSubsystem extends SubsystemBase {
    * Runs the pitch motor with PID
    * 
    * @param setPoint Setpoint for wrist
+   * @return Command to run the motor
    */
   public Command run(double setPoint) {
     if (encoder.isConnected() && !badEncoder) {
-      return Commands.startEnd(() -> pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint))), () -> stop(), this);
+      return Commands.run(() -> pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint))), this).finallyDo(() -> stop());
     } else {
       badEncoder = true;
       System.out.println("Pitch Encoder Disconnected");
@@ -67,6 +68,10 @@ public class PitchSubsystem extends SubsystemBase {
       pitchMotor.disable();
       return new InstantCommand();
     }
+  }
+
+  public boolean atSetpoint() {
+    return Math.abs(getMeasurment() - pitchPIDController.getSetpoint()) < PitchConstants.TOLERANCE;
   }
 
   public void stop() {

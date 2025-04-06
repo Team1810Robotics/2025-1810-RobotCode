@@ -71,11 +71,17 @@ public class ArmSubsystem extends SubsystemBase {
         return degrees; 
     }
 
+    /**
+     * Runs the arm motor with PID
+     * 
+     * @param setpoint Setpoint for arm
+     * @return Command to run the arm
+     */
     public Command run(double setpoint) {
         currentSetpoint = setpoint;
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
-            return Commands.startEnd(() -> armMotor1.set(-output), () -> stop(), this);
+            return Commands.run(() -> armMotor1.set(-output), this).finallyDo(() -> stop());
         } else {
             System.out.println("Arm Encoder Disconnected");
             stop();
@@ -98,6 +104,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void setSpeed(double speed){
         armMotor1.set(speed);
+    }
+
+    public boolean atSetpoint() {
+        return Math.abs(getMeasurement() - armPIDController.getSetpoint()) < ArmConstants.TOLERANCE;
     }
 
     public void stop(){

@@ -101,6 +101,16 @@ public class ExtenderSubsystem extends SubsystemBase {
         return encoder.get() - ExtenderConstants.ENCODER_OFFSET;
     }
 
+    /**
+     * Runs the extender motor manually.
+     *
+     * <p>
+     * This method sets the speed of the extender motor to the specified value.
+     *
+     * @param speed the speed to set the extender motor to
+     * @return a command that runs the extender motor manually
+     * @see #run(double)
+     */
     public Command runManual(double speed) {
         if (encoder.isConnected()) {
             return Commands.run(() -> extenderMotor.set(speed), this);
@@ -121,10 +131,21 @@ public class ExtenderSubsystem extends SubsystemBase {
         return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
 
+    /**
+     * Runs the extender motor with PID control.
+     *
+     * <p>
+     * This method uses the current setpoint and the encoder value to calculate the
+     * output for the motor.
+     *
+     * @param height the desired height in inches
+     * @return a command that runs the extender motor with PID control
+     * @see #runManual(double)
+     */
     public Command run(double height) {
         currentSetpoint = height;
         if (encoder.isConnected()) {
-            return Commands.startEnd(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), () -> stop(), this);
+            return Commands.run(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), this).finallyDo(() -> stop());
         } else {
             stop();
             extenderMotor.disable();
