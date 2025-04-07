@@ -29,7 +29,7 @@ public class Superstructure {
      */
     public Command applyTargetState(SuperstructureState state) {
         currentState = state;
-        Commands.run(() -> DataLogManager.log("Superstructue state " + state.toString() + " applied")).schedule();
+        DataLogManager.log("Superstructue state " + state.toString() + " applied");
         
         return Commands.parallel(
             extenderSubsystem.run(state.extenderSetpoint),
@@ -62,7 +62,7 @@ public class Superstructure {
      * 
      * @return The Superstructure instance.
      */
-    public static Superstructure getInstance() {
+    public static synchronized Superstructure getInstance() {
         if (instance == null) {
             instance = new Superstructure();
         }

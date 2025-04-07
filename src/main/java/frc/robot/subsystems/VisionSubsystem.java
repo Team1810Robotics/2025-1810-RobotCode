@@ -25,9 +25,9 @@ import frc.robot.Constants.VisionConstants;
 public class VisionSubsystem extends SubsystemBase {
 
     public PhotonCamera camera;
-    PhotonPoseEstimator photonPoseEstimator;
+    private PhotonPoseEstimator photonPoseEstimator;
     public static PhotonPipelineResult result;
-    List<PhotonPipelineResult> allResults;
+    private List<PhotonPipelineResult> allResults;
 
     private CommandSwerveDrivetrain drivetrain;
 
@@ -74,36 +74,6 @@ public class VisionSubsystem extends SubsystemBase {
         return Optional.empty();
     }
 
-
-    @Override
-    public void periodic() {
-        if (!camera.isConnected()) {
-            DriverStation.reportWarning("Camera not connected", false);
-            return;
-        }
-
-        result = getLatestResult();
-        if (result.hasTargets()) return;
-
-        List<PhotonTrackedTarget> evilTargets = new ArrayList<>();
-        for (PhotonTrackedTarget target : result.getTargets()) {
-            var tagPose = aprilTagFieldLayout.getTagPose(target.getFiducialId());
-            if (tagPose.isEmpty()) continue;
-            var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
-            if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE.in(Meters)) {
-                evilTargets.add(target);
-            }
-        }
-
-        result.targets.removeAll(evilTargets);
-
-        if (!result.hasTargets()) return;
-
-        Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.update(result);
-        if (estimatedPose.isEmpty()) return;
-
-        drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds);
-    }
 
     //TODO: test new implementation
     public double visionTargetPIDCalc(double altRotation) {
@@ -184,6 +154,36 @@ public class VisionSubsystem extends SubsystemBase {
         allResults = camera.getAllUnreadResults();
         int size = allResults.size();
         return size > 0 ? allResults.get(size - 1) : new PhotonPipelineResult();
+    }
+
+    @Override
+    public void periodic() {
+        if (!camera.isConnected()) {
+            DriverStation.reportWarning("Camera not connected", false);
+            return;
+        }
+
+        result = getLatestResult();
+        if (!result.hasTargets()) return;
+
+        List<PhotonTrackedTarget> evilTargets = new ArrayList<>();
+        for (PhotonTrackedTarget target : result.getTargets()) {
+            var tagPose = aprilTagFieldLayout.getTagPose(target.getFiducialId());
+            if (tagPose.isEmpty()) continue;
+            var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
+            if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE_METERS) {
+                evilTargets.add(target);
+            }
+        }
+
+        result.targets.removeAll(evilTargets);
+
+        if (!result.hasTargets()) return;
+
+        Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.update(result);
+        if (estimatedPose.isEmpty()) return;
+
+        drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds);
     }
 
 }

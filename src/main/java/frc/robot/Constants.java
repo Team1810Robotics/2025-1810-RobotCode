@@ -175,7 +175,11 @@ public class Constants {
         public static final Transform3d CAMERA_TO_ROBOT_LEFT = new Transform3d(new Translation3d(0.127, -0.17145, 0.3175),
             new Rotation3d(0, 0, 0));
 
-        public static final Distance MAX_DISTANCE = Meters.of(3);
+        public static final double MAX_DISTANCE_METERS = 3;
+
+        public static final double X_STANDARD_DEVIATION = 0.1;
+        public static final double Y_STANDARD_DEVIATION = 0.1;
+        public static final double THETA_STANDARD_DEVIATION = 0.1;
 
         // Vision Rotation PID vars
         public static double VR_kP = 0.07;

@@ -61,12 +61,10 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
-
         addNamedCommands();
         configureBindings();
 
         autoChooser = AutoBuilder.buildAutoChooser("");
-        configureAutonomus();
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
@@ -137,7 +135,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
     }
 
-    public Command configureAutonomus() {
+    public Command configureAuto() {
         if (autoChooser.getSelected() != null) {
             return autoChooser.getSelected();
         } else {
