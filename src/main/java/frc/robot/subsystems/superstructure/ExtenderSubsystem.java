@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.superstructure;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -8,6 +8,9 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ExtenderConstants;
 
@@ -32,7 +35,7 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
-        limitSwitch = new DigitalInput(4);
+        limitSwitch = new DigitalInput(ExtenderConstants.LIMIT_SWITCH_ID);
 
         configuration = extenderMotor.getConfigurator();
         currentLimitsConfigs = new CurrentLimitsConfigs();
@@ -65,7 +68,7 @@ public class ExtenderSubsystem extends SubsystemBase {
      * Get the total number of rotations the extender has gone through.
      *
      * <p>
-     * This method detects when the encoder wraps \around and adds one to the
+     * This method detects when the encoder wraps around and adds one to the
      * cumulative
      * count. This is necessary because the DutyCycleEncoder wraps around to 0 after
      * a certain
@@ -98,10 +101,21 @@ public class ExtenderSubsystem extends SubsystemBase {
         return encoder.get() - ExtenderConstants.ENCODER_OFFSET;
     }
 
-    public void run(double speed) {
+    /**
+     * Runs the extender motor manually.
+     *
+     * <p>
+     * This method sets the speed of the extender motor to the specified value.
+     *
+     * @param speed the speed to set the extender motor to
+     * @return a command that runs the extender motor manually
+     * @see #run(double)
+     */
+    public Command runManual(double speed) {
         if (encoder.isConnected()) {
-            extenderMotor.set(speed);
+            return Commands.run(() -> extenderMotor.set(speed), this);
         }
+        return new InstantCommand();
     }
 
     /**
@@ -117,14 +131,26 @@ public class ExtenderSubsystem extends SubsystemBase {
         return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
 
-    public void extend(double height) {
+    /**
+     * Runs the extender motor with PID control.
+     *
+     * <p>
+     * This method uses the current setpoint and the encoder value to calculate the
+     * output for the motor.
+     *
+     * @param height the desired height in inches
+     * @return a command that runs the extender motor with PID control
+     * @see #runManual(double)
+     */
+    public Command run(double height) {
         currentSetpoint = height;
         if (encoder.isConnected()) {
-            extenderMotor.set(extenderPIDController.calculate(getDistance(), height));
+            return Commands.run(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), this).finallyDo(() -> stop());
         } else {
             stop();
             extenderMotor.disable();
             System.out.println("Extender Encoder Disconnected");
+            return new InstantCommand();
         }
     }
 
@@ -145,5 +171,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         totalRotations();
+        if (getLimitSwitch()) reset();
+        
     }
 }

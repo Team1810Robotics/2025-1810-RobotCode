@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.superstructure;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -10,6 +10,9 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.lib.Elastic;
 import frc.robot.Constants.ArmConstants;
@@ -68,15 +71,22 @@ public class ArmSubsystem extends SubsystemBase {
         return degrees; 
     }
 
-    public void run(double setpoint) {
+    /**
+     * Runs the arm motor with PID
+     * 
+     * @param setpoint Setpoint for arm
+     * @return Command to run the arm
+     */
+    public Command run(double setpoint) {
         currentSetpoint = setpoint;
         if (armEncoder.isConnected()){
             double output = armPIDController.calculate(getMeasurement(), setpoint);
-            armMotor1.set(-output);
+            return Commands.run(() -> armMotor1.set(-output), this).finallyDo(() -> stop());
         } else {
             System.out.println("Arm Encoder Disconnected");
             stop();
             Elastic.sendNotification(notification.withAutomaticHeight());
+            return new InstantCommand();
         }
     }
 
@@ -94,6 +104,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     public void setSpeed(double speed){
         armMotor1.set(speed);
+    }
+
+    public boolean atSetpoint() {
+        return Math.abs(getMeasurement() - armPIDController.getSetpoint()) < ArmConstants.TOLERANCE;
     }
 
     public void stop(){
