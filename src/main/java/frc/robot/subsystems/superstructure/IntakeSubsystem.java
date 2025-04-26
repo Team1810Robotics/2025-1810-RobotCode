@@ -9,8 +9,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.IntakeConstants.IntakeMode;
+import frc.robot.constants.RobotConstants.IntakeConstants;
+import frc.robot.constants.RobotConstants.IntakeConstants.IntakeMode;
 
 public class IntakeSubsystem extends SubsystemBase {
     private SparkMax intakeMotor;
@@ -63,6 +63,14 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public int getBlue() {
         return colorSensor.getBlue();
+    }
+
+    public boolean isCoralPresent() {
+        return getDistance() > 2000 && getBlue() > 10;
+    }
+
+    public boolean isAlgaePresent() {
+        return getDistance() > 2000 && getBlue() < 10;
     }
 
     public void stop() {

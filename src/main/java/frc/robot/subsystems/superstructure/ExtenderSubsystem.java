@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ExtenderConstants;
+import frc.robot.constants.RobotConstants.ExtenderConstants;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
@@ -152,6 +152,11 @@ public class ExtenderSubsystem extends SubsystemBase {
             System.out.println("Extender Encoder Disconnected");
             return new InstantCommand();
         }
+    }
+
+    public double getExtensionPercent() {
+        double percent = (getDistance() - ExtenderConstants.MIN_EXTENSION) / (ExtenderConstants.MAX_EXTENSION - ExtenderConstants.MIN_EXTENSION);
+        return Math.max(0, Math.min(percent, 1));
     }
 
     public boolean getLimitSwitch() {

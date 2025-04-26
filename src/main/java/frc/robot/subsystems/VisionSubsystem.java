@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,12 +13,12 @@ import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.VisionConstants;
+import frc.robot.constants.FieldConstants;
+import frc.robot.constants.RobotConstants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -38,20 +36,22 @@ public class VisionSubsystem extends SubsystemBase {
     public PIDController driveControllerX = new PIDController(VisionConstants.VX_kP,
             VisionConstants.VX_kI, VisionConstants.VX_kD);
 
-    AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
+    AprilTagFieldLayout layout = FieldConstants.layout;
+
+    private boolean shouldWarn = true;
 
     public VisionSubsystem(String cameraName, Transform3d cameraOffset, CommandSwerveDrivetrain drivetrain) {
         camera = new PhotonCamera(cameraName);
 
         photonPoseEstimator = new PhotonPoseEstimator(
-                aprilTagFieldLayout,
+                layout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, //TODO: Update this setting in PhotonVision
                 cameraOffset);
     }
 
 
     public Optional<Double> getRange() {
-        if (hasTarget()) {
+        if (hasTargets()) {
             // Get the range to the target using the best target's pose
             return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
@@ -60,27 +60,27 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     public Optional<Double> getXRange() {
-        if (hasTarget()) {
+        if (hasTargets()) {
             return Optional.of(result.getBestTarget().bestCameraToTarget.getY());
         } else
             return Optional.empty();
     }
 
     public Optional<Double> getTagRYaw() {
-        if (hasTarget()) {
-            return Optional.of(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId()).get()
+        if (hasTargets()) {
+            return Optional.of(layout.getTagPose(result.getBestTarget().getFiducialId()).get()
                     .getRotation().getZ());
         }
         return Optional.empty();
     }
 
 
-    //TODO: test new implementation
+    
     public double visionTargetPIDCalc(double altRotation) {
-        boolean target = hasTarget();
+        boolean target = hasTargets();
 
         if (target && getYaw().isPresent()) {
-            return -rotController.calculate(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId())
+            return -rotController.calculate(layout.getTagPose(result.getBestTarget().getFiducialId())
                     .get().getRotation().getZ());
         }
  
@@ -89,9 +89,9 @@ public class VisionSubsystem extends SubsystemBase {
 
     public double visionPara(double altRotation, boolean visionMode, double gyro) {
         if (visionMode) {
-            if (hasTarget()) {
+            if (hasTargets()) {
                 return rotController.calculate(gyro % 360
-                        - Math.toDegrees(aprilTagFieldLayout.getTagPose(result.getBestTarget().getFiducialId())
+                        - Math.toDegrees(layout.getTagPose(result.getBestTarget().getFiducialId())
                                 .get().getRotation().getMeasureZ().magnitude()));
             }
         }
@@ -112,7 +112,7 @@ public class VisionSubsystem extends SubsystemBase {
      * @return
      */
     public double visionYDrive(double altDrive, double distance) {
-        if (getRange().isPresent() && hasTarget()) {
+        if (getRange().isPresent() && hasTargets()) {
             return driveControllerX.calculate(getYaw().get() - distance);
         } else {
             return altDrive;
@@ -120,7 +120,7 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double visionXDrive(double altDrive, double distance) {
-        if (getRange().isPresent() && hasTarget()) {
+        if (getRange().isPresent() && hasTargets()) {
             return driveControllerY.calculate(getRange().get() - distance);
         } else {
             return altDrive;
@@ -129,25 +129,30 @@ public class VisionSubsystem extends SubsystemBase {
 
 
     public Optional<Double> getYaw() {
-        if (hasTarget()) {
+        if (hasTargets()) {
             return Optional.of(result.getBestTarget().getYaw());
         } else {
             return Optional.empty();
         }
     }
 
-
-
     public Optional<Double> getPitch() {
-        if (hasTarget()) {
+        if (hasTargets()) {
             return Optional.of(result.getBestTarget().getPitch());
         } else {
             return Optional.empty();
         }
     }
 
-    public boolean hasTarget() {
+    public boolean hasTargets() {
         return result.hasTargets();
+    }
+
+    public boolean hasTarget(int id) {
+        var target = getTargetByID(id);
+        if (target.isEmpty()) return false;
+
+        return true;
     }
 
     public PhotonPipelineResult getLatestResult() {
@@ -156,10 +161,31 @@ public class VisionSubsystem extends SubsystemBase {
         return size > 0 ? allResults.get(size - 1) : new PhotonPipelineResult();
     }
 
+    public Optional<Integer> getTargetID() {
+        if (!hasTargets()) return Optional.empty();
+
+        return Optional.of(result.getBestTarget().getFiducialId());
+    }
+
+    private Optional<PhotonTrackedTarget> getTargetByID(int id) {
+        if (!hasTargets()) return Optional.empty();
+
+        for (PhotonTrackedTarget target : result.getTargets()) {
+            if (target.getFiducialId() == id) {
+                return Optional.of(target);
+            }
+        }
+        return Optional.empty();
+
+    }
+
     @Override
     public void periodic() {
         if (!camera.isConnected()) {
-            DriverStation.reportWarning("Camera not connected", false);
+            if (shouldWarn) {
+                DriverStation.reportWarning("Camera not connected", false);
+                shouldWarn = false;
+            }
             return;
         }
 
@@ -168,7 +194,7 @@ public class VisionSubsystem extends SubsystemBase {
 
         List<PhotonTrackedTarget> evilTargets = new ArrayList<>();
         for (PhotonTrackedTarget target : result.getTargets()) {
-            var tagPose = aprilTagFieldLayout.getTagPose(target.getFiducialId());
+            var tagPose = layout.getTagPose(target.getFiducialId());
             if (tagPose.isEmpty()) continue;
             var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
             if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE_METERS) {

@@ -26,6 +26,7 @@ public class Robot extends TimedRobot {
 
   public boolean encoderAllGood = true;
 
+  //TODO: Test the whole robot
   public Robot() {
     m_robotContainer = new RobotContainer();
   
@@ -43,6 +44,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    RobotState.updateState();
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
@@ -50,7 +52,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
-    // RobotContainer.ledSubsystem.periodic();
+    RobotState.updateState();
+
 
     if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected()
         || !m_robotContainer.pitchSubsystem.isEncoderConnected()

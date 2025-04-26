@@ -1,7 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.LedConstants;
+import frc.robot.constants.RobotConstants.LedConstants;
 
 import com.ctre.phoenix.led.*;
 

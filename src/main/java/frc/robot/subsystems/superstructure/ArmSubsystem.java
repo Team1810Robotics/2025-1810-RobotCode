@@ -14,8 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.lib.Elastic;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.constants.RobotConstants.ArmConstants;
+
 import com.revrobotics.spark.SparkBase.ResetMode;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -26,8 +26,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     private SparkMaxConfig config1;
     private SparkMaxConfig config2;
-
-    private Elastic.Notification notification;
    
     private final PIDController armPIDController;
 
@@ -60,8 +58,6 @@ public class ArmSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Encoder").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
 
         Shuffleboard.getTab("Arm").addNumber("Arm Setpoint", () -> currentSetpoint);
-
-        notification = new Elastic.Notification(Elastic.Notification.NotificationLevel.ERROR, "!!! Arm Error !!!", "Encoder Disconected");
     }
 
     public double getMeasurement() {
@@ -85,17 +81,12 @@ public class ArmSubsystem extends SubsystemBase {
         } else {
             System.out.println("Arm Encoder Disconnected");
             stop();
-            Elastic.sendNotification(notification.withAutomaticHeight());
             return new InstantCommand();
         }
     }
 
     public boolean isEncoderConnected(){
         return armEncoder.isConnected();
-    }
-
-    public void testNotif(){
-        Elastic.sendNotification(notification);
     }
 
     public double armPower(){

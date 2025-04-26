@@ -3,7 +3,7 @@ package frc.robot.subsystems.superstructure;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.SuperstructueConstants.SuperstructureState;
+import frc.robot.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
 
@@ -17,9 +17,9 @@ public class Superstructure {
     private final RollSubsystem rollSubsystem = new RollSubsystem();
     private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
-    private SuperstructureState currentState = SuperstructureState.BASE;
+    private static SuperstructureState currentSuperstructureState = SuperstructureState.BASE;
 
-    public Superstructure() {}
+    private Superstructure() {}
 
     /**
      * Applies the given superstructure mode to the subsystems.
@@ -28,7 +28,7 @@ public class Superstructure {
      * @return A command that runs the subsystems in the given mode.
      */
     public Command applyTargetState(SuperstructureState state) {
-        currentState = state;
+        currentSuperstructureState = state;
         DataLogManager.log("Superstructue state " + state.toString() + " applied");
         
         return Commands.parallel(
@@ -53,8 +53,8 @@ public class Superstructure {
         // );
     }
 
-    public SuperstructureState getCurrentState() {
-        return currentState;
+    public static SuperstructureState getCurrentSuperstructureState() {
+        return currentSuperstructureState;
     }
 
     /**

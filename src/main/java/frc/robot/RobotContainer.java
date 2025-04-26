@@ -7,6 +7,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -14,12 +16,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.VisionConstants;
-import frc.robot.Constants.IntakeConstants.IntakeMode;
-import frc.robot.Constants.SuperstructueConstants.SuperstructureState;
-import frc.robot.generated.TunerConstants;
+import frc.robot.RobotState.States;
+import frc.robot.commands.DriveToPose;
+import frc.robot.constants.TunerConstants;
+import frc.robot.constants.RobotConstants.VisionConstants;
+import frc.robot.constants.RobotConstants.IntakeConstants.IntakeMode;
+import frc.robot.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
+import frc.robot.constants.FieldConstants.Reef;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.superstructure.ArmSubsystem;
@@ -50,8 +56,8 @@ public class RobotContainer {
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     public final static IntakeSubsystem intakeSubsystem = Superstructure.getInstance().getIntakeSubsystem();
-    public final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.TARGET_CAMERA_LEFT, VisionConstants.CAMERA_TO_ROBOT_LEFT, drivetrain);
-    public final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.TARGET_CAMERA_RIGHT, VisionConstants.CAMERA_TO_ROBOT_RIGHT, drivetrain);
+    public final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT, drivetrain);
+    public final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT, drivetrain);
     public final static ArmSubsystem armSubsystem = Superstructure.getInstance().getArmSubsystem();
     public final static PitchSubsystem pitchSubsystem = Superstructure.getInstance().getPitchSubsystem();
     public final static RollSubsystem rollSubsystem = Superstructure.getInstance().getRollSubsystem();
@@ -71,6 +77,9 @@ public class RobotContainer {
         Shuffleboard.getTab("Teleop").addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage());
 
         Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
+
+        Shuffleboard.getTab("Teleoperated").addString("Robot State", () -> RobotState.getRobotState().toString());
+        Shuffleboard.getTab("Teleoperated").addString("Superstructure State", () -> Superstructure.getCurrentSuperstructureState().toString());
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -100,13 +109,20 @@ public class RobotContainer {
         //Reset heading
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        manipulatorXbox.a().onTrue(l1Position());
-        manipulatorXbox.b().onTrue(l2Position());
-        manipulatorXbox.x().onTrue(l3Position());
-        manipulatorXbox.y().onTrue(l4Position());
-        manipulatorXbox.rightBumper().onTrue(intakePostition()); 
-        manipulatorXbox.start().onTrue(groundPickup());
-        manipulatorXbox.leftBumper().onTrue(basePosition());
+
+        manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(intakePostition());
+        manipulatorXbox.b().and(RobotState.stateIsNone).onTrue(groundPickup());
+        manipulatorXbox.x().and(RobotState.stateIsNone).onTrue(algaePickup());
+        manipulatorXbox.y().and(RobotState.stateIsNone).onTrue(algaeClear());
+
+        manipulatorXbox.a().and(RobotState.stateIsCoral).onTrue(l1Position());
+        manipulatorXbox.b().and(RobotState.stateIsCoral).onTrue(l2Position());
+        manipulatorXbox.x().and(RobotState.stateIsCoral).onTrue(l3Position());
+        manipulatorXbox.y().and(RobotState.stateIsCoral).onTrue(l4Position());
+
+        manipulatorXbox.a().and(RobotState.stateIsAlgae).onTrue(processor());
+        manipulatorXbox.b().and(RobotState.stateIsAlgae).onTrue(net());
+
 
         manipulatorXbox.povUp().whileTrue(extenderSubsystem.runManual(.5));
         manipulatorXbox.povDown().whileTrue(extenderSubsystem.runManual(-.5));
@@ -114,9 +130,7 @@ public class RobotContainer {
         manipulatorXbox.rightTrigger().onTrue(intake());
         manipulatorXbox.leftTrigger().whileTrue(outtake());
 
-        manipulatorXbox.button(10).onTrue(algae1());
-        manipulatorXbox.button(9).onTrue(algae2());
-
+        manipulatorXbox.start().onTrue(Commands.runOnce(() -> RobotState.updateState(States.NONE)));
     }
 
     public void addNamedCommands() {
@@ -170,12 +184,45 @@ public class RobotContainer {
         return Superstructure.getInstance().applyTargetState(SuperstructureState.GROUND_PICKUP);
     }
 
-    public Command algae1() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.ALGAE1);
+    public Command processor() {
+        return Superstructure.getInstance().applyTargetState(SuperstructureState.PROCESSOR);
     }
 
-    public Command algae2() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.ALGAE2);
+    public Command net() {
+        return Superstructure.getInstance().applyTargetState(SuperstructureState.NET);
+    }
+
+
+    public Command algaePickup() {
+        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
+
+        if (id == -1) {
+            DriverStation.reportWarning("Attempted to pick up algae, no tag found", null);
+            return new InstantCommand();
+        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
+            return Superstructure.getInstance().applyTargetState(SuperstructureState.LOW_ALGAE_PICKUP);
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
+            return Superstructure.getInstance().applyTargetState(SuperstructureState.HIGH_ALGAE_PICKUP);
+        } else {
+            DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", null);
+            return new InstantCommand();
+        }
+    }
+
+    public Command algaeClear() {
+        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
+
+        if (id == -1) {
+            DriverStation.reportWarning("Attempted to clear algae, no tag found", null);
+            return new InstantCommand();
+        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
+            return Superstructure.getInstance().applyTargetState(SuperstructureState.LOW_ALGAE_CLEAR);
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
+            return Superstructure.getInstance().applyTargetState(SuperstructureState.HIGH_ALGAE_CLEAR);
+        } else {
+            DriverStation.reportWarning("Attempted to clear algae, tag not recognized", null);
+            return new InstantCommand();
+        }
     }
 
     public Command intake() {
@@ -187,16 +234,31 @@ public class RobotContainer {
     }
 
     public Command leftAlign() {
-        return drivetrain.applyRequest(() -> visDrive
-                .withVelocityX((visionLeft.visionXDrive(driverXbox.getLeftY(), -0.1) * MaxSpeed) / 4) 
-                .withVelocityY((-visionLeft.visionYDrive(-driverXbox.getLeftX(), 0.0) * MaxSpeed) / 4) 
-                .withRotationalRate(visionRight.visionTargetPIDCalc(driverXbox.getRightX()) * MaxAngularRate));
+        if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
+        
+        return new DriveToPose(
+            drivetrain, 
+            visDrive, 
+            Reef.getScorePose(
+                    visionRight.getTargetID().get(), 
+                    true, 
+                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            )
+        );
     }
 
     public Command rightAlign() {
-        return drivetrain.applyRequest(() -> visDrive
-                .withVelocityX((visionRight.visionXDrive(driverXbox.getLeftY(), -0.1) * MaxSpeed) / 4) 
-                .withVelocityY((-visionRight.visionYDrive(-driverXbox.getLeftX(), 0.0) * MaxSpeed) / 4) 
-                .withRotationalRate(visionRight.visionTargetPIDCalc(driverXbox.getRightX()) * MaxAngularRate));
+        if (visionRight.getTargetID().isEmpty()) return new InstantCommand();
+        
+        return new DriveToPose(
+            drivetrain, 
+            visDrive, 
+            Reef.getScorePose(
+                    visionLeft.getTargetID().get(), 
+                    true, 
+                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            )
+        );
     }
+
 }
