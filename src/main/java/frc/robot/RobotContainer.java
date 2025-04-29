@@ -58,8 +58,8 @@ public class RobotContainer {
 
     private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT, drivetrain);
-    private final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT, drivetrain);
+    private final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT);
+    private final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT);
 
     private static final ArmSubsystem armSubsystem = new ArmSubsystem();
     private static final ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();

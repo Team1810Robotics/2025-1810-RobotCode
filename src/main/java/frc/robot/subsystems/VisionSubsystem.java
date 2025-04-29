@@ -17,6 +17,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.RobotContainer;
 import frc.robot.util.constants.FieldConstants;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
 
@@ -27,7 +28,7 @@ public class VisionSubsystem extends SubsystemBase {
     public static PhotonPipelineResult result;
     private List<PhotonPipelineResult> allResults;
 
-    private CommandSwerveDrivetrain drivetrain;
+    private CommandSwerveDrivetrain drivetrain = RobotContainer.getDrivetrain();
 
     public PIDController rotController = new PIDController(VisionConstants.VR_kP, VisionConstants.VR_kI,
             VisionConstants.VR_kD);
@@ -40,7 +41,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private boolean shouldWarn = true;
 
-    public VisionSubsystem(String cameraName, Transform3d cameraOffset, CommandSwerveDrivetrain drivetrain) {
+    public VisionSubsystem(String cameraName, Transform3d cameraOffset) {
         camera = new PhotonCamera(cameraName);
 
         photonPoseEstimator = new PhotonPoseEstimator(

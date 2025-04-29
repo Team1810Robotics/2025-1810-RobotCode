@@ -6,64 +6,59 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import frc.robot.util.constants.RobotConstants.ArmConstants;
 
 public class Config {
-    private static final TalonFXConfiguration PITCH_CONFIG = new TalonFXConfiguration();
-    private static final SparkMaxConfig ROLL_CONFIG = new SparkMaxConfig();
-
-    private static final TalonFXConfiguration EXTENDER_CONFIG = new TalonFXConfiguration();
-
-    private static final SparkMaxConfig ARM_CONFIG_1 = new SparkMaxConfig();
-    private static final SparkMaxConfig ARM_CONFIG_2 = new SparkMaxConfig();
-    
-    private static final SparkMaxConfig INTAKE_CONFIG = new SparkMaxConfig();
-
     private static final double GLOBAL_CURRENT_LIMIT_BASE = 45;
 
 
     public static TalonFXConfiguration getPitchConfig() {
-        PITCH_CONFIG.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
-        PITCH_CONFIG.CurrentLimits.StatorCurrentLimitEnable = true;
-        PITCH_CONFIG.Feedback.SensorToMechanismRatio = 15; 
-
-        return PITCH_CONFIG;
+        TalonFXConfiguration cfg = new TalonFXConfiguration();
+        cfg.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
+        cfg.CurrentLimits.StatorCurrentLimitEnable = true;
+        cfg.Feedback.SensorToMechanismRatio = 15; 
+    
+        return cfg;
     }
-
+    
     public static TalonFXConfiguration getExtenderConfig() {
-        EXTENDER_CONFIG.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
-        EXTENDER_CONFIG.CurrentLimits.StatorCurrentLimitEnable = true;
-        EXTENDER_CONFIG.Feedback.SensorToMechanismRatio = 4; 
-
-        return EXTENDER_CONFIG;
+        TalonFXConfiguration cfg = new TalonFXConfiguration();
+        cfg.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
+        cfg.CurrentLimits.StatorCurrentLimitEnable = true;
+        cfg.Feedback.SensorToMechanismRatio = 4; 
+    
+        return cfg;
     }
-
+    
     public static SparkMaxConfig getRollConfig() {
-        ROLL_CONFIG.smartCurrentLimit(40);
-        ROLL_CONFIG.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        ROLL_CONFIG.inverted(false);
+        SparkMaxConfig cfg = new SparkMaxConfig();
+        cfg.smartCurrentLimit(40);
+        cfg.idleMode(SparkMaxConfig.IdleMode.kBrake);
 
-        return ROLL_CONFIG;
+    
+        return cfg;
     }
-
+    
     public static SparkMaxConfig getArmConfig1() {
-        ARM_CONFIG_1.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
-        ARM_CONFIG_1.idleMode(SparkMaxConfig.IdleMode.kBrake);
-
-        return ARM_CONFIG_1;
+        SparkMaxConfig cfg = new SparkMaxConfig();
+        cfg.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
+        cfg.idleMode(SparkMaxConfig.IdleMode.kBrake);
+    
+        return cfg;
     }
-
+    
     public static SparkMaxConfig getArmConfig2() {
-        ARM_CONFIG_2.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
-        ARM_CONFIG_2.idleMode(SparkMaxConfig.IdleMode.kBrake);
-        
-        ARM_CONFIG_2.follow(ArmConstants.MOTOR_ID_1);
+        SparkMaxConfig cfg = new SparkMaxConfig();
+        cfg.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
+        cfg.idleMode(SparkMaxConfig.IdleMode.kBrake);
 
-        return ARM_CONFIG_2;
+        cfg.follow(ArmConstants.MOTOR_ID_1);
+    
+        return cfg;
     }
-
+    
     public static SparkMaxConfig getIntakeConfig() {
-        INTAKE_CONFIG.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
-        INTAKE_CONFIG.idleMode(SparkMaxConfig.IdleMode.kCoast);
-        INTAKE_CONFIG.inverted(false);
-
-        return INTAKE_CONFIG;
+        SparkMaxConfig cfg = new SparkMaxConfig();
+        cfg.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
+        cfg.idleMode(SparkMaxConfig.IdleMode.kCoast);
+    
+        return cfg;
     }
 }
