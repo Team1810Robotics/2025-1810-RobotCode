@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.Optional;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -27,11 +29,12 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
+import frc.robot.util.Telemetry;
 import frc.robot.util.constants.TunerConstants;
 import frc.robot.util.constants.FieldConstants.Reef;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
 import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
-import frc.robot.util.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
+import frc.robot.subsystems.superstructure.SuperstructureState;
 
 
 public class RobotContainer {
@@ -53,14 +56,18 @@ public class RobotContainer {
     public final static CommandXboxController driverXbox = new CommandXboxController(0);
     public final static CommandXboxController manipulatorXbox = new CommandXboxController(1);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final static IntakeSubsystem intakeSubsystem = Superstructure.getInstance().getIntakeSubsystem();
-    public final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT, drivetrain);
-    public final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT, drivetrain);
-    public final static ArmSubsystem armSubsystem = Superstructure.getInstance().getArmSubsystem();
-    public final static PitchSubsystem pitchSubsystem = Superstructure.getInstance().getPitchSubsystem();
-    public final static RollSubsystem rollSubsystem = Superstructure.getInstance().getRollSubsystem();
-    public final static ExtenderSubsystem extenderSubsystem = Superstructure.getInstance().getExtenderSubsystem();
+    private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    private final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT, drivetrain);
+    private final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT, drivetrain);
+
+    private static final ArmSubsystem armSubsystem = new ArmSubsystem();
+    private static final ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
+    private static final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private static final PitchSubsystem pitchSubsystem = new PitchSubsystem();
+    private static final RollSubsystem rollSubsystem = new RollSubsystem();
+
+    private static final Superstructure superstructure = new Superstructure(pitchSubsystem, rollSubsystem, extenderSubsystem, armSubsystem, intakeSubsystem);
 
 
     private final SendableChooser<Command> autoChooser;
@@ -112,28 +119,28 @@ public class RobotContainer {
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         //Bindings for no pieces
-        manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(intakePostition());
+        manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(coralStation());
         manipulatorXbox.b().and(RobotState.stateIsNone).onTrue(groundPickup());
         manipulatorXbox.x().and(RobotState.stateIsNone).onTrue(algaePickup());
         manipulatorXbox.y().and(RobotState.stateIsNone).onTrue(algaeClear());
 
         //Bindings for coral
-        manipulatorXbox.a().and(RobotState.stateIsCoral).onTrue(l1Position());
-        manipulatorXbox.b().and(RobotState.stateIsCoral).onTrue(l2Position());
-        manipulatorXbox.x().and(RobotState.stateIsCoral).onTrue(l3Position());
-        manipulatorXbox.y().and(RobotState.stateIsCoral).onTrue(l4Position());
+        manipulatorXbox.a().and(RobotState.stateIsCoral).onTrue(l1());
+        manipulatorXbox.b().and(RobotState.stateIsCoral).onTrue(l2());
+        manipulatorXbox.x().and(RobotState.stateIsCoral).onTrue(l3());
+        manipulatorXbox.y().and(RobotState.stateIsCoral).onTrue(l4());
 
         //Bindings for algae
         manipulatorXbox.a().and(RobotState.stateIsAlgae).onTrue(processor());
         manipulatorXbox.b().and(RobotState.stateIsAlgae).onTrue(net());
 
-        manipulatorXbox.a().and(() -> stateOverride).onTrue(l1Position());
-        manipulatorXbox.b().and(() -> stateOverride).onTrue(l2Position());
-        manipulatorXbox.x().and(() -> stateOverride).onTrue(l3Position());
-        manipulatorXbox.y().and(() -> stateOverride).onTrue(l4Position());
+        manipulatorXbox.a().and(() -> stateOverride).onTrue(l1());
+        manipulatorXbox.b().and(() -> stateOverride).onTrue(l2());
+        manipulatorXbox.x().and(() -> stateOverride).onTrue(l3());
+        manipulatorXbox.y().and(() -> stateOverride).onTrue(l4());
 
-        manipulatorXbox.leftBumper().and(() -> stateOverride).onTrue(basePosition());
-        manipulatorXbox.rightBumper().and(() -> stateOverride).onTrue(intakePostition());
+        manipulatorXbox.leftBumper().and(() -> stateOverride).onTrue(base());
+        manipulatorXbox.rightBumper().and(() -> stateOverride).onTrue(coralStation());
         manipulatorXbox.start().and(() -> stateOverride).onTrue(groundPickup());
         manipulatorXbox.leftStick().and(() -> stateOverride).onTrue(algaeClear());
 
@@ -150,11 +157,11 @@ public class RobotContainer {
     }
 
     public void addNamedCommands() {
-        NamedCommands.registerCommand("Intake", intakePostition().withTimeout(1));
-        NamedCommands.registerCommand("Base", basePosition().withTimeout(2.3));
-        NamedCommands.registerCommand("L2", l2Position().withTimeout(2));
-        NamedCommands.registerCommand("L3", l3Position().withTimeout(2));
-        NamedCommands.registerCommand("L4", l4Position().withTimeout(3.5));
+        NamedCommands.registerCommand("Intake", coralStation().withTimeout(1));
+        NamedCommands.registerCommand("Base", base().withTimeout(2.3));
+        NamedCommands.registerCommand("L2", l2().withTimeout(2));
+        NamedCommands.registerCommand("L3", l3().withTimeout(2));
+        NamedCommands.registerCommand("L4", l4().withTimeout(3.5));
 
         NamedCommands.registerCommand("Outtake", outtake());
         NamedCommands.registerCommand("Intake", intake());
@@ -167,87 +174,90 @@ public class RobotContainer {
         if (autoChooser.getSelected() != null) {
             return autoChooser.getSelected();
         } else {
-            return Commands.print("No autonomous command configured, if a path was chosen, this is an error.");
+            return Commands.print("No autonomous command configured, if a path was chosen, this is an error.");    
         }
     }
-    public Command intakePostition() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.CORAL_STATION);
+            
+    private Command coralStation() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.CORAL_STATION);
     }
 
-    public Command l1Position() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.L1);
+    private Command l1() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.L1);
     }
 
-    public Command l2Position() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.L2);
+    private Command l2() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.L2);
     }
 
-    public Command l3Position() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.L3);
+    private Command l3() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.L3);
     }
 
-    public Command l4Position() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.L4);
+    private Command l4() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.L4);
     }
 
-    public Command basePosition() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.BASE);
+    private Command base() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.BASE);
     }
 
-    public Command groundPickup() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.GROUND_PICKUP);
+    private Command groundPickup() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.GROUND_PICKUP);
     }
 
-    public Command processor() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.PROCESSOR);
+    private Command processor() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.PROCESSOR);
     }
 
-    public Command net() {
-        return Superstructure.getInstance().applyTargetState(SuperstructureState.NET);
+    private Command net() {
+        return superstructure.applyTargetStateParallel(SuperstructureState.NET);
     }
 
-
-    public Command algaePickup() {
+    private Command algaePickup() {
         int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
 
         if (id == -1) {
             DriverStation.reportWarning("Attempted to pick up algae, no tag found", null);
             return new InstantCommand();
         } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
-            return Superstructure.getInstance().applyTargetState(SuperstructureState.LOW_ALGAE_PICKUP);
+            return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_PICKUP);
         } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
-            return Superstructure.getInstance().applyTargetState(SuperstructureState.HIGH_ALGAE_PICKUP);
+            return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_PICKUP);
         } else {
             DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", null);
             return new InstantCommand();
         }
     }
 
-    public Command algaeClear() {
-        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
+    private Command algaeClear() {
+        Optional<Integer> id = visionLeft.getTargetID();
 
-        if (id == -1) {
+        if (id.isEmpty()) id = visionRight.getTargetID();
+        
+
+        if (id.isEmpty()) {
             DriverStation.reportWarning("Attempted to clear algae, no tag found", null);
             return new InstantCommand();
-        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
-            return Superstructure.getInstance().applyTargetState(SuperstructureState.LOW_ALGAE_CLEAR);
-        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
-            return Superstructure.getInstance().applyTargetState(SuperstructureState.HIGH_ALGAE_CLEAR);
+        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id.get())) {
+            return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_CLEAR);
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id.get())) {
+            return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_CLEAR);
         } else {
             DriverStation.reportWarning("Attempted to clear algae, tag not recognized", null);
             return new InstantCommand();
         }
     }
 
-    public Command intake() {
+    private Command intake() {
         return intakeSubsystem.run(IntakeMode.IN);
     }
 
-    public Command outtake() {
+    private Command outtake() {
         return intakeSubsystem.run(IntakeMode.OUT);
     }
 
-    public Command leftAlign() {
+    private Command leftAlign() {
         if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
         
         return new DriveToPose(
@@ -261,7 +271,7 @@ public class RobotContainer {
         );
     }
 
-    public Command rightAlign() {
+            private Command rightAlign() {
         if (visionRight.getTargetID().isEmpty()) return new InstantCommand();
         
         return new DriveToPose(
@@ -275,4 +285,27 @@ public class RobotContainer {
         );
     }
 
+    public static ArmSubsystem getArmSubsystem() {
+        return armSubsystem;
+    }
+
+    public static ExtenderSubsystem getExtenderSubsystem() {
+        return extenderSubsystem;
+    }
+
+    public static IntakeSubsystem getIntakeSubsystem() {
+        return intakeSubsystem;
+    }
+
+    public static PitchSubsystem getPitchSubsystem() {
+        return pitchSubsystem;
+    }
+
+    public static RollSubsystem getRollSubsystem() {
+        return rollSubsystem;
+    }
+
+    public static CommandSwerveDrivetrain getDrivetrain() {
+        return drivetrain;
+    }
 }

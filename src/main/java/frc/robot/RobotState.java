@@ -4,7 +4,6 @@ import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import frc.robot.subsystems.superstructure.IntakeSubsystem;
-import frc.robot.subsystems.superstructure.Superstructure;
 
 public class RobotState {
     public enum RobotStates {
@@ -15,7 +14,7 @@ public class RobotState {
     
     public static RobotStates currentRobotState = RobotStates.NONE;
 
-    private static IntakeSubsystem intakeSubsystem = Superstructure.getInstance().getIntakeSubsystem();
+    private static IntakeSubsystem intakeSubsystem = RobotContainer.getIntakeSubsystem();
 
     public static BooleanSupplier stateIsCoral = () -> currentRobotState == RobotStates.CORAL;
     public static BooleanSupplier stateIsAlgae = () -> currentRobotState == RobotStates.ALGAE;

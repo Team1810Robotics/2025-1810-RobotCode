@@ -32,6 +32,7 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.getConfigurator().apply(Config.getExtenderConfig());
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
+        extenderPIDController.setTolerance(ExtenderConstants.TOLERANCE);
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> getEncoder());
         Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
@@ -44,16 +45,38 @@ public class ExtenderSubsystem extends SubsystemBase {
     }
 
     /**
-     * Get the total number of rotations the extender has gone through.
+     * Check if the extender is at the setpoint.
      *
      * <p>
-     * This method detects when the encoder wraps around and adds one to the
-     * cumulative
-     * count. This is necessary because the DutyCycleEncoder wraps around to 0 after
-     * a certain
-     * point, so simply adding up the positions would not give an accurate total.
+     * This method checks if the extender motor is at the setpoint defined by the
+     * PID controller.
      *
-     * @return the total number of rotations the extender has gone through
+     * @return true if the extender is at the setpoint, false otherwise
+     */
+    public boolean atSetpoint() {
+        return extenderPIDController.atSetpoint();
+    }
+
+    /**
+     * Get the current encoder value of the extender motor.
+     *
+     * <p>
+     * This method returns the current position of the extender motor's encoder,
+     * divided by 16384 to convert it to a more manageable scale.
+     *
+     * @return the current encoder value of the extender motor
+     */
+    public double getEncoder() {
+        return extenderMotor.getPosition().getValueAsDouble() / 16384;
+    }
+
+    /**
+     * Calculate the total rotations of the extender motor.
+     *
+     * <p>
+     * This method calculates the total rotations of the extender motor by
+     * comparing the current encoder value with the previous one. It also handles
+     * wraparound cases.
      */
     public void totalRotations() {
         double currentRotation = extenderMotor.getPosition().getValueAsDouble() / 16384;
@@ -69,14 +92,10 @@ public class ExtenderSubsystem extends SubsystemBase {
         }
 
         // Update cumulative position without relying on fullRotations counter
-        cumulativeRotations -= dRotation; // Keep negative sign if needed for direction
+        cumulativeRotations -= dRotation; 
 
         // Store for next calculation
         previousRotation = currentRotation;
-    }
-
-    public double getEncoder() {
-        return extenderMotor.getPosition().getValueAsDouble() / 16384;
     }
 
     /**
@@ -123,6 +142,15 @@ public class ExtenderSubsystem extends SubsystemBase {
         return Commands.run(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), this).finallyDo(() -> stop());
     }
 
+    /**
+     * Returns the percentage of extension of the extender.
+     *
+     * <p>
+     * This method calculates the percentage of extension based on the minimum and
+     * maximum extension values defined in {@link ExtenderConstants}.
+     *
+     * @return the percentage of extension, between 0 and 1
+     */
     public double getExtensionPercent() {
         double percent = (getDistance() - ExtenderConstants.MIN_EXTENSION) / (ExtenderConstants.MAX_EXTENSION - ExtenderConstants.MIN_EXTENSION);
         return Math.max(0, Math.min(percent, 1));
@@ -132,6 +160,13 @@ public class ExtenderSubsystem extends SubsystemBase {
         return !limitSwitch.get();
     }
 
+    /**
+     * Resets the extender motor and cumulative rotations.
+     *
+     * <p>
+     * This method sets the cumulative rotations to 0, the previous rotation to 0,
+     * and sets the extender motor position to 0.
+     */
     public void reset() {
         cumulativeRotations = 0;
         previousRotation = 0;

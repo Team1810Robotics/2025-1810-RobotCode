@@ -22,7 +22,7 @@ public class Config {
     public static TalonFXConfiguration getPitchConfig() {
         PITCH_CONFIG.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
         PITCH_CONFIG.CurrentLimits.StatorCurrentLimitEnable = true;
-        PITCH_CONFIG.Feedback.SensorToMechanismRatio = 4; // TODO: Get this value
+        PITCH_CONFIG.Feedback.SensorToMechanismRatio = 15; 
 
         return PITCH_CONFIG;
     }

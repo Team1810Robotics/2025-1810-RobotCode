@@ -8,6 +8,7 @@ import java.util.*;
 
 import com.pathplanner.lib.util.FlippingUtil;
 
+//TODO: Restore original (mostly) and use 6328's coral positioning instead
 
 /**
  * <p>
