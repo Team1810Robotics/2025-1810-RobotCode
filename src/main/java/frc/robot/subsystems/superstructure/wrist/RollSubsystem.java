@@ -3,7 +3,6 @@ package frc.robot.subsystems.superstructure.wrist;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
@@ -13,7 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.RobotConstants.WristConstants.RollConstants;
+import frc.robot.util.Config;
+import frc.robot.util.constants.RobotConstants.WristConstants.RollConstants;
 
 public class RollSubsystem extends SubsystemBase {
 
@@ -22,8 +22,6 @@ public class RollSubsystem extends SubsystemBase {
 
   public PIDController rollPIDControllerIncreasing;
   public PIDController rollPIDControllerDecreasing;
-
-  private SparkMaxConfig config;
 
   public double currentSetpoint;
 
@@ -34,10 +32,7 @@ public class RollSubsystem extends SubsystemBase {
     rollPIDControllerIncreasing = new PIDController(RollConstants.kPI, RollConstants.kII, RollConstants.kDI);
     rollPIDControllerDecreasing = new PIDController(RollConstants.kPD, RollConstants.kID, RollConstants.kDD);
 
-    config = new SparkMaxConfig();
-    config.smartCurrentLimit(40);
-
-    rollMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollMotor.configure(Config.getRollConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     Shuffleboard.getTab("Roll").addNumber("Roll Rad Raw", () -> encoder.get());
     Shuffleboard.getTab("Roll").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);

@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.util.constants;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;

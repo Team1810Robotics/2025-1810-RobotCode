@@ -3,9 +3,9 @@ package frc.robot.subsystems.superstructure;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
+import frc.robot.util.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
 
 public class Superstructure {
 

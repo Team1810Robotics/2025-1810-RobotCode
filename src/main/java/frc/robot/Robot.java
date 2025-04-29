@@ -44,7 +44,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    RobotState.updateState();
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
   }
 
@@ -55,9 +54,8 @@ public class Robot extends TimedRobot {
     RobotState.updateState();
 
 
-    if (!m_robotContainer.armSubsystem.isEncoderConnected() || !m_robotContainer.extenderSubsystem.isEncoderConnected()
-        || !m_robotContainer.pitchSubsystem.isEncoderConnected()
-        || !m_robotContainer.rollSubsystem.isEncoderConnected()) {
+    if (!m_robotContainer.armSubsystem.isEncoderConnected() || 
+         !m_robotContainer.rollSubsystem.isEncoderConnected()) {
       encoderAllGood = false;
     }
   }

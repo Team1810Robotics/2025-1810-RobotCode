@@ -7,21 +7,26 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 
 public class RobotState {
-    public static enum States {
+    public enum RobotStates {
         NONE,
         CORAL,
         ALGAE
     }
-
-    public static States currentRobotState = States.NONE;
+    
+    public static RobotStates currentRobotState = RobotStates.NONE;
 
     private static IntakeSubsystem intakeSubsystem = Superstructure.getInstance().getIntakeSubsystem();
 
-    public static BooleanSupplier stateIsCoral = () -> currentRobotState == States.CORAL;
-    public static BooleanSupplier stateIsAlgae = () -> currentRobotState == States.ALGAE;
-    public static BooleanSupplier stateIsNone = () -> currentRobotState == States.NONE;
+    public static BooleanSupplier stateIsCoral = () -> currentRobotState == RobotStates.CORAL;
+    public static BooleanSupplier stateIsAlgae = () -> currentRobotState == RobotStates.ALGAE;
+    public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.NONE;
 
-    public static void updateState(States state) {
+
+    public static RobotStates getRobotState() {
+        return currentRobotState;
+    }
+
+    public static void updateState(RobotStates state) {
         currentRobotState = state;
     }
 
@@ -31,20 +36,16 @@ public class RobotState {
 
         if (isCoral && isAlgae) {
             DriverStation.reportWarning("Bot thinks both Coral and Algae present, setting RobotState to None", null);
-            currentRobotState = States.NONE;
+            currentRobotState = RobotStates.NONE;
         }
 
         if (isCoral) {
-            currentRobotState = States.CORAL;
+            currentRobotState = RobotStates.CORAL;
         } else if (isAlgae) {
-            currentRobotState = States.ALGAE;
+            currentRobotState = RobotStates.ALGAE;
         } else {
-            currentRobotState = States.NONE;
+            currentRobotState = RobotStates.NONE;
         }
-    }
-
-    public static States getRobotState() {
-        return currentRobotState;
     }
 
 

@@ -2,8 +2,6 @@ package frc.robot.subsystems.superstructure;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
@@ -14,7 +12,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.RobotConstants.ArmConstants;
+import frc.robot.util.Config;
+import frc.robot.util.constants.RobotConstants.ArmConstants;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 
@@ -24,8 +23,6 @@ public class ArmSubsystem extends SubsystemBase {
     private SparkMax armMotor2;
     private DutyCycleEncoder armEncoder;
 
-    private SparkMaxConfig config1;
-    private SparkMaxConfig config2;
    
     private final PIDController armPIDController;
 
@@ -36,16 +33,9 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2 = new SparkMax(ArmConstants.MOTOR_ID_2, MotorType.kBrushless);
         armEncoder = new DutyCycleEncoder(ArmConstants.ENCODER_ID);
 
-        config1 = new SparkMaxConfig();
-        config2 = new SparkMaxConfig();
 
-        config2.follow(ArmConstants.MOTOR_ID_1);
-
-        config1.idleMode(IdleMode.kBrake);
-        config2.idleMode(IdleMode.kBrake);
-
-        armMotor1.configure(config1, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-        armMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        armMotor1.configure(Config.getArmConfig1(), ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        armMotor2.configure(Config.getArmConfig2(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         armPIDController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
 

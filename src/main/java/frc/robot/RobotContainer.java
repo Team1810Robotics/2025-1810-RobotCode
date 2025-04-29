@@ -14,18 +14,11 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.RobotState.States;
+import frc.robot.RobotState.RobotStates;
 import frc.robot.commands.DriveToPose;
-import frc.robot.constants.TunerConstants;
-import frc.robot.constants.RobotConstants.VisionConstants;
-import frc.robot.constants.RobotConstants.IntakeConstants.IntakeMode;
-import frc.robot.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
-import frc.robot.constants.FieldConstants.Reef;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.superstructure.ArmSubsystem;
@@ -34,6 +27,11 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
+import frc.robot.util.constants.TunerConstants;
+import frc.robot.util.constants.FieldConstants.Reef;
+import frc.robot.util.constants.RobotConstants.VisionConstants;
+import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
+import frc.robot.util.constants.RobotConstants.SuperstructueConstants.SuperstructureState;
 
 
 public class RobotContainer {
@@ -44,6 +42,7 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
+
     private final SwerveRequest.RobotCentric visDrive = new SwerveRequest.RobotCentric()
             .withDeadband(MaxSpeed * 0.1)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -66,6 +65,8 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
+    private boolean stateOverride = false;
+
     public RobotContainer() {
         addNamedCommands();
         configureBindings();
@@ -80,6 +81,7 @@ public class RobotContainer {
 
         Shuffleboard.getTab("Teleoperated").addString("Robot State", () -> RobotState.getRobotState().toString());
         Shuffleboard.getTab("Teleoperated").addString("Superstructure State", () -> Superstructure.getCurrentSuperstructureState().toString());
+        Shuffleboard.getTab("Teleoperated").addString("State Override", () -> stateOverride ? "States overriden, original controls" : "State Based Controls");
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -109,19 +111,31 @@ public class RobotContainer {
         //Reset heading
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-
+        //Bindings for no pieces
         manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(intakePostition());
         manipulatorXbox.b().and(RobotState.stateIsNone).onTrue(groundPickup());
         manipulatorXbox.x().and(RobotState.stateIsNone).onTrue(algaePickup());
         manipulatorXbox.y().and(RobotState.stateIsNone).onTrue(algaeClear());
 
+        //Bindings for coral
         manipulatorXbox.a().and(RobotState.stateIsCoral).onTrue(l1Position());
         manipulatorXbox.b().and(RobotState.stateIsCoral).onTrue(l2Position());
         manipulatorXbox.x().and(RobotState.stateIsCoral).onTrue(l3Position());
         manipulatorXbox.y().and(RobotState.stateIsCoral).onTrue(l4Position());
 
+        //Bindings for algae
         manipulatorXbox.a().and(RobotState.stateIsAlgae).onTrue(processor());
         manipulatorXbox.b().and(RobotState.stateIsAlgae).onTrue(net());
+
+        manipulatorXbox.a().and(() -> stateOverride).onTrue(l1Position());
+        manipulatorXbox.b().and(() -> stateOverride).onTrue(l2Position());
+        manipulatorXbox.x().and(() -> stateOverride).onTrue(l3Position());
+        manipulatorXbox.y().and(() -> stateOverride).onTrue(l4Position());
+
+        manipulatorXbox.leftBumper().and(() -> stateOverride).onTrue(basePosition());
+        manipulatorXbox.rightBumper().and(() -> stateOverride).onTrue(intakePostition());
+        manipulatorXbox.start().and(() -> stateOverride).onTrue(groundPickup());
+        manipulatorXbox.leftStick().and(() -> stateOverride).onTrue(algaeClear());
 
 
         manipulatorXbox.povUp().whileTrue(extenderSubsystem.runManual(.5));
@@ -130,7 +144,9 @@ public class RobotContainer {
         manipulatorXbox.rightTrigger().onTrue(intake());
         manipulatorXbox.leftTrigger().whileTrue(outtake());
 
-        manipulatorXbox.start().onTrue(Commands.runOnce(() -> RobotState.updateState(States.NONE)));
+        manipulatorXbox.back().onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.NONE)));
+
+        manipulatorXbox.leftStick().and(() -> !stateOverride).onTrue(Commands.runOnce(() -> stateOverride = true));
     }
 
     public void addNamedCommands() {
@@ -145,8 +161,6 @@ public class RobotContainer {
 
         NamedCommands.registerCommand("Left Align", leftAlign().withTimeout(2)); 
         NamedCommands.registerCommand("Right Align", rightAlign().withTimeout(2));
-
-        NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
     }
 
     public Command configureAuto() {

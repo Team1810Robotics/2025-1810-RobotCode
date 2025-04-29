@@ -1,4 +1,4 @@
-package frc.robot.constants;
+package frc.robot.util.constants;
 
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
@@ -10,9 +10,9 @@ import java.util.Set;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import frc.robot.constants.RobotConstants.IntakeConstants.IntakeMode;
-import frc.robot.constants.RobotConstants.WristConstants.PitchConstants;
-import frc.robot.constants.RobotConstants.WristConstants.RollConstants;
+import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
+import frc.robot.util.constants.RobotConstants.WristConstants.PitchConstants;
+import frc.robot.util.constants.RobotConstants.WristConstants.RollConstants;
 
 public class RobotConstants {
     public class SuperstructueConstants {
@@ -166,8 +166,6 @@ public class RobotConstants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
         public static final int LIMIT_SWITCH_ID = 4;
-
-        public static double ENCODER_OFFSET = .75;
 
         public static double kP = 2.5;
         public static double kI = 0.0;
