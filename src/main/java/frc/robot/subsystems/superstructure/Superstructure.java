@@ -31,26 +31,26 @@ public class Superstructure {
         currentSuperstructureState = state;
         DataLogManager.log("Superstructue state " + state.toString() + " applied");
         
-        return Commands.parallel(
-            extenderSubsystem.run(state.extenderSetpoint),
-            armSubsystem.run(state.armSetpoint),
-            pitchSubsystem.run(state.pitchSetpoint), 
-            rollSubsystem.run(state.rollSetpoint),
-            intakeSubsystem.run(state.intakeMode)
-        );
-        // return (
-        //     Commands.parallel(rollSubsystem.run(state.rollSetpoint), pitchSubsystem.run(state.pitchSetpoint)).alongWith(
-        //         Commands.waitUntil(() -> pitchSubsystem.atSetpoint() && rollSubsystem.atSetpoint()).andThen(
-        //             armSubsystem.run(state.armSetpoint).alongWith(
-        //                 Commands.waitUntil(() -> armSubsystem.atSetpoint()).andThen(
-        //                     extenderSubsystem.run(state.extenderSetpoint).alongWith(
-        //                         intakeSubsystem.run(state.intakeMode)
-        //                     )
-        //                 )
-        //             )
-        //         )
-        //     )
+        // return Commands.parallel(
+        //     extenderSubsystem.run(state.extenderSetpoint),
+        //     armSubsystem.run(state.armSetpoint),
+        //     pitchSubsystem.run(state.pitchSetpoint), 
+        //     rollSubsystem.run(state.rollSetpoint),
+        //     intakeSubsystem.run(state.intakeMode)
         // );
+        return (
+            Commands.parallel(rollSubsystem.run(state.rollSetpoint), pitchSubsystem.run(state.pitchSetpoint)).alongWith(
+                Commands.waitUntil(() -> pitchSubsystem.atSetpoint() && rollSubsystem.atSetpoint()).andThen(
+                    armSubsystem.run(state.armSetpoint).alongWith(
+                        Commands.waitUntil(() -> armSubsystem.atSetpoint()).andThen(
+                            extenderSubsystem.run(state.extenderSetpoint).alongWith(
+                                intakeSubsystem.run(state.intakeMode)
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
 
     public static SuperstructureState getCurrentSuperstructureState() {

@@ -27,36 +27,6 @@ public class IntakeSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Intake").addNumber("Blue", () -> colorSensor.getBlue());
     }
 
-    /**
-     * Runs the intake motor with the specified mode
-     * 
-     * @param mode The mode to run the intake in
-     * @return Command to run the motor
-     */
-    public Command run(IntakeConstants.IntakeMode mode) {
-        int blue = getBlue();
-        int distance = getDistance();
-        
-        
-        switch (mode) {
-            case IN:
-                if (blue < 10 && distance > 1800) {
-                    // Detects if an algae has been intaked and idles it instead
-                    return Commands.startEnd(() -> intakeMotor.set(0.15), () -> stop(), this).until(() -> end(mode));
-                } else {
-                    return Commands.startEnd(() -> intakeMotor.set(1), () -> stop(), this).until(() -> end(mode));
-                }
-            case OUT:
-                return Commands.startEnd(() -> intakeMotor.set(-0.15), () -> stop(), this);
-            case KICK:
-                return Commands.startEnd(() -> intakeMotor.set(-1), () -> stop(), this).until(() -> end(mode));
-            case STOP:
-                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> end(mode));
-            default:
-                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> end(mode));
-        }
-    }
-
     public int getDistance() {
         return colorSensor.getProximity();
     }
@@ -65,16 +35,51 @@ public class IntakeSubsystem extends SubsystemBase {
         return colorSensor.getBlue();
     }
 
+    /**
+     * Checks if a coral has been intaked by using distance and color from the color sensor
+     * @return true if Coral is present, false otherwise
+     */
     public boolean isCoralPresent() {
         return getDistance() > 2000 && getBlue() > 10;
     }
 
+    /**
+     * Checks if an algae has been intaked by using distance and color from the color sensor
+     * @return true if Algae is present, false otherwise
+     */
     public boolean isAlgaePresent() {
-        return getDistance() > 2000 && getBlue() < 10;
+        return getDistance() > 1800 && getBlue() < 10;
     }
 
     public void stop() {
         intakeMotor.stopMotor();
+    }
+
+
+    /**
+     * Runs the intake motor with the specified mode
+     * 
+     * @param mode The mode to run the intake in
+     * @return Command to run the motor
+     */
+    public Command run(IntakeConstants.IntakeMode mode) {        
+        switch (mode) {
+            case IN:
+                if (isAlgaePresent()) {
+                    // Detects if an algae has been intaked and idles it instead
+                    return Commands.startEnd(() -> intakeMotor.set(0.15), () -> stop(), this).until(() -> isFinished(mode));
+                } else {
+                    return Commands.startEnd(() -> intakeMotor.set(1), () -> stop(), this).until(() -> isFinished(mode));
+                }
+            case OUT:
+                return Commands.startEnd(() -> intakeMotor.set(-0.15), () -> stop(), this);
+            case KICK:
+                return Commands.startEnd(() -> intakeMotor.set(-1), () -> stop(), this).until(() -> isFinished(mode));
+            case STOP:
+                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> isFinished(mode));
+            default:
+                return Commands.startEnd(() -> intakeMotor.stopMotor(), () -> stop(), this).until(() -> isFinished(mode));
+        }
     }
 
     /**
@@ -83,12 +88,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param mode The current mode of the intake
      * @return true if the intake should stop, false otherwise
      */
-    public boolean end(IntakeMode mode) {
-        int distance = getDistance();
-        int blue = getBlue();
-
+    public boolean isFinished(IntakeMode mode) {
         //If we are intaking, the piece is a coral, and it is closer than 2000, stop
-        if (distance > 2000 && mode == IntakeMode.IN && blue > 10) {
+        if (isCoralPresent() && mode == IntakeMode.IN) {
             return true;
         } 
 

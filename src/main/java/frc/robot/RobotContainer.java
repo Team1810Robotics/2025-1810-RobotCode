@@ -80,6 +80,7 @@ public class RobotContainer {
 
         Shuffleboard.getTab("Teleoperated").addString("Robot State", () -> RobotState.getRobotState().toString());
         Shuffleboard.getTab("Teleoperated").addString("Superstructure State", () -> Superstructure.getCurrentSuperstructureState().toString());
+        Shuffleboard.getTab("Teleoperated").addBoolean("Should Eject", RobotState.shouldEject);
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

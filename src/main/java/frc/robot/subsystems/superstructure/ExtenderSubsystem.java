@@ -5,6 +5,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -22,14 +23,14 @@ public class ExtenderSubsystem extends SubsystemBase {
     private TalonFXConfigurator configuration;
     private CurrentLimitsConfigs currentLimitsConfigs;
 
-    private PIDController extenderPIDController;
+    private final PIDController extenderPIDController;
 
     private double cumulativeRotations = 0;
     private double previousRotation = 0;
 
-    public double currentSetpoint;
+    private double currentSetpoint;
 
-    public DigitalInput limitSwitch;
+    private DigitalInput limitSwitch;
 
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
@@ -62,6 +63,22 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public boolean isEncoderConnected() {
         return encoder.isConnected();
+    }
+
+    public double getCurrentSetpoint() {
+        return currentSetpoint;
+    }
+
+    public double getEncoder() {
+        return encoder.get() - ExtenderConstants.ENCODER_OFFSET;
+    }
+
+    public boolean getLimitSwitch() {
+        return !limitSwitch.get();
+    }
+
+    public void stop() {
+        extenderMotor.stopMotor();
     }
 
     /**
@@ -97,8 +114,44 @@ public class ExtenderSubsystem extends SubsystemBase {
         previousRotation = currentRotation;
     }
 
-    public double getEncoder() {
-        return encoder.get() - ExtenderConstants.ENCODER_OFFSET;
+    /**
+     * Returns the total distance the extender has extended, in inches.
+     *
+     * <p>
+     * This method uses the total number of rotations the encoder has gone through,
+     * as calculated by the {@link #totalRotations()} method.
+     *
+     * @return the total distance the extender has extended, in inches
+     */
+    public double getDistance() {
+        return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
+    }
+
+    /**
+     * Resets the extender subsystem to its starting state.
+     *
+     * <p>
+     * This method resets the cumulative rotations and previous rotation values to 0, and
+     * sets the encoder offset to the current encoder value.
+     */
+    public void reset() {
+        cumulativeRotations = 0;
+        previousRotation = 0;
+        ExtenderConstants.ENCODER_OFFSET = encoder.get();
+    }
+
+    /**
+     * Gets the current extension of the extender as a percentage.
+     *
+     * <p>
+     * This method returns the current extension of the extender as a value between 0 and 1,
+     * where 0 is the minimum extension and 1 is the maximum extension.
+     *
+     * @return the current extension of the extender as a percentage
+     */
+    public double getExtensionPercent() {
+        double percent = (getDistance() - ExtenderConstants.MIN_EXTENSION) / (ExtenderConstants.MAX_EXTENSION - ExtenderConstants.MIN_EXTENSION);
+        return Math.max(0, Math.min(percent, 1));
     }
 
     /**
@@ -118,18 +171,6 @@ public class ExtenderSubsystem extends SubsystemBase {
         return new InstantCommand();
     }
 
-    /**
-     * Returns the total distance the extender has extended, in inches.
-     *
-     * <p>
-     * This method uses the total number of rotations the encoder has gone through,
-     * as calculated by the {@link #totalRotations()} method.
-     *
-     * @return the total distance the extender has extended, in inches
-     */
-    public double getDistance() {
-        return cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
-    }
 
     /**
      * Runs the extender motor with PID control.
@@ -149,29 +190,11 @@ public class ExtenderSubsystem extends SubsystemBase {
         } else {
             stop();
             extenderMotor.disable();
-            System.out.println("Extender Encoder Disconnected");
+            DataLogManager.log("Extender Encoder Disconnected");
             return new InstantCommand();
         }
     }
 
-    public double getExtensionPercent() {
-        double percent = (getDistance() - ExtenderConstants.MIN_EXTENSION) / (ExtenderConstants.MAX_EXTENSION - ExtenderConstants.MIN_EXTENSION);
-        return Math.max(0, Math.min(percent, 1));
-    }
-
-    public boolean getLimitSwitch() {
-        return !limitSwitch.get();
-    }
-
-    public void reset() {
-        cumulativeRotations = 0;
-        previousRotation = 0;
-        ExtenderConstants.ENCODER_OFFSET = encoder.get();
-    }
-
-    public void stop() {
-        extenderMotor.stopMotor();
-    }
 
     @Override
     public void periodic() {

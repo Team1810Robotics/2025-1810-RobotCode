@@ -7,6 +7,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -48,6 +49,7 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2.configure(config2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         armPIDController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
+        armPIDController.setTolerance(ArmConstants.TOLERANCE);
 
         SmartDashboard.putData("armPID", armPIDController);
         Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
@@ -67,23 +69,6 @@ public class ArmSubsystem extends SubsystemBase {
         return degrees; 
     }
 
-    /**
-     * Runs the arm motor with PID
-     * 
-     * @param setpoint Setpoint for arm
-     * @return Command to run the arm
-     */
-    public Command run(double setpoint) {
-        currentSetpoint = setpoint;
-        if (armEncoder.isConnected()){
-            double output = armPIDController.calculate(getMeasurement(), setpoint);
-            return Commands.run(() -> armMotor1.set(-output), this).finallyDo(() -> stop());
-        } else {
-            System.out.println("Arm Encoder Disconnected");
-            stop();
-            return new InstantCommand();
-        }
-    }
 
     public boolean isEncoderConnected(){
         return armEncoder.isConnected();
@@ -98,7 +83,25 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public boolean atSetpoint() {
-        return Math.abs(getMeasurement() - armPIDController.getSetpoint()) < ArmConstants.TOLERANCE;
+        return armPIDController.atSetpoint();
+    }
+
+    /**
+     * Runs the arm motor with PID
+     * 
+     * @param setpoint Setpoint for arm
+     * @return Command to run the arm
+     */
+    public Command run(double setpoint) {
+        currentSetpoint = setpoint;
+        if (armEncoder.isConnected()){
+            double output = armPIDController.calculate(getMeasurement(), setpoint);
+            return Commands.run(() -> armMotor1.set(-output), this).finallyDo(() -> stop());
+        } else {
+            DataLogManager.log("Arm Encoder Disconnected");
+            stop();
+            return new InstantCommand();
+        }
     }
 
     public void stop(){

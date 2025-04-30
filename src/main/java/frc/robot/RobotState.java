@@ -21,6 +21,8 @@ public class RobotState {
     public static BooleanSupplier stateIsAlgae = () -> currentRobotState == States.ALGAE;
     public static BooleanSupplier stateIsNone = () -> currentRobotState == States.NONE;
 
+    public static BooleanSupplier shouldEject = () -> intakeSubsystem.isCoralPresent() == intakeSubsystem.isAlgaePresent() == true;
+
     public static void updateState(States state) {
         currentRobotState = state;
     }
@@ -29,7 +31,7 @@ public class RobotState {
         boolean isCoral = intakeSubsystem.isCoralPresent();
         boolean isAlgae = intakeSubsystem.isAlgaePresent();
 
-        if (isCoral && isAlgae) {
+        if (shouldEject.getAsBoolean()) {
             DriverStation.reportWarning("Bot thinks both Coral and Algae present, setting RobotState to None", null);
             currentRobotState = States.NONE;
         }
