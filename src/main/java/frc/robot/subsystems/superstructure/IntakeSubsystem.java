@@ -2,6 +2,8 @@ package frc.robot.subsystems.superstructure;
 
 import com.revrobotics.ColorSensorV3;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.I2C.Port;
@@ -9,8 +11,9 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.RobotConstants.IntakeConstants;
-import frc.robot.constants.RobotConstants.IntakeConstants.IntakeMode;
+import frc.robot.util.Config;
+import frc.robot.util.constants.RobotConstants.IntakeConstants;
+import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
 
 public class IntakeSubsystem extends SubsystemBase {
     private SparkMax intakeMotor;
@@ -21,6 +24,8 @@ public class IntakeSubsystem extends SubsystemBase {
         intakeMotor = new SparkMax(IntakeConstants.INTAKE_MOTOR, MotorType.kBrushless);
 
         colorSensor = new ColorSensorV3(Port.kOnboard);
+
+        intakeMotor.configure(Config.getIntakeConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         Shuffleboard.getTab("Intake").addNumber("Distance", () -> getDistance());
         Shuffleboard.getTab("Intake").addBoolean("Distance Sensor", () -> colorSensor.isConnected());

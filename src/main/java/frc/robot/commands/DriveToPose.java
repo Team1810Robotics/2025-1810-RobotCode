@@ -7,8 +7,8 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.constants.RobotConstants.VisionConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.util.constants.RobotConstants.VisionConstants;
 
 public class DriveToPose extends Command {
     private final CommandSwerveDrivetrain drivetrain;

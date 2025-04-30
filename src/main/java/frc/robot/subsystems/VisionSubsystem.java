@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,8 +16,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.constants.FieldConstants;
-import frc.robot.constants.RobotConstants.VisionConstants;
+import frc.robot.RobotContainer;
+import frc.robot.util.constants.RobotConstants.VisionConstants;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -27,7 +26,7 @@ public class VisionSubsystem extends SubsystemBase {
     public static PhotonPipelineResult result;
     private List<PhotonPipelineResult> allResults;
 
-    private CommandSwerveDrivetrain drivetrain;
+    private CommandSwerveDrivetrain drivetrain = RobotContainer.getDrivetrain();
 
     public PIDController rotController = new PIDController(VisionConstants.VR_kP, VisionConstants.VR_kI,
             VisionConstants.VR_kD);
@@ -36,46 +35,74 @@ public class VisionSubsystem extends SubsystemBase {
     public PIDController driveControllerX = new PIDController(VisionConstants.VX_kP,
             VisionConstants.VX_kI, VisionConstants.VX_kD);
 
-    AprilTagFieldLayout layout = FieldConstants.layout;
+    private AprilTagFieldLayout layout = VisionConstants.layout;
 
     private boolean shouldWarn = true;
 
-    public VisionSubsystem(String cameraName, Transform3d cameraOffset, CommandSwerveDrivetrain drivetrain) {
+    public VisionSubsystem(String cameraName, Transform3d cameraOffset) {
         camera = new PhotonCamera(cameraName);
 
         photonPoseEstimator = new PhotonPoseEstimator(
                 layout,
                 PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR, //TODO: Update this setting in PhotonVision
-                cameraOffset);
+                cameraOffset
+            );
     }
 
 
-    public Optional<Double> getRange() {
+    /**
+     * Used to get the X position of the best target.
+     * @return The X positon of the best target.
+     *         If no target is present, return an empty optional.
+     */
+    public Optional<Double> getX() {
         if (hasTargets()) {
-            // Get the range to the target using the best target's pose
             return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getX());
         }
         return Optional.empty();
     } 
 
-
-    public Optional<Double> getXRange() {
+    /**
+     * Used to get the Y position of the best target.
+     * @return The Y position of the best target.
+     *         If no target is present, return an empty optional.
+     */
+    public Optional<Double> getY() {
         if (hasTargets()) {
             return Optional.of(result.getBestTarget().bestCameraToTarget.getY());
         } else
             return Optional.empty();
     }
 
-    public Optional<Double> getTagRYaw() {
+    /**
+     * Gets the yaw of the best target.
+     * @return The yaw of the best target.
+     *         If no target is present, return an empty optional.
+     */
+    public Optional<Double> getYaw() {
         if (hasTargets()) {
-            return Optional.of(layout.getTagPose(result.getBestTarget().getFiducialId()).get()
-                    .getRotation().getZ());
+            return Optional.of(result.getBestTarget().getYaw());
         }
         return Optional.empty();
     }
 
-
+    /**
+     * Gets the pitch of the best target.
+     * @return The pitch of the best target.
+     *         If no target is present, return an empty optional.
+     */
+    public Optional<Double> getPitch() {
+        if (hasTargets()) {
+            return Optional.of(result.getBestTarget().getPitch());
+        }
+        return Optional.empty();
+    }
     
+    /**
+     * Used to aim the robot at the apriltag.
+     * @param altRotation
+     * @return the PID output for the rotation.
+     */
     public double visionTargetPIDCalc(double altRotation) {
         boolean target = hasTargets();
 
@@ -107,12 +134,11 @@ public class VisionSubsystem extends SubsystemBase {
      * 
      * @param altDrive  The input from the controller for then no tag is present.
      * @param distance  How far away from the apriltag do we want to be.
-     * @param driveMode True/False input for if we do want to drive towards the
-     *                  apriltag.
+     * 
      * @return
      */
     public double visionYDrive(double altDrive, double distance) {
-        if (getRange().isPresent() && hasTargets()) {
+        if (getX().isPresent() && hasTargets()) {
             return driveControllerX.calculate(getYaw().get() - distance);
         } else {
             return altDrive;
@@ -120,29 +146,13 @@ public class VisionSubsystem extends SubsystemBase {
     }
 
     public double visionXDrive(double altDrive, double distance) {
-        if (getRange().isPresent() && hasTargets()) {
-            return driveControllerY.calculate(getRange().get() - distance);
+        if (getX().isPresent() && hasTargets()) {
+            return driveControllerY.calculate(getX().get() - distance);
         } else {
             return altDrive;
         }
     }
 
-
-    public Optional<Double> getYaw() {
-        if (hasTargets()) {
-            return Optional.of(result.getBestTarget().getYaw());
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    public Optional<Double> getPitch() {
-        if (hasTargets()) {
-            return Optional.of(result.getBestTarget().getPitch());
-        } else {
-            return Optional.empty();
-        }
-    }
 
     public boolean hasTargets() {
         return result.hasTargets();
@@ -179,6 +189,31 @@ public class VisionSubsystem extends SubsystemBase {
 
     }
 
+    /**
+     * Clears targets that are too far away or have a high pose ambiguity.
+     * 
+     * @author Team 1108
+     */
+    public PhotonPipelineResult clearEvilTargets(PhotonPipelineResult poseResult) {
+        if (poseResult.hasTargets()) {
+            for (PhotonTrackedTarget target : poseResult.getTargets()) {
+                var tagPose = layout.getTagPose(target.getFiducialId());
+
+                if (tagPose.isEmpty()) {
+                    result.targets.remove(target);
+                }
+
+                var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
+                // Check if the target is too far away or has a high pose ambiguity
+                if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE_METERS) {
+                    poseResult.targets.remove(target);
+                }
+            }
+        }
+
+        return poseResult;
+    }
+
     @Override
     public void periodic() {
         if (!camera.isConnected()) {
@@ -186,27 +221,21 @@ public class VisionSubsystem extends SubsystemBase {
                 DriverStation.reportWarning("Camera not connected", false);
                 shouldWarn = false;
             }
+
             return;
         }
 
         result = getLatestResult();
-        if (!result.hasTargets()) return;
 
-        List<PhotonTrackedTarget> evilTargets = new ArrayList<>();
-        for (PhotonTrackedTarget target : result.getTargets()) {
-            var tagPose = layout.getTagPose(target.getFiducialId());
-            if (tagPose.isEmpty()) continue;
-            var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
-            if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE_METERS) {
-                evilTargets.add(target);
-            }
-        }
 
-        result.targets.removeAll(evilTargets);
+        PhotonPipelineResult poseResult = result;
+        if (!poseResult.hasTargets()) return;
 
-        if (!result.hasTargets()) return;
+        poseResult = clearEvilTargets(poseResult);
 
-        Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.update(result);
+        if (!poseResult.hasTargets()) return;
+
+        Optional<EstimatedRobotPose> estimatedPose = photonPoseEstimator.update(poseResult);
         if (estimatedPose.isEmpty()) return;
 
         drivetrain.addVisionMeasurement(estimatedPose.get().estimatedPose.toPose2d(), estimatedPose.get().timestampSeconds);

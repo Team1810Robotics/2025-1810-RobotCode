@@ -30,8 +30,8 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.constants.RobotConstants.VisionConstants;
-import frc.robot.constants.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.util.constants.RobotConstants.VisionConstants;
+import frc.robot.util.constants.TunerConstants.TunerSwerveDrivetrain;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
