@@ -3,7 +3,6 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import java.util.Optional;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -11,7 +10,6 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -29,9 +27,9 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
+import frc.robot.util.Poses;
 import frc.robot.util.Telemetry;
 import frc.robot.util.constants.TunerConstants;
-import frc.robot.util.constants.FieldConstants.Reef;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
 import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
 import frc.robot.subsystems.superstructure.SuperstructureState;
@@ -72,8 +70,6 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
-    private boolean stateOverride = false;
-
     public RobotContainer() {
         addNamedCommands();
         configureBindings();
@@ -82,13 +78,9 @@ public class RobotContainer {
 
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        Shuffleboard.getTab("Teleop").addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage());
-
-        Shuffleboard.getTab("Swerve").addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
-
         Shuffleboard.getTab("Teleoperated").addString("Robot State", () -> RobotState.getRobotState().toString());
         Shuffleboard.getTab("Teleoperated").addString("Superstructure State", () -> Superstructure.getCurrentSuperstructureState().toString());
-        Shuffleboard.getTab("Teleoperated").addString("State Override", () -> stateOverride ? "States overriden, original controls" : "State Based Controls");
+        Shuffleboard.getTab("Teleoperated").addString("State Override", () -> RobotState.stateIsOverride.getAsBoolean() ? "States overriden, original controls" : "State Based Controls");
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
@@ -134,15 +126,15 @@ public class RobotContainer {
         manipulatorXbox.a().and(RobotState.stateIsAlgae).onTrue(processor());
         manipulatorXbox.b().and(RobotState.stateIsAlgae).onTrue(net());
 
-        manipulatorXbox.a().and(() -> stateOverride).onTrue(l1());
-        manipulatorXbox.b().and(() -> stateOverride).onTrue(l2());
-        manipulatorXbox.x().and(() -> stateOverride).onTrue(l3());
-        manipulatorXbox.y().and(() -> stateOverride).onTrue(l4());
+        manipulatorXbox.a().and(RobotState.stateIsOverride).onTrue(l1());
+        manipulatorXbox.b().and(RobotState.stateIsOverride).onTrue(l2());
+        manipulatorXbox.x().and(RobotState.stateIsOverride).onTrue(l3());
+        manipulatorXbox.y().and(RobotState.stateIsOverride).onTrue(l4());
 
-        manipulatorXbox.leftBumper().and(() -> stateOverride).onTrue(base());
-        manipulatorXbox.rightBumper().and(() -> stateOverride).onTrue(coralStation());
-        manipulatorXbox.start().and(() -> stateOverride).onTrue(groundPickup());
-        manipulatorXbox.leftStick().and(() -> stateOverride).onTrue(algaeClear());
+        manipulatorXbox.leftBumper().and(RobotState.stateIsOverride).onTrue(base());
+        manipulatorXbox.rightBumper().and(RobotState.stateIsOverride).onTrue(coralStation());
+        manipulatorXbox.start().and(RobotState.stateIsOverride).onTrue(groundPickup());
+        manipulatorXbox.leftStick().and(RobotState.stateIsOverride).onTrue(algaeClear());
 
 
         manipulatorXbox.povUp().whileTrue(extenderSubsystem.runManual(.5));
@@ -153,7 +145,7 @@ public class RobotContainer {
 
         manipulatorXbox.back().onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.NONE)));
 
-        manipulatorXbox.leftStick().and(() -> !stateOverride).onTrue(Commands.runOnce(() -> stateOverride = true));
+        manipulatorXbox.leftStick().and(() -> !RobotState.stateIsOverride.getAsBoolean()).onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.OVERRIDE)));
     }
 
     public void addNamedCommands() {
@@ -215,14 +207,16 @@ public class RobotContainer {
     }
 
     private Command algaePickup() {
-        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
+        Optional<Integer> id = visionLeft.getTargetID();
 
-        if (id == -1) {
+        if (id.isEmpty()) id = visionRight.getTargetID();
+
+        if (id.isEmpty()) {
             DriverStation.reportWarning("Attempted to pick up algae, no tag found", null);
             return new InstantCommand();
-        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
+        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id.get())) {
             return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_PICKUP);
-        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id.get())) {
             return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_PICKUP);
         } else {
             DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", null);
@@ -258,29 +252,29 @@ public class RobotContainer {
     }
 
     private Command leftAlign() {
-        if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
-        
-        return new DriveToPose(
-            drivetrain, 
-            visDrive, 
-            Reef.getScorePose(
-                    visionRight.getTargetID().get(), 
-                    true, 
-                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            )
-        );
-    }
-
-            private Command rightAlign() {
         if (visionRight.getTargetID().isEmpty()) return new InstantCommand();
         
         return new DriveToPose(
             drivetrain, 
             visDrive, 
-            Reef.getScorePose(
-                    visionLeft.getTargetID().get(), 
-                    true, 
-                    DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            Poses.getScorePose(
+                visionRight.getTargetID().get(),
+                true, 
+                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
+            )
+        );
+    }
+
+    private Command rightAlign() {
+        if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
+        
+        return new DriveToPose(
+            drivetrain, 
+            visDrive, 
+            Poses.getScorePose(
+                visionLeft.getTargetID().get(), 
+                false, 
+                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
             )
         );
     }

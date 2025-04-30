@@ -9,7 +9,8 @@ public class RobotState {
     public enum RobotStates {
         NONE,
         CORAL,
-        ALGAE
+        ALGAE,
+        OVERRIDE
     }
     
     public static RobotStates currentRobotState = RobotStates.NONE;
@@ -19,6 +20,7 @@ public class RobotState {
     public static BooleanSupplier stateIsCoral = () -> currentRobotState == RobotStates.CORAL;
     public static BooleanSupplier stateIsAlgae = () -> currentRobotState == RobotStates.ALGAE;
     public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.NONE;
+    public static BooleanSupplier stateIsOverride = () -> currentRobotState == RobotStates.OVERRIDE;
 
 
     public static RobotStates getRobotState() {
@@ -26,10 +28,16 @@ public class RobotState {
     }
 
     public static void updateState(RobotStates state) {
+        if (stateIsOverride.getAsBoolean()) {
+            DriverStation.reportWarning("Attempted to reset state after override", null);
+            return;
+        }
         currentRobotState = state;
     }
 
     public static void updateState() {
+        if (stateIsOverride.getAsBoolean()) return;
+        
         boolean isCoral = intakeSubsystem.isCoralPresent();
         boolean isAlgae = intakeSubsystem.isAlgaePresent();
 
