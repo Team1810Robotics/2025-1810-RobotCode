@@ -175,10 +175,10 @@ public class RobotConstants {
         public static final AprilTagFieldLayout layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
         public static final Transform3d CAMERA_TO_ROBOT_RIGHT = new Transform3d(new Translation3d(0.127, 0.17145, 0.3175),
-            new Rotation3d(0, 0, 0));
+            new Rotation3d());
 
         public static final Transform3d CAMERA_TO_ROBOT_LEFT = new Transform3d(new Translation3d(0.127, -0.17145, 0.3175),
-            new Rotation3d(0, 0, 0));
+            new Rotation3d());
 
         public static final double MAX_DISTANCE_METERS = 3;
 

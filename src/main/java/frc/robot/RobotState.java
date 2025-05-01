@@ -22,21 +22,19 @@ public class RobotState {
     public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.NONE;
     public static BooleanSupplier stateIsOverride = () -> currentRobotState == RobotStates.OVERRIDE;
 
-    public static BooleanSupplier shouldEject = () -> intakeSubsystem.isCoralPresent() == intakeSubsystem.isAlgaePresent() == true;
+    public static BooleanSupplier shouldEject = () -> intakeSubsystem.isCoralPresent() && intakeSubsystem.isAlgaePresent();
 
 
     public static RobotStates getRobotState() {
         return currentRobotState;
     }
 
-
-
     public static void updateState(RobotStates state) {
         if (stateIsOverride.getAsBoolean()) {
             DriverStation.reportWarning("Attempted to reset state after override", null);
             return;
         }
-        
+
         currentRobotState = state;
     }
 
@@ -59,6 +57,4 @@ public class RobotState {
             currentRobotState = RobotStates.NONE;
         }
     }
-
-
 }

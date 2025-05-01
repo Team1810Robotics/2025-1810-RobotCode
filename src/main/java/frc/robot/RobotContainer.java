@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotState.RobotStates;
 import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.VisionSubsystem;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.superstructure.ArmSubsystem;
 import frc.robot.subsystems.superstructure.ExtenderSubsystem;
 import frc.robot.subsystems.superstructure.IntakeSubsystem;
@@ -56,8 +56,8 @@ public class RobotContainer {
 
     private static final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
-    private final VisionSubsystem visionLeft = new VisionSubsystem(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT);
-    private final VisionSubsystem visionRight = new VisionSubsystem(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT);
+    private final Vision visionLeft = new Vision(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT);
+    private final Vision visionRight = new Vision(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT);
 
     private static final ArmSubsystem armSubsystem = new ArmSubsystem();
     private static final ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();

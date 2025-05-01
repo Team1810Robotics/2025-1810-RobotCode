@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
 
-public class VisionSubsystem extends SubsystemBase {
+public class Vision extends SubsystemBase {
 
     public PhotonCamera camera;
     private PhotonPoseEstimator photonPoseEstimator;
@@ -39,7 +39,7 @@ public class VisionSubsystem extends SubsystemBase {
 
     private boolean shouldWarn = true;
 
-    public VisionSubsystem(String cameraName, Transform3d cameraOffset) {
+    public Vision(String cameraName, Transform3d cameraOffset) {
         camera = new PhotonCamera(cameraName);
 
         photonPoseEstimator = new PhotonPoseEstimator(
@@ -97,62 +97,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
         return Optional.empty();
     }
-    
-    /**
-     * Used to aim the robot at the apriltag.
-     * @param altRotation
-     * @return the PID output for the rotation.
-     */
-    public double visionTargetPIDCalc(double altRotation) {
-        boolean target = hasTargets();
-
-        if (target && getYaw().isPresent()) {
-            return -rotController.calculate(layout.getTagPose(result.getBestTarget().getFiducialId())
-                    .get().getRotation().getZ());
-        }
- 
-        return altRotation;
-    }
-
-    public double visionPara(double altRotation, boolean visionMode, double gyro) {
-        if (visionMode) {
-            if (hasTargets()) {
-                return rotController.calculate(gyro % 360
-                        - Math.toDegrees(layout.getTagPose(result.getBestTarget().getFiducialId())
-                                .get().getRotation().getMeasureZ().magnitude()));
-            }
-        }
-        if (!visionMode) {
-            return altRotation;
-        }
-        return altRotation;
-    }
-
-
-    /**
-     * Used to make the robot drive to a set distance away from an apriltag.
-     * 
-     * @param altDrive  The input from the controller for then no tag is present.
-     * @param distance  How far away from the apriltag do we want to be.
-     * 
-     * @return
-     */
-    public double visionYDrive(double altDrive, double distance) {
-        if (getX().isPresent() && hasTargets()) {
-            return driveControllerX.calculate(getYaw().get() - distance);
-        } else {
-            return altDrive;
-        }
-    }
-
-    public double visionXDrive(double altDrive, double distance) {
-        if (getX().isPresent() && hasTargets()) {
-            return driveControllerY.calculate(getX().get() - distance);
-        } else {
-            return altDrive;
-        }
-    }
-
 
     public boolean hasTargets() {
         return result.hasTargets();
@@ -165,18 +109,31 @@ public class VisionSubsystem extends SubsystemBase {
         return true;
     }
 
+
+    /**
+     * Returns the latest result from the camera, or a blank result if there are none.
+     * @return The latest result from the camera.
+     */
     public PhotonPipelineResult getLatestResult() {
         allResults = camera.getAllUnreadResults();
         int size = allResults.size();
         return size > 0 ? allResults.get(size - 1) : new PhotonPipelineResult();
     }
 
+    /**
+     * @return The ID of the best target, or an empty optional if no target is present.
+     */
     public Optional<Integer> getTargetID() {
         if (!hasTargets()) return Optional.empty();
 
         return Optional.of(result.getBestTarget().getFiducialId());
     }
 
+    /**
+     * Gets a target by its ID.
+     * @param id The ID of the target to get.
+     * @return The target with the given ID, or an empty optional if no such target exists.
+     */
     private Optional<PhotonTrackedTarget> getTargetByID(int id) {
         if (!hasTargets()) return Optional.empty();
 
@@ -194,9 +151,9 @@ public class VisionSubsystem extends SubsystemBase {
      * 
      * @author Team 1108
      */
-    public PhotonPipelineResult clearEvilTargets(PhotonPipelineResult poseResult) {
-        if (poseResult.hasTargets()) {
-            for (PhotonTrackedTarget target : poseResult.getTargets()) {
+    private PhotonPipelineResult clearEvilTargets(PhotonPipelineResult result) {
+        if (result.hasTargets()) {
+            for (PhotonTrackedTarget target : result.getTargets()) {
                 var tagPose = layout.getTagPose(target.getFiducialId());
 
                 if (tagPose.isEmpty()) {
@@ -206,12 +163,12 @@ public class VisionSubsystem extends SubsystemBase {
                 var distance = PhotonUtils.getDistanceToPose(drivetrain.getState().Pose, tagPose.get().toPose2d());
                 // Check if the target is too far away or has a high pose ambiguity
                 if (target.getPoseAmbiguity() > .2 || distance > VisionConstants.MAX_DISTANCE_METERS) {
-                    poseResult.targets.remove(target);
+                    result.targets.remove(target);
                 }
             }
         }
 
-        return poseResult;
+        return result;
     }
 
     @Override
@@ -226,7 +183,6 @@ public class VisionSubsystem extends SubsystemBase {
         }
 
         result = getLatestResult();
-
 
         PhotonPipelineResult poseResult = result;
         if (!poseResult.hasTargets()) return;
