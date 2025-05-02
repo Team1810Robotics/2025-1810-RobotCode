@@ -8,11 +8,11 @@ public class Constants {
             public static final int ENCODER_ID = 2;
             public static final double ENCODER_OFFSET = .1;
 
-            public static double kPI = 0.055;
+            public static double kPI = 0.04;
             public static double kII = 0.0;
-            public static double kDI = 0.00005;
+            public static double kDI = 0.0004;
 
-            public static double kPD = 0.0055;
+            public static double kPD = 0.0057;
             public static double kID = 0.0;
             public static double kDD = 0.0;
 
