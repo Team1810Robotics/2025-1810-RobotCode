@@ -24,7 +24,6 @@ public class ArmSubsystem extends SubsystemBase {
     private SparkMax armMotor2;
     private DutyCycleEncoder armEncoder;
 
-   
     private final PIDController armPIDController;
 
     public double currentSetpoint;
@@ -52,6 +51,16 @@ public class ArmSubsystem extends SubsystemBase {
         Shuffleboard.getTab("Arm").addNumber("Arm Setpoint", () -> currentSetpoint);
     }
 
+    /**
+     * Get the current measurement of the arm in degrees.
+     *
+     * <p>
+     * This method returns the current angle of the arm in degrees, calculated
+     * by subtracting the encoder offset from the raw encoder value and then
+     * converting the result to degrees.
+     *
+     * @return the current measurement of the arm in degrees
+     */
     public double getMeasurement() {
         double position = armEncoder.get() - ArmConstants.ENCODER_OFFSET; 
         double degrees = Units.rotationsToDegrees(position);

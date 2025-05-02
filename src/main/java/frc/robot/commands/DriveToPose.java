@@ -1,5 +1,10 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -38,7 +43,9 @@ public class DriveToPose extends Command {
             VisionConstants.VR_kP,
             VisionConstants.VR_kI,
             VisionConstants.VR_kD,
-            new TrapezoidProfile.Constraints(Math.PI, Math.PI)
+            new TrapezoidProfile.Constraints(RotationsPerSecond.of(.5).in(RadiansPerSecond), 
+                                            RotationsPerSecondPerSecond.of(0.5).in(RadiansPerSecondPerSecond)
+                                            )
         );
         
         thetaController.enableContinuousInput(-Math.PI, Math.PI);

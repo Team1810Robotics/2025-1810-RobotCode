@@ -51,6 +51,16 @@ public class RollSubsystem extends SubsystemBase {
 
   }
 
+  /**
+   * Get the current measurement of the roll motor in degrees.
+   *
+   * <p>
+   * This method reads the current position of the roll motor's encoder, subtracts the
+   * {@link RollConstants#ENCODER_OFFSET} to center the measurement, and then converts
+   * it to degrees using {@link Units#rotationsToDegrees(double)}.
+   *
+   * @return the current measurement of the roll motor in degrees
+   */
   public double getMeasurment() {
     double position = encoder.get() - RollConstants.ENCODER_OFFSET;
     double degrees = Units.rotationsToDegrees(position);

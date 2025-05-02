@@ -75,6 +75,19 @@ public class Vision extends SubsystemBase {
     }
 
     /**
+     * Used to get the Z position of the best target.
+     * @return The Z position of the best target.
+     *         If no target is present, return an empty optional.
+     */
+    public Optional<Double> getZ() {
+        if (hasTargets()) {
+            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getZ());
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    /**
      * Gets the yaw of the best target.
      * @return The yaw of the best target.
      *         If no target is present, return an empty optional.

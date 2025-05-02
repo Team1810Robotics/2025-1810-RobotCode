@@ -41,7 +41,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
 
-        Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> !limitSwitch.get());
+        Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> getLimitSwitch());
     }
 
     /**
@@ -156,6 +156,13 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     }
 
+    /**
+     * Resets the extender motor to its starting position.
+     *
+     * <p>
+     * This method resets the cumulative rotations and the previous rotation to 0.
+     * It is called when the extender motor hits the limit switch.
+     */
     public void reset() {
         cumulativeRotations = 0;
         previousRotation = 0;
