@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Config;
+import frc.robot.util.Configs;
 import frc.robot.util.constants.RobotConstants.IntakeConstants;
 import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
 
@@ -25,7 +25,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         colorSensor = new ColorSensorV3(Port.kOnboard);
 
-        intakeMotor.configure(Config.getIntakeConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        intakeMotor.configure(Configs.getIntakeConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         Shuffleboard.getTab("Intake").addNumber("Distance", () -> getDistance());
         Shuffleboard.getTab("Intake").addBoolean("Distance Sensor", () -> colorSensor.isConnected());

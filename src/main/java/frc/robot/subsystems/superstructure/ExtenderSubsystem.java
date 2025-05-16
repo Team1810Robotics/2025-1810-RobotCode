@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Config;
+import frc.robot.util.Configs;
 import frc.robot.util.constants.RobotConstants.ExtenderConstants;
 
 public class ExtenderSubsystem extends SubsystemBase {
@@ -29,7 +29,7 @@ public class ExtenderSubsystem extends SubsystemBase {
 
         limitSwitch = new DigitalInput(ExtenderConstants.LIMIT_SWITCH_ID);
 
-        extenderMotor.getConfigurator().apply(Config.getExtenderConfig());
+        extenderMotor.getConfigurator().apply(Configs.getExtenderConfig());
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
         extenderPIDController.setTolerance(ExtenderConstants.TOLERANCE);
@@ -153,7 +153,6 @@ public class ExtenderSubsystem extends SubsystemBase {
         currentSetpoint = height;
 
         return Commands.run(() -> extenderMotor.set(extenderPIDController.calculate(getDistance(), height)), this).finallyDo(() -> stop());
-
     }
 
     /**
@@ -166,7 +165,7 @@ public class ExtenderSubsystem extends SubsystemBase {
     public void reset() {
         cumulativeRotations = 0;
         previousRotation = 0;
-        
+        extenderMotor.setPosition(0);
     }
 
 

@@ -198,7 +198,6 @@ public class Vision extends SubsystemBase {
         result = getLatestResult();
 
         PhotonPipelineResult poseResult = result;
-        if (!poseResult.hasTargets()) return;
 
         poseResult = clearEvilTargets(poseResult);
 

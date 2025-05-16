@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Config;
+import frc.robot.util.Configs;
 import frc.robot.util.constants.RobotConstants.WristConstants.RollConstants;
 
 public class RollSubsystem extends SubsystemBase {
@@ -32,7 +32,7 @@ public class RollSubsystem extends SubsystemBase {
     rollPIDControllerIncreasing = new PIDController(RollConstants.kPI, RollConstants.kII, RollConstants.kDI);
     rollPIDControllerDecreasing = new PIDController(RollConstants.kPD, RollConstants.kID, RollConstants.kDD);
 
-    rollMotor.configure(Config.getRollConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rollMotor.configure(Configs.getRollConfig(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     Shuffleboard.getTab("Roll").addNumber("Roll Rad Raw", () -> encoder.get());
     Shuffleboard.getTab("Roll").addNumber("Roll Rad Adj", () -> encoder.get() - RollConstants.ENCODER_OFFSET);

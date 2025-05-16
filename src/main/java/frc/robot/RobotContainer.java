@@ -2,7 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.Optional;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
@@ -208,16 +207,11 @@ public class RobotContainer {
     }
 
     private Command algaePickup() {
-        Optional<Integer> id = visionLeft.getTargetID();
+        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
 
-        if (id.isEmpty()) id = visionRight.getTargetID();
-
-        if (id.isEmpty()) {
-            DriverStation.reportWarning("Attempted to pick up algae, no tag found", null);
-            return new InstantCommand();
-        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id.get())) {
+        if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
             return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_PICKUP);
-        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id.get())) {
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
             return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_PICKUP);
         } else {
             DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", null);
@@ -226,17 +220,11 @@ public class RobotContainer {
     }
 
     private Command algaeClear() {
-        Optional<Integer> id = visionLeft.getTargetID();
+        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));        
 
-        if (id.isEmpty()) id = visionRight.getTargetID();
-        
-
-        if (id.isEmpty()) {
-            DriverStation.reportWarning("Attempted to clear algae, no tag found", null);
-            return new InstantCommand();
-        } else if (VisionConstants.LOW_ALGAE_TAGS.contains(id.get())) {
+        if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
             return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_CLEAR);
-        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id.get())) {
+        } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
             return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_CLEAR);
         } else {
             DriverStation.reportWarning("Attempted to clear algae, tag not recognized", null);

@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.util.Config;
+import frc.robot.util.Configs;
 import frc.robot.util.constants.RobotConstants.ArmConstants;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -34,8 +34,8 @@ public class ArmSubsystem extends SubsystemBase {
         armEncoder = new DutyCycleEncoder(ArmConstants.ENCODER_ID);
 
 
-        armMotor1.configure(Config.getArmConfig1(), ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-        armMotor2.configure(Config.getArmConfig2(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        armMotor1.configure(Configs.getArmConfig1(), ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
+        armMotor2.configure(Configs.getArmConfig2(), ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
         armPIDController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
         armPIDController.setTolerance(ArmConstants.TOLERANCE);

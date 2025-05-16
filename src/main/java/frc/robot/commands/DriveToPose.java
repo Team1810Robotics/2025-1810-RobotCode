@@ -77,11 +77,11 @@ public class DriveToPose extends Command {
         );
 
     
-        drivetrain.applyRequest(
-            () -> drive.
-                    withVelocityX(xSpeed)
-                    .withVelocityY(ySpeed)
-                    .withRotationalRate(thetaSpeed)
+        drivetrain.setControl(
+            drive.
+                withVelocityX(xSpeed)
+                .withVelocityY(ySpeed)
+                .withRotationalRate(thetaSpeed)
         );
     }
     
@@ -96,8 +96,8 @@ public class DriveToPose extends Command {
     @Override
     public void end(boolean interrupted) {
         // Stop the robot when the command ends
-        drivetrain.applyRequest(
-            () -> drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0)
+        drivetrain.setControl(
+            drive.withVelocityX(0).withVelocityY(0).withRotationalRate(0)
         );
     }
 }

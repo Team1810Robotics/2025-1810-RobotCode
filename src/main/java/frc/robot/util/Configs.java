@@ -1,11 +1,13 @@
 package frc.robot.util;
 
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import frc.robot.util.constants.RobotConstants.ArmConstants;
+import frc.robot.util.constants.RobotConstants.WristConstants.PitchConstants;
 
-public class Config {
+public class Configs {
     private static final double GLOBAL_CURRENT_LIMIT_BASE = 45;
 
 
@@ -14,6 +16,11 @@ public class Config {
         cfg.CurrentLimits.StatorCurrentLimit = GLOBAL_CURRENT_LIMIT_BASE;
         cfg.CurrentLimits.StatorCurrentLimitEnable = true;
         cfg.Feedback.SensorToMechanismRatio = 15; 
+
+        Slot0Configs slot0Configs = cfg.Slot0;
+        slot0Configs.kP = PitchConstants.kP;
+        slot0Configs.kI = PitchConstants.kI;
+        slot0Configs.kD = PitchConstants.kD;
     
         return cfg;
     }
