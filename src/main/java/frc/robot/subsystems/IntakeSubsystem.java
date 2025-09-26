@@ -14,7 +14,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private ColorSensorV3 colorSensor;
 
-
     public IntakeSubsystem() {
         intakeMotor = new SparkMax(IntakeConstants.INTAKE_MOTOR, MotorType.kBrushless);
 
