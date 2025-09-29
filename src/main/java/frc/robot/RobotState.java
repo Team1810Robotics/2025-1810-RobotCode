@@ -7,19 +7,19 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 
 public class RobotState {
     public enum RobotStates {
-        NONE,
+        BASE,
         CORAL,
         ALGAE,
         OVERRIDE
     }
     
-    public static RobotStates currentRobotState = RobotStates.NONE;
+    public static RobotStates currentRobotState = RobotStates.BASE;
 
     private static IntakeSubsystem intakeSubsystem = RobotContainer.getIntakeSubsystem();
 
     public static BooleanSupplier stateIsCoral = () -> currentRobotState == RobotStates.CORAL;
     public static BooleanSupplier stateIsAlgae = () -> currentRobotState == RobotStates.ALGAE;
-    public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.NONE;
+    public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.BASE;
     public static BooleanSupplier stateIsOverride = () -> currentRobotState == RobotStates.OVERRIDE;
 
     public static BooleanSupplier shouldEject = () -> intakeSubsystem.isCoralPresent() && intakeSubsystem.isAlgaePresent();
@@ -46,7 +46,7 @@ public class RobotState {
 
         if (shouldEject.getAsBoolean()) {
             DriverStation.reportWarning("Bot thinks both Coral and Algae present, setting RobotState to None", null);
-            currentRobotState = RobotStates.NONE;
+            currentRobotState = RobotStates.BASE;
         }
 
         if (isCoral) {
@@ -54,7 +54,7 @@ public class RobotState {
         } else if (isAlgae) {
             currentRobotState = RobotStates.ALGAE;
         } else {
-            currentRobotState = RobotStates.NONE;
+            currentRobotState = RobotStates.BASE;
         }
     }
 }

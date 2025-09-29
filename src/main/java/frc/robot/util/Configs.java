@@ -46,7 +46,7 @@ public class Configs {
     public static SparkMaxConfig getArmConfig1() {
         SparkMaxConfig cfg = new SparkMaxConfig();
         cfg.smartCurrentLimit((int) GLOBAL_CURRENT_LIMIT_BASE);
-        cfg.idleMode(SparkMaxConfig.IdleMode.kBrake);
+        cfg.idleMode(SparkMaxConfig.IdleMode.kCoast);
     
         return cfg;
     }

@@ -2,9 +2,9 @@ package frc.robot.subsystems.superstructure;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
+import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
 
 public class Superstructure {
 
@@ -35,40 +35,52 @@ public class Superstructure {
     }
 
     /**
-     * Applies the given superstructure mode to the subsystems.
+     * Applies the given superstructure mode to the subsystems using alongWith() like the original code.
+     * This creates a race group instead of a parallel group, avoiding subsystem conflicts.
      * 
      * @param state The superstructure mode to apply.
      * @return A command that runs the subsystems in the given mode.
      */
-    public Command applyTargetStateParallel(SuperstructureState state) {
+    public Command applyTargetState(SuperstructureState state) {
         currentSuperstructureState = state;
-        DataLogManager.log("Superstructue state " + state.toString() + " parallely applied");
+        DataLogManager.log("Superstructure state " + state.toString() + " applied");
         
-        return Commands.parallel(
-            extenderSubsystem.run(state.extenderSetpoint),
-            armSubsystem.run(state.armSetpoint),
-            pitchSubsystem.run(state.pitchSetpoint), 
+        // Use the original pattern with alongWith() - this creates a race group, not a parallel group
+        return armSubsystem.run(state.armSetpoint).alongWith(
             rollSubsystem.run(state.rollSetpoint),
+            pitchSubsystem.run(state.pitchSetpoint),
+            extenderSubsystem.run(state.extenderSetpoint),
             intakeSubsystem.run(state.intakeMode)
         );
     }
 
-    public Command applyTargetStateDynamic(SuperstructureState state) {
+    /**
+     * Alternative method for positions that need intake to run independently
+     * (like your original outtake method)
+     */
+    public Command applyTargetStateWithSeparateIntake(SuperstructureState state, IntakeMode intakeMode) {
         currentSuperstructureState = state;
-        DataLogManager.log("Superstructue state " + state.toString() + " dynamically applied");
+        DataLogManager.log("Superstructure state " + state.toString() + " applied with separate intake mode: " + intakeMode);
         
-        return (
-            Commands.parallel(rollSubsystem.run(state.rollSetpoint), pitchSubsystem.run(state.pitchSetpoint)).alongWith(
-                Commands.waitUntil(() -> pitchSubsystem.atSetpoint() && rollSubsystem.atSetpoint()).andThen(
-                    armSubsystem.run(state.armSetpoint).alongWith(
-                        Commands.waitUntil(() -> armSubsystem.atSetpoint()).andThen(
-                            extenderSubsystem.run(state.extenderSetpoint).alongWith(
-                                intakeSubsystem.run(state.intakeMode)
-                            )
-                        )
-                    )
-                )
-            )
+        // For cases where you want to override the intake mode (like outtaking while maintaining position)
+        return armSubsystem.run(state.armSetpoint).alongWith(
+            rollSubsystem.run(state.rollSetpoint),
+            pitchSubsystem.run(state.pitchSetpoint),
+            extenderSubsystem.run(state.extenderSetpoint),
+            intakeSubsystem.run(intakeMode)
+        );
+    }
+
+    /**
+     * Create an outtake command like your original - maintains current position while outtaking
+     */
+    public Command outtakeAtCurrentPosition() {
+        // Get current setpoints (you may need to expose these from your subsystems)
+        return intakeSubsystem.run(IntakeMode.OUT).alongWith(
+            pitchSubsystem.run(pitchSubsystem.currentSetpoint),
+            rollSubsystem.run(rollSubsystem.currentSetpoint),
+            extenderSubsystem.run(extenderSubsystem.getCurrentSetpoint()),
+            armSubsystem.run(armSubsystem.currentSetpoint)
         );
     }
 }

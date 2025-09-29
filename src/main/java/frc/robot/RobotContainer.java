@@ -8,7 +8,6 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,7 +16,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotState.RobotStates;
-import frc.robot.commands.DriveToPose;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.superstructure.ArmSubsystem;
@@ -26,7 +24,6 @@ import frc.robot.subsystems.superstructure.IntakeSubsystem;
 import frc.robot.subsystems.superstructure.Superstructure;
 import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
-import frc.robot.util.Poses;
 import frc.robot.util.Telemetry;
 import frc.robot.util.constants.TunerConstants;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
@@ -75,6 +72,7 @@ public class RobotContainer {
 
         autoChooser = AutoBuilder.buildAutoChooser("");
 
+
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
         Shuffleboard.getTab("Teleoperated").addString("Robot State", () -> RobotState.getRobotState().toString());
@@ -110,11 +108,24 @@ public class RobotContainer {
         //Reset heading
         driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
+
+        //General Bindings
+        manipulatorXbox.leftBumper().onTrue(base());
+
+        manipulatorXbox.rightTrigger().onTrue(intake());
+        manipulatorXbox.leftTrigger().whileTrue(outtake());
+
+        manipulatorXbox.back().onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.BASE)));
+
+        manipulatorXbox.leftStick().and(() -> !RobotState.stateIsOverride.getAsBoolean()).onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.OVERRIDE)));
+
+
         //Bindings for no pieces
         manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(coralStation());
         manipulatorXbox.b().and(RobotState.stateIsNone).onTrue(groundPickup());
         manipulatorXbox.x().and(RobotState.stateIsNone).onTrue(algaePickup());
         manipulatorXbox.y().and(RobotState.stateIsNone).onTrue(algaeClear());
+        
 
         //Bindings for coral
         manipulatorXbox.a().and(RobotState.stateIsCoral).onTrue(l1());
@@ -124,8 +135,8 @@ public class RobotContainer {
 
         //Bindings for algae
         manipulatorXbox.a().and(RobotState.stateIsAlgae).onTrue(processor());
-        manipulatorXbox.b().and(RobotState.stateIsAlgae).onTrue(net());
 
+        //Original Bindings
         manipulatorXbox.a().and(RobotState.stateIsOverride).onTrue(l1());
         manipulatorXbox.b().and(RobotState.stateIsOverride).onTrue(l2());
         manipulatorXbox.x().and(RobotState.stateIsOverride).onTrue(l3());
@@ -139,25 +150,15 @@ public class RobotContainer {
 
         manipulatorXbox.povUp().whileTrue(extenderSubsystem.runManual(.5));
         manipulatorXbox.povDown().whileTrue(extenderSubsystem.runManual(-.5));
-
-        manipulatorXbox.rightTrigger().onTrue(intake());
-        manipulatorXbox.leftTrigger().whileTrue(outtake());
-
-        manipulatorXbox.back().onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.NONE)));
-
-        manipulatorXbox.leftStick().and(() -> !RobotState.stateIsOverride.getAsBoolean()).onTrue(Commands.runOnce(() -> RobotState.updateState(RobotStates.OVERRIDE)));
     }
 
     public void addNamedCommands() {
-        NamedCommands.registerCommand("Intake", coralStation().withTimeout(1));
-        NamedCommands.registerCommand("Base", base().withTimeout(2.3));
-        NamedCommands.registerCommand("L2", l2().withTimeout(2));
-        NamedCommands.registerCommand("L3", l3().withTimeout(2));
-        NamedCommands.registerCommand("L4", l4().withTimeout(3.5));
-
-        NamedCommands.registerCommand("Outtake", outtake());
-        NamedCommands.registerCommand("Intake", intake());
-
+        NamedCommands.registerCommand("Intake", superstructure.applyTargetState(SuperstructureState.CORAL_STATION).withTimeout(1));
+        NamedCommands.registerCommand("Base", superstructure.applyTargetState(SuperstructureState.BASE).withTimeout(2.3));
+        NamedCommands.registerCommand("L2", superstructure.applyTargetState(SuperstructureState.L2).withTimeout(2));
+        NamedCommands.registerCommand("L3", superstructure.applyTargetState(SuperstructureState.L3).withTimeout(2));
+        NamedCommands.registerCommand("L4", superstructure.applyTargetState(SuperstructureState.L4).withTimeout(3.5));
+        
         NamedCommands.registerCommand("Left Align", leftAlign().withTimeout(2)); 
         NamedCommands.registerCommand("Right Align", rightAlign().withTimeout(2));
     }
@@ -171,63 +172,59 @@ public class RobotContainer {
     }
             
     private Command coralStation() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.CORAL_STATION);
+        return superstructure.applyTargetState(SuperstructureState.CORAL_STATION);
     }
 
     private Command l1() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.L1);
+        return superstructure.applyTargetState(SuperstructureState.L1);
     }
 
     private Command l2() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.L2);
+        return superstructure.applyTargetState(SuperstructureState.L2);
     }
 
     private Command l3() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.L3);
+        return superstructure.applyTargetState(SuperstructureState.L3);
     }
 
     private Command l4() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.L4);
+        return superstructure.applyTargetState(SuperstructureState.L4);
     }
 
     private Command base() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.BASE);
+        return superstructure.applyTargetState(SuperstructureState.BASE);
     }
 
     private Command groundPickup() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.GROUND_PICKUP);
+        return superstructure.applyTargetState(SuperstructureState.GROUND_PICKUP);
     }
 
     private Command processor() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.PROCESSOR);
-    }
-
-    private Command net() {
-        return superstructure.applyTargetStateParallel(SuperstructureState.NET);
+        return superstructure.applyTargetState(SuperstructureState.PROCESSOR);
     }
 
     private Command algaePickup() {
-        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));
+        int id = visionRight.getTargetID().orElse(-1);
 
         if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
-            return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_PICKUP);
+            return superstructure.applyTargetState(SuperstructureState.LOW_ALGAE_PICKUP);
         } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
-            return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_PICKUP);
+            return superstructure.applyTargetState(SuperstructureState.HIGH_ALGAE_PICKUP);
         } else {
-            DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", null);
+            DriverStation.reportWarning("Attempted to pick up algae, tag not recognized", false);
             return new InstantCommand();
         }
     }
 
     private Command algaeClear() {
-        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));        
+        int id = visionLeft.getTargetID().orElse(visionRight.getTargetID().orElse(-1));      
 
         if (VisionConstants.LOW_ALGAE_TAGS.contains(id)) {
-            return superstructure.applyTargetStateParallel(SuperstructureState.LOW_ALGAE_CLEAR);
+            return superstructure.applyTargetState(SuperstructureState.LOW_ALGAE_CLEAR);
         } else if (VisionConstants.HIGH_ALGAE_TAGS.contains(id)) {
-            return superstructure.applyTargetStateParallel(SuperstructureState.HIGH_ALGAE_CLEAR);
+            return superstructure.applyTargetState(SuperstructureState.HIGH_ALGAE_CLEAR);
         } else {
-            DriverStation.reportWarning("Attempted to clear algae, tag not recognized", null);
+            DriverStation.reportWarning("Attempted to clear algae, tag not recognized", false);
             return new InstantCommand();
         }
     }
@@ -243,28 +240,20 @@ public class RobotContainer {
     private Command leftAlign() {
         if (visionRight.getTargetID().isEmpty()) return new InstantCommand();
         
-        return new DriveToPose(
-            drivetrain, 
-            visDrive, 
-            Poses.getScorePose(
-                visionRight.getTargetID().get(),
-                true, 
-                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            )
+        return drivetrain.applyRequest(() ->
+            visDrive.withVelocityX(visionRight.alignX())
+            .withVelocityY(visionRight.alignY())
+            .withRotationalRate(visionRight.alignZ())
         );
     }
 
     private Command rightAlign() {
         if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
-        
-        return new DriveToPose(
-            drivetrain, 
-            visDrive, 
-            Poses.getScorePose(
-                visionLeft.getTargetID().get(), 
-                false, 
-                DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red
-            )
+
+        return drivetrain.applyRequest(() ->
+            visDrive.withVelocityX(visionLeft.alignX())
+            .withVelocityY(visionLeft.alignY())
+            .withRotationalRate(visionLeft.alignZ())
         );
     }
 

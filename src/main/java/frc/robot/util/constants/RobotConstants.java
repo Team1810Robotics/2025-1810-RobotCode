@@ -56,15 +56,15 @@ public class RobotConstants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = 0;
+            public static final double ENCODER_OFFSET = .03;
 
-            public static double kP = 0.0075;
-            public static double kI = 0.0;
-            public static double kD = 0.0;
+            public static final double kP = 0.0075;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
 
             public static final double TOLERANCE = 2.0;
 
-            public static final double CORAL_STATION_POSITION = 133;
+            public static final double CORAL_STATION_POSITION = 133; //TODO: Update these
             public static final double GROUND_PICKUP_POSITION = 134;
 
             public static final double L1_POSITION = 120;
@@ -79,9 +79,8 @@ public class RobotConstants {
             public static final double HIGH_ALGAE_CLEAR_POSITION = 137;
 
             public static final double PROCESSOR_POSITION = 120;
-            public static final double NET_POSITION = 120;
 
-            public static final double BASE_POSITION = 116;
+            public static final double BASE_POSITION = 15;
 
         }
     }
@@ -187,8 +186,8 @@ public class RobotConstants {
         public static final double THETA_STANDARD_DEVIATION = 0.1;
 
         // Vision Rotation PID vars
-        public static final double VR_kI = 0.0;
         public static final double VR_kP = 0.07;
+        public static final double VR_kI = 0.0;
         public static final double VR_kD = 0.0;
 
         // Vision Drive PID vars

@@ -18,8 +18,7 @@ public enum SuperstructureState {
     HIGH_ALGAE_CLEAR(ExtenderConstants.HIGH_ALGAE_CLEAR_HEIGHT, ArmConstants.HIGH_ALGAE_CLEAR_POSITION, PitchConstants.HIGH_ALGAE_CLEAR_POSITION, RollConstants.HIGH_ALGAE_CLEAR_POSITION, IntakeMode.KICK),
     CORAL_STATION(ExtenderConstants.CORAL_STATION_HEIGHT, ArmConstants.CORAL_STATION_POSITION, PitchConstants.CORAL_STATION_POSITION, RollConstants.CORAL_STATION_POSITION, IntakeMode.IN),
     GROUND_PICKUP(ExtenderConstants.GROUND_PICKUP_HEIGHT, ArmConstants.GROUND_PICKUP_POSITION, PitchConstants.GROUND_PICKUP_POSITION, RollConstants.GROUND_PICKUP_POSITION, IntakeMode.IN),
-    PROCESSOR(ExtenderConstants.PROCESSOR_HEIGHT, ArmConstants.PROCESSOR_POSITION, PitchConstants.PROCESSOR_POSITION, RollConstants.PROCESSOR_POSITION, IntakeMode.STOP),
-    NET(ExtenderConstants.NET_HEIGHT, ArmConstants.NET_POSITION, PitchConstants.NET_POSITION, RollConstants.NET_POSITION, IntakeMode.STOP);
+    PROCESSOR(ExtenderConstants.PROCESSOR_HEIGHT, ArmConstants.PROCESSOR_POSITION, PitchConstants.PROCESSOR_POSITION, RollConstants.PROCESSOR_POSITION, IntakeMode.STOP);
 
     public final double extenderSetpoint;
     public final double armSetpoint;

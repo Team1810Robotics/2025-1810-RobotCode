@@ -41,6 +41,7 @@ public class Vision extends SubsystemBase {
 
     public Vision(String cameraName, Transform3d cameraOffset) {
         camera = new PhotonCamera(cameraName);
+        result = new PhotonPipelineResult();
 
         photonPoseEstimator = new PhotonPoseEstimator(
                 layout,
@@ -109,6 +110,39 @@ public class Vision extends SubsystemBase {
             return Optional.of(result.getBestTarget().getPitch());
         }
         return Optional.empty();
+    }
+
+    public Optional<Double> getRange() {
+        if (hasTargets()) {
+            return Optional.of(result.getBestTarget().getBestCameraToTarget().getTranslation().getX());
+        }
+        
+        return Optional.empty();
+    }
+
+    public double alignY() {
+        if (getRange().isPresent() && hasTargets()) {
+            return driveControllerY.calculate(getYaw().get());
+        }
+
+        return 0;
+    }
+
+    public double alignX() {
+        if (getRange().isPresent() && hasTargets()) {
+            return driveControllerX.calculate(getYaw().get() + .5);
+        }
+
+        return 0;
+    }
+
+
+    public double alignZ() {
+        if (getRange().isPresent() && hasTargets()) {
+            return rotController.calculate(getYaw().get());
+        }
+
+        return 0;
     }
 
     public boolean hasTargets() {
@@ -188,12 +222,14 @@ public class Vision extends SubsystemBase {
     public void periodic() {
         if (!camera.isConnected()) {
             if (shouldWarn) {
-                DriverStation.reportWarning("Camera not connected", false);
+                DriverStation.reportWarning(camera.getName() + " not connected", false);
                 shouldWarn = false;
             }
 
             return;
         }
+
+        if (camera.isConnected() && !shouldWarn) shouldWarn = true;
 
         result = getLatestResult();
 

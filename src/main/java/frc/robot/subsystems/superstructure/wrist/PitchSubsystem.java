@@ -1,8 +1,9 @@
 package frc.robot.subsystems.superstructure.wrist;
 
-import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -14,15 +15,25 @@ import frc.robot.util.constants.RobotConstants.WristConstants.PitchConstants;
 public class PitchSubsystem extends SubsystemBase {
 
   private TalonFX pitchMotor;
-  private double setpoint = 0;
+
+  private PIDController pitchPIDController;
+
+  public double currentSetpoint = 0;
   
   public PitchSubsystem() {
     pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
 
+    pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
+    pitchPIDController.setTolerance(PitchConstants.TOLERANCE);
 
     pitchMotor.getConfigurator().apply(Configs.getPitchConfig());
 
-    Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
+    Shuffleboard.getTab("Pitch").addNumber("Pitch Deg", () -> getMeasurement());
+    Shuffleboard.getTab("Pitch").add("Pitch PID", pitchPIDController);
+    Shuffleboard.getTab("Pitch").addNumber("Current Setpoint", () -> currentSetpoint);
+    Shuffleboard.getTab("Pitch").addNumber("Pitch PID Out", () -> pitchPIDController.calculate(getMeasurement(), currentSetpoint));
+    Shuffleboard.getTab("Pitch").addNumber("Pitch Raw", () -> pitchMotor.getPosition().getValueAsDouble());
+    Shuffleboard.getTab("Pitch").addNumber("Pitch Raw Adj", () -> pitchMotor.getPosition().getValueAsDouble() - PitchConstants.ENCODER_OFFSET);
   }
 
   /**
@@ -35,15 +46,15 @@ public class PitchSubsystem extends SubsystemBase {
    *
    * @return the current measurement of the pitch motor in degrees
    */
-  public double getMeasurment() {
-    double position = pitchMotor.getPosition().getValueAsDouble() / 16384 - PitchConstants.ENCODER_OFFSET;
+  public double getMeasurement() {
+    double position = pitchMotor.getPosition().getValueAsDouble() - PitchConstants.ENCODER_OFFSET;
     double degrees = Units.rotationsToDegrees(position);
 
-    return degrees;
+    return -degrees;
   }
 
   public boolean atSetpoint() {
-    return Math.abs(getMeasurment() - setpoint) < PitchConstants.TOLERANCE;
+    return pitchPIDController.atSetpoint();
   }
 
   public void stop() {
@@ -53,14 +64,11 @@ public class PitchSubsystem extends SubsystemBase {
   /**
    * Runs the pitch motor with PID
    * 
-   * @param setpoint Setpoint for wrist
+   * @param setPoint Setpoint for wrist
    * @return Command to run the motor
    */
-  public Command run(double setpoint) {
-    this.setpoint = setpoint;
-
-    MotionMagicVoltage request = new MotionMagicVoltage(setpoint);
-    return Commands.run(() -> pitchMotor.setControl(request), this).finallyDo(() -> stop());
+  public Command run(double setPoint) {
+    return Commands.run(() -> pitchMotor.set(MathUtil.clamp(pitchPIDController.calculate(getMeasurement(), setPoint), 0, .3)), this).finallyDo(() -> stop());
   }
 
 }
