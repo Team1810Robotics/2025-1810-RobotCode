@@ -7,6 +7,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -16,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.RobotState.RobotStates;
+import frc.robot.commands.ManualExtender;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.superstructure.ArmSubsystem;
@@ -26,6 +28,7 @@ import frc.robot.subsystems.superstructure.wrist.PitchSubsystem;
 import frc.robot.subsystems.superstructure.wrist.RollSubsystem;
 import frc.robot.util.Telemetry;
 import frc.robot.util.constants.TunerConstants;
+import frc.robot.util.constants.RobotConstants.ExtenderConstants;
 import frc.robot.util.constants.RobotConstants.VisionConstants;
 import frc.robot.util.constants.RobotConstants.IntakeConstants.IntakeMode;
 import frc.robot.subsystems.superstructure.SuperstructureState;
@@ -121,10 +124,10 @@ public class RobotContainer {
 
 
         //Bindings for no pieces
-        manipulatorXbox.a().and(RobotState.stateIsNone).onTrue(coralStation());
-        manipulatorXbox.b().and(RobotState.stateIsNone).onTrue(groundPickup());
-        manipulatorXbox.x().and(RobotState.stateIsNone).onTrue(algaePickup());
-        manipulatorXbox.y().and(RobotState.stateIsNone).onTrue(algaeClear());
+        manipulatorXbox.a().and(RobotState.stateIsBase).onTrue(coralStation());
+        // manipulatorXbox.b().and(RobotState.stateIsBase).onTrue(groundPickup());
+        manipulatorXbox.x().and(RobotState.stateIsBase).onTrue(algaePickup());
+        manipulatorXbox.y().and(RobotState.stateIsBase).onTrue(algaeClear());
         
 
         //Bindings for coral
@@ -144,12 +147,12 @@ public class RobotContainer {
 
         manipulatorXbox.leftBumper().and(RobotState.stateIsOverride).onTrue(base());
         manipulatorXbox.rightBumper().and(RobotState.stateIsOverride).onTrue(coralStation());
-        manipulatorXbox.start().and(RobotState.stateIsOverride).onTrue(groundPickup());
+        // manipulatorXbox.start().and(RobotState.stateIsOverride).onTrue(groundPickup());
         manipulatorXbox.leftStick().and(RobotState.stateIsOverride).onTrue(algaeClear());
 
 
-        manipulatorXbox.povUp().whileTrue(extenderSubsystem.runManual(.5));
-        manipulatorXbox.povDown().whileTrue(extenderSubsystem.runManual(-.5));
+        manipulatorXbox.povUp().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.L4_HEIGHT));
+        manipulatorXbox.povDown().whileTrue(new ManualExtender(extenderSubsystem, ExtenderConstants.BASE_HEIGHT));
     }
 
     public void addNamedCommands() {
@@ -192,10 +195,16 @@ public class RobotContainer {
     }
 
     private Command base() {
+        DataLogManager.log("BASE applied");
+        System.out.println("BASE applied (print)");
+
         return superstructure.applyTargetState(SuperstructureState.BASE);
     }
 
     private Command groundPickup() {
+        DataLogManager.log("GROUND_PICKUP applied");
+        System.out.println("GROUNF_PICKUP applied (print)");
+
         return superstructure.applyTargetState(SuperstructureState.GROUND_PICKUP);
     }
 

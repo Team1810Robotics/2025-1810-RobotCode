@@ -14,11 +14,13 @@ import frc.robot.util.constants.RobotConstants.ExtenderConstants;
 public class ExtenderSubsystem extends SubsystemBase {
 
     private TalonFX extenderMotor;
-    private final PIDController extenderPIDController;
+    public final PIDController extenderPIDController;
     private double currentSetpoint;
     private DigitalInput limitSwitch;
-    
 
+    private double previousRotation = 0;
+    private double cumulativeRotations = 0;
+    
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         limitSwitch = new DigitalInput(ExtenderConstants.LIMIT_SWITCH_ID);
@@ -29,10 +31,10 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderPIDController.setTolerance(ExtenderConstants.TOLERANCE);
 
         Shuffleboard.getTab("Extender").addNumber("Extender Encoder", () -> getEncoder());
-        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
+        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getHeight());
         Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> getLimitSwitch());
         Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
-        Shuffleboard.getTab("Extender").addNumber("Extender PID Out", () -> extenderPIDController.calculate(getDistance(), currentSetpoint));
+        Shuffleboard.getTab("Extender").addNumber("Extender PID Out", () -> extenderPIDController.calculate(getHeight(), currentSetpoint));
     }
 
     public boolean atSetpoint() {
@@ -51,54 +53,68 @@ public class ExtenderSubsystem extends SubsystemBase {
         extenderMotor.stopMotor();
     }
 
+    public void totalRotations() {
+        double currentRotation = getEncoder();
+
+        // Calculate the delta, accounting for wraparound
+        double delta = currentRotation - previousRotation;
+
+        // Adjust for wraparound cases
+        if (delta > 0.5) {
+            delta -= 1.0; // Wrapped from 1.0 to 0.0 (moving backward)
+        } else if (delta < -0.5) {
+            delta += 1.0; // Wrapped from 0.0 to 1.0 (moving forward)
+        }
+
+        // Update cumulative position without relying on fullRotations counter
+        cumulativeRotations -= delta; // Keep negative sign if needed for direction
+
+        // Store for next calculation
+        previousRotation = currentRotation;
+    }
+
     /**
      * Get the current encoder value in rotations (relative to zero position)
      */
     public double getEncoder() {
-        return (extenderMotor.getPosition().getValueAsDouble());
+        return extenderMotor.getPosition().getValueAsDouble();
     }
 
     /**
      * Returns the total distance the extender has extended, in inches.
      */
-    public double getDistance() {
-        return getEncoder() * ExtenderConstants.INCHES_PER_ROTATION;
+    public double getHeight() {
+        return -cumulativeRotations * ExtenderConstants.INCHES_PER_ROTATION;
     }
 
     /**
-     * Runs the extender motor manually.
+     * Runs the extender motor manually at the specified speed.
+     * Used by ManualExtender command.
      */
-    public Command runManual(double speed) {
-        return Commands.run(() -> {
-            if (getLimitSwitch()) reset();
-            extenderMotor.set(speed);
-        }, this).finallyDo(() -> extenderMotor.set(0));
+    public void runManual(double speed) {
+        extenderMotor.set(speed);
     }
 
     /**
-     * Runs the extender motor with PID control.
+     * Runs the extender motor with PID control to reach the target height.
      */
     public Command run(double height) {
         currentSetpoint = height;
         return Commands.run(() -> {
-            double targetRotations = height / ExtenderConstants.INCHES_PER_ROTATION;
-            double output = extenderPIDController.calculate(getEncoder(), targetRotations);
-            extenderMotor.set(output);
+            extenderMotor.set(extenderPIDController.calculate(getHeight(), height));
         }, this).finallyDo(() -> stop());
     }
 
     /**
-     * Resets the extender position when limit switch is hit
+     * Resets the extender encoder position to zero.
+     * Called when limit switch is hit.
      */
     public void reset() {
         extenderMotor.setPosition(0);
-        run(.25);
     }
 
     @Override
     public void periodic() {
-        if (getLimitSwitch()) {
-            reset();
-        }
+        totalRotations();
     }
 }

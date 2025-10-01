@@ -8,7 +8,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -40,13 +39,13 @@ public class ArmSubsystem extends SubsystemBase {
         armPIDController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
         armPIDController.setTolerance(ArmConstants.TOLERANCE);
 
-        SmartDashboard.putData("armPID", armPIDController);
+        Shuffleboard.getTab("Arm").add("armPID", armPIDController);
         Shuffleboard.getTab("Arm").addNumber("Arm Deg",() -> getMeasurement());
         Shuffleboard.getTab("Arm").addNumber("Arm Rad Raw",() -> armEncoder.get());
         Shuffleboard.getTab("Arm").addNumber("Arm Rad Adj",() -> armEncoder.get() - ArmConstants.ENCODER_OFFSET);
 
         Shuffleboard.getTab("Arm").addNumber("Arm PID Out", () -> armPIDController.calculate(getMeasurement(), 0));
-        Shuffleboard.getTab("Encoder").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
+        Shuffleboard.getTab("Arm").addBoolean("Arm Encoder", () -> armEncoder.isConnected());
 
         Shuffleboard.getTab("Arm").addNumber("Arm Setpoint", () -> currentSetpoint);
     }

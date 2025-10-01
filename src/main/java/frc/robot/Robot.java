@@ -24,7 +24,6 @@ public class Robot extends TimedRobot {
   public Robot() {
     m_robotContainer = new RobotContainer();
   
-
     CameraServer.startAutomaticCapture();
 
     DataLogManager.start();
@@ -42,7 +41,10 @@ public class Robot extends TimedRobot {
     CommandScheduler.getInstance().run();
     RobotState.updateState();
 
-
+    // DataLogManager.log("State is Base: " + RobotState.stateIsBase.getAsBoolean());
+    // DataLogManager.log("State is Coral: " + RobotState.stateIsCoral.getAsBoolean());
+    // DataLogManager.log("State is Algae: " + RobotState.stateIsAlgae.getAsBoolean());
+    // DataLogManager.log("State is Override: " + RobotState.stateIsOverride.getAsBoolean());
   }
 
   @Override

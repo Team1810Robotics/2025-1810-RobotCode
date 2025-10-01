@@ -42,10 +42,10 @@ public class Superstructure {
      * @return A command that runs the subsystems in the given mode.
      */
     public Command applyTargetState(SuperstructureState state) {
-        currentSuperstructureState = state;
-        DataLogManager.log("Superstructure state " + state.toString() + " applied");
+        // currentSuperstructureState = state;
+        DataLogManager.log("Superstructur%e state " + state.toString() + " applied");
         
-        // Use the original pattern with alongWith() - this creates a race group, not a parallel group
+        
         return armSubsystem.run(state.armSetpoint).alongWith(
             rollSubsystem.run(state.rollSetpoint),
             pitchSubsystem.run(state.pitchSetpoint),

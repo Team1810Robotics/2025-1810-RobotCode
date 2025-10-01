@@ -19,7 +19,7 @@ public class RobotState {
 
     public static BooleanSupplier stateIsCoral = () -> currentRobotState == RobotStates.CORAL;
     public static BooleanSupplier stateIsAlgae = () -> currentRobotState == RobotStates.ALGAE;
-    public static BooleanSupplier stateIsNone = () -> currentRobotState == RobotStates.BASE;
+    public static BooleanSupplier stateIsBase = () -> currentRobotState == RobotStates.BASE;
     public static BooleanSupplier stateIsOverride = () -> currentRobotState == RobotStates.OVERRIDE;
 
     public static BooleanSupplier shouldEject = () -> intakeSubsystem.isCoralPresent() && intakeSubsystem.isAlgaePresent();
