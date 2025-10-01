@@ -1,48 +1,42 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ExtenderConstants;
 import frc.robot.subsystems.ExtenderSubsystem;
 
-public class ManualExtender extends Command {
+public class Home extends Command {
     private ExtenderSubsystem extenderSubsystem;
 
-    private double height;
+    private boolean die = false;
 
     /**
      * Create a new Extender command.
      *
      * @param extenderSubsystem The {@link ExtenderSubsystem} to control.
-     * @param height            Runs up if {@link ExtenderConstants#L4_HEIGHT},
-     *                          run down if {@link ExtenderConstants#BASE_HEIGHT}
+     * @param height            The height to extend to.
      */
-    public ManualExtender(ExtenderSubsystem extenderSubsystem, double height) {
+    public Home(ExtenderSubsystem extenderSubsystem) {
         this.extenderSubsystem = extenderSubsystem;
-        this.height = height;
 
         addRequirements(extenderSubsystem);
     }
 
-
     @Override
     public void execute() {
 
-        if (!extenderSubsystem.getLimitSwitch() && height == ExtenderConstants.BASE_HEIGHT) {
-           extenderSubsystem.run(-.15);
-        } else if (!extenderSubsystem.getLimitSwitch() && height == ExtenderConstants.L4_HEIGHT) {
-           extenderSubsystem.run(.2);
+        if (!extenderSubsystem.getLimitSwitch()){
+            extenderSubsystem.run(-.15);
         }
 
         if (extenderSubsystem.getLimitSwitch()) {
             extenderSubsystem.reset();
             extenderSubsystem.extend(.5);
+            die = true;
         }
 
     }
 
-
     public boolean isFinished() {
-        return false;
+        return die;
     }
 
     @Override

@@ -11,17 +11,25 @@ public class Pitch extends Command {
 
   private PitchSubsystem pitchSubsystem;
   private double setpoint;
+  private boolean die = false;
 
 
   /**
    * Pitch command.
    *
    * @param pitchSubsystem Pitch subsystem.
-   * @param setpoint       Setpoint in degrees.
+   * @param setpoint       Setpoint in degrees, found in {@link PitchConstants}
    */
   public Pitch(PitchSubsystem pitchSubsystem, double setpoint) {
     this.pitchSubsystem = pitchSubsystem;
     this.setpoint = setpoint;
+
+    addRequirements(pitchSubsystem);
+  }
+
+  public Pitch(PitchSubsystem pitchSubsystem, boolean die) {
+    this.pitchSubsystem = pitchSubsystem;
+    this.die = die;
 
     addRequirements(pitchSubsystem);
   }
@@ -34,7 +42,7 @@ public class Pitch extends Command {
 
   @Override
   public boolean isFinished() {
-    return false;
+    return die;
   }
 
   @Override

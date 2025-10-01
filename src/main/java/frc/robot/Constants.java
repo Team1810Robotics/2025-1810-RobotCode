@@ -1,50 +1,51 @@
 package frc.robot;
 
-
 public class Constants {
     public class WristConstants {
         public class RollConstants {
             public static final int MOTOR_ID = 13;
 
             public static final int ENCODER_ID = 2;
-            public static final double ENCODER_OFFSET = .1; 
+            public static final double ENCODER_OFFSET = .1;
 
-            public static double kP = 0.002;
-            public static double kI = 0.0;
-            public static double kD = 0.0;
+            public static double kPI = 0.04;
+            public static double kII = 0.0;
+            public static double kDI = 0.0004;
 
-            //public static final double INTAKE_POSITION = 65;
+            public static double kPD = 0.0057;
+            public static double kID = 0.0;
+            public static double kDD = 0.0;
 
-            public static final double SCORE_POSITION = 163;
-            
-            public static final double INTAKE_POSITION = 140 - 8;
-            public static final double GROUND_PICKUP = 141 - 8;
-            public static final double L1_POSITION = 140 - 25 - 8;
-            public static final double L2_POSITION = 225 + 35 ;
-            public static final double L3_POSITION = 225 + 35 ;
-            public static final double L4_POSITION = 225 + 25 ;
-            public static final double BASE_POSITION = 140 - 8; //Check This
-            public static final double UPSIDE_DOWN = 35 - 8;
+            public static final double INTAKE_POSITION = 140;
+            public static final double GROUND_PICKUP = 140;
+            public static final double L1_POSITION = 140;
+            public static final double L2_POSITION = 230;
+            public static final double L3_POSITION = 230;
+            public static final double L4_POSITION = 230;
+            public static final double BASE_POSITION = 140;
         }
-        
+
         public class PitchConstants {
             public static final int MOTOR_ID = 15;
 
             public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = .319 - (5.0/360.0);
-        
-            public static double kP = 0.007;
+            public static final double ENCODER_OFFSET = 0;
+
+            public static double kP = 0.0075;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 126 + 4 ; // 45
-            public static final double GROUND_PICKUP = 148;
-            public static final double L1_POSITION = 120;
-            public static final double L2_POSITION = 130 - 6;
-            public static final double L3_POSITION = 136;
-            public static final double L4_POSITION = 135 - 5;
-            public static final double BASE_POSITION = 116; //Check This
+            public static final double INTAKE_POSITION = 133;
+            public static final double GROUND_PICKUP = 134;
 
+            public static final double L1_POSITION = 120;
+            public static final double L2_POSITION = 124;
+            public static final double L3_POSITION = 136;
+            public static final double L4_POSITION = 130;
+            public static final double BASE_POSITION = 116;
+
+            public static final double ALGAE_1_POSITION = 110;
+            public static final double ALGAE_2_POSITION = 137;
 
             public static final double UPRIGHT = 93;
         }
@@ -52,11 +53,12 @@ public class Constants {
 
     public class IntakeConstants {
         public static int INTAKE_MOTOR = 14;
-        
+
         public enum Mode {
             IN,
             OUT,
-            STOP
+            STOP,
+            KICK
         }
     }
 
@@ -70,16 +72,16 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.000001;
 
-        public static final double ENCODER_OFFSET = .3034;
+        public static final double ENCODER_OFFSET = .465;
 
-        public static final double INTAKE_POSITION = 104 - 5; //75 
+        public static final double INTAKE_POSITION = 100; // 75
 
-
-        public static final double GROUND_PICKUP = 183;
+        public static final double GROUND_PICKUP = 185;
         public static final double L1_POSITION = 145;
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 97.5;
         public static final double L4_POSITION = 92;
+        public static final double ALGAE_2_POSITION = 112 - 10;
 
         public static final double BASE_POSITION = 94;
     }
@@ -88,20 +90,21 @@ public class Constants {
         public static final int MOTOR_ID = 12;
         public static final int ENCODER_ID = 1;
 
-        public static final double ENCODER_OFFSET = .23;
+        public static double ENCODER_OFFSET = .75;
 
-        public static double kP = 1;
+        public static double kP = 2.5;
         public static double kI = 0.0;
         public static double kD = 0.0;
 
-
         public static final double L1_HEIGHT = 0.5;
-        public static final double L2_HEIGHT = 0.2;
-        public static final double L3_HEIGHT = 6.72 - 1;
-        public static final double L4_HEIGHT = 14 - 1;
-        public static final double BASE_HEIGHT = 0.1;
-        public static final double GROUND_PICKUP = L2_HEIGHT;
+        public static final double L2_HEIGHT = 0.5;
+        public static final double L3_HEIGHT = 6.22 - .25;
+        public static final double L4_HEIGHT = 14;
 
+        public static final double BASE_HEIGHT = 0.5;
+        public static final double GROUND_PICKUP = 0.15;
+
+        public static final double ALGAE_2_HEIGHT = 2.27 + .5;
 
         public static final double INCHES_PER_ROTATION = .5;
         public static final double MAX_EXTENSION_INCHES = 44.0;
@@ -111,21 +114,31 @@ public class Constants {
     public class VisionConstants {
         public static final String TARGET_CAMERA_LEFT = "RIGHT_TARGET_CAM";
         public static final String TARGET_CAMERA_RIGHT = "LEFT_TARGET_CAM";
-        
-        //Vision Rotation PID vars
+
+        // Vision Rotation PID vars
         public static double VR_Kp = 0.07;
         public static double VR_Ki = 0.0;
         public static double VR_Kd = 0.0;
 
-        //Vision Drive PID vars
-        public static double VY_Kp = 0.9;
-        public static double VY_Ki = 0.0;
-        public static double VY_Kd = 0.0;
+        // Vision Drive PID vars
+        public static double VY_Kp_Right = 0.8;
+        public static double VY_Ki_Right = 0.0;
+        public static double VY_Kd_Right = 0.0;
 
-        //Vision Drive PID var
-        public static double VX_Kp = 0.099;
-        public static double VX_Ki = 0.0;
-        public static double VX_Kd = 0.0;
+        // Vision Drive PID var
+        public static double VX_Kp_Right = 0.025;
+        public static double VX_Ki_Right = 0.0;
+        public static double VX_Kd_Right = 0.0;
+
+        // Vision Drive PID vars
+        public static double VY_Kp_Left = 1 - .2;
+        public static double VY_Ki_Left = 0.0;
+        public static double VY_Kd_Left = 0.0;
+
+        // Vision Drive PID var
+        public static double VX_Kp_Left = 0.099 - .072;
+        public static double VX_Ki_Left = 0.0;
+        public static double VX_Kd_Left = 0.0;
     }
 
     public class LedConstants {

@@ -27,11 +27,11 @@ public class LedSubsystem extends SubsystemBase {
         m_candle.configAllSettings(configAll, 100);
     }
 
-    public void manageLed(){
-        m_candle.setLEDs(255, 0, 0, 0, 0, LedConstants.CANdle_COUNT); //Candle leds - 8
-        m_candle.setLEDs(0, 150, 150, 0, LedConstants.CANdle_COUNT+1, LedConstants.ARM_L_COUNT); //Left Arm leds - ?
-        m_candle.setLEDs(255, 0, 0, 0, LedConstants.ARM_L_COUNT+1, LedConstants.ARM_R_COUNT); //Right Arm leds - ?
-        m_candle.setLEDs(255, 0, 0, 0, LedConstants.ARM_R_COUNT+1, LedConstants.ARM_STATUS); //Arm Status leds - ?
+    public void manageLed() {
+        m_candle.setLEDs(255, 0, 0, 0, 0, LedConstants.CANdle_COUNT); // Candle leds - 8
+        m_candle.setLEDs(0, 150, 150, 0, LedConstants.CANdle_COUNT + 1, LedConstants.ARM_L_COUNT); // Left Arm leds - ?
+        m_candle.setLEDs(255, 0, 0, 0, LedConstants.ARM_L_COUNT + 1, LedConstants.ARM_R_COUNT); // Right Arm leds - ?
+        m_candle.setLEDs(255, 0, 0, 0, LedConstants.ARM_R_COUNT + 1, LedConstants.ARM_STATUS); // Arm Status leds - ?
     }
 
     @Override

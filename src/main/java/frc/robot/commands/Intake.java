@@ -15,8 +15,7 @@ public class Intake extends Command {
      * the {@link IntakeConstants.Mode} given.
      *
      * @param intakeSubsystem The IntakeSubsystem to run the command on.
-     * @param mode           The mode to run the command in. If it's {@link IntakeConstants.Mode#ALGAE}
-     *                        the command will toggle the intake on and off.
+     * @param mode           The mode to run the command in        
      */
     public Intake(IntakeSubsystem intakeSubsystem, IntakeConstants.Mode mode) {
         this.intakeSubsystem = intakeSubsystem;
@@ -26,22 +25,20 @@ public class Intake extends Command {
     }
 
     @Override
-    public void initialize() {
-
-        
-    }
-
-    @Override
     public void execute() {
         int blue = intakeSubsystem.getBlue();
         int distance = intakeSubsystem.getDistance();
         
+        
         if (mode == Mode.IN && blue < 10 && distance > 1800) {
+            //Detects if an algae has been intaked and idles it instead
             intakeSubsystem.run(.1);
         } else if (mode == Mode.IN) {
             intakeSubsystem.run(1);
         } else if (mode == Mode.OUT) {
-            intakeSubsystem.run(-.25);
+            intakeSubsystem.run(-.15);
+        } else if (mode == Mode.KICK) {
+            intakeSubsystem.run(-1);
         }
     }
 
@@ -55,7 +52,7 @@ public class Intake extends Command {
         } 
 
         if (mode == Mode.STOP) {
-            //return true;
+            return true;
         }
 
         return false;
