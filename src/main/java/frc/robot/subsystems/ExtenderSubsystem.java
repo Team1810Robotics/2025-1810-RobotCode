@@ -1,23 +1,20 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ExtenderConstants;
+import frc.robot.util.Configs;
+import frc.robot.util.ShuffleboardTabs;
 
 public class ExtenderSubsystem extends SubsystemBase {
 
     private TalonFX extenderMotor;
     private DutyCycleEncoder encoder;
-
-    private TalonFXConfigurator configuration;
-    private CurrentLimitsConfigs currentLimitsConfigs;
 
     private PIDController extenderPIDController;
 
@@ -28,33 +25,23 @@ public class ExtenderSubsystem extends SubsystemBase {
 
     public DigitalInput limitSwitch;
 
+    private final ShuffleboardTab tab = ShuffleboardTabs.EXTENDER;
+
     public ExtenderSubsystem() {
         extenderMotor = new TalonFX(ExtenderConstants.MOTOR_ID);
         encoder = new DutyCycleEncoder(ExtenderConstants.ENCODER_ID);
 
         limitSwitch = new DigitalInput(4);
 
-        configuration = extenderMotor.getConfigurator();
-        currentLimitsConfigs = new CurrentLimitsConfigs();
-
-        currentLimitsConfigs.StatorCurrentLimit = 45;
-        currentLimitsConfigs.StatorCurrentLimitEnable = true;
-
-        configuration.apply(currentLimitsConfigs);
+        extenderMotor.getConfigurator().apply(Configs.getExtenderConfig());
 
         extenderPIDController = new PIDController(ExtenderConstants.kP, ExtenderConstants.kI, ExtenderConstants.kD);
 
-        Shuffleboard.getTab("Extender").addNumber("Extender Encoder Raw", () -> encoder.get());
-        Shuffleboard.getTab("Extender").addNumber("Extender Encoder Adj", () -> getEncoder());
-        Shuffleboard.getTab("Extender").addNumber("Extender Distance", () -> getDistance());
-
-        Shuffleboard.getTab("Extender").addNumber("Cumulative Rotations", () -> cumulativeRotations);
-
-        Shuffleboard.getTab("Extender").add("Extender PID", extenderPIDController);
-
-        Shuffleboard.getTab("Extender").addBoolean("Extender Encoder", () -> encoder.isConnected());
-
-        Shuffleboard.getTab("Extender").addBoolean("Endstop", () -> !limitSwitch.get());
+        tab.addNumber("Inches", () -> getDistance());
+        tab.addNumber("Raw", () -> encoder.get());
+        tab.addNumber("PID Out", () -> extenderPIDController.calculate(getDistance(), currentSetpoint));
+        tab.add("PID", extenderPIDController);
+        tab.addBoolean("Endstop", () -> getLimitSwitch());
     }
 
     public boolean isEncoderConnected() {

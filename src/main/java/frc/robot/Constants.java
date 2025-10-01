@@ -1,5 +1,13 @@
 package frc.robot;
 
+import org.photonvision.PhotonCamera;
+
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
+
 public class Constants {
     public class WristConstants {
         public class RollConstants {
@@ -28,26 +36,24 @@ public class Constants {
         public class PitchConstants {
             public static final int MOTOR_ID = 15;
 
-            public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = 0;
+            public static final double ENCODER_OFFSET = .1;
 
-            public static double kP = 0.0075;
+            public static double kP = 0.012;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 133;
+            public static final double INTAKE_POSITION = 30;
             public static final double GROUND_PICKUP = 134;
 
-            public static final double L1_POSITION = 120;
-            public static final double L2_POSITION = 124;
-            public static final double L3_POSITION = 136;
-            public static final double L4_POSITION = 130;
-            public static final double BASE_POSITION = 116;
+            public static final double L1_POSITION = 40;
+            public static final double L2_POSITION = 40;
+            public static final double L3_POSITION = 40;
+            public static final double L4_POSITION = 40;
+            public static final double BASE_POSITION = 60;
 
             public static final double ALGAE_1_POSITION = 110;
             public static final double ALGAE_2_POSITION = 137;
 
-            public static final double UPRIGHT = 93;
         }
     }
 
@@ -112,33 +118,43 @@ public class Constants {
     }
 
     public class VisionConstants {
-        public static final String TARGET_CAMERA_LEFT = "RIGHT_TARGET_CAM";
-        public static final String TARGET_CAMERA_RIGHT = "LEFT_TARGET_CAM";
+        public static final String LEFT_CAMERA = "LEFT_CAMERA";
+        public static final String RIGHT_CAMERA = "RIGHT_CAMERA";
+
+        public static final Transform3d CAMERA_TO_ROBOT_RIGHT = new Transform3d(new Translation3d(0.127, 0.17145, 0.3175),
+            new Rotation3d());
+
+        public static final Transform3d CAMERA_TO_ROBOT_LEFT = new Transform3d(new Translation3d(0.127, -0.17145, 0.3175),
+            new Rotation3d());
+
+        public static final PhotonCamera evilCamera = new PhotonCamera("I'm sorry Woodie Flowers");
+
+        public static final AprilTagFieldLayout layout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeWelded);
 
         // Vision Rotation PID vars
-        public static double VR_Kp = 0.07;
-        public static double VR_Ki = 0.0;
-        public static double VR_Kd = 0.0;
+        public static double VR_kP = 0.07;
+        public static double VR_kI = 0.0;
+        public static double VR_kD = 0.0;
 
         // Vision Drive PID vars
-        public static double VY_Kp_Right = 0.8;
-        public static double VY_Ki_Right = 0.0;
-        public static double VY_Kd_Right = 0.0;
+        public static double VY_kP_Right = 0.8;
+        public static double VY_kI_Right = 0.0;
+        public static double VY_kD_Right = 0.0;
 
         // Vision Drive PID var
-        public static double VX_Kp_Right = 0.025;
-        public static double VX_Ki_Right = 0.0;
-        public static double VX_Kd_Right = 0.0;
+        public static double VX_kP_Right = 0.025;
+        public static double VX_kI_Right = 0.0;
+        public static double VX_kD_Right = 0.0;
 
         // Vision Drive PID vars
-        public static double VY_Kp_Left = 1 - .2;
-        public static double VY_Ki_Left = 0.0;
-        public static double VY_Kd_Left = 0.0;
+        public static double VY_kP_Left = 1 - .2;
+        public static double VY_kI_Left = 0.0;
+        public static double VY_kD_Left = 0.0;
 
         // Vision Drive PID var
-        public static double VX_Kp_Left = 0.099 - .072;
-        public static double VX_Ki_Left = 0.0;
-        public static double VX_Kd_Left = 0.0;
+        public static double VX_kP_Left = 0.099 - .072;
+        public static double VX_kI_Left = 0.0;
+        public static double VX_kD_Left = 0.0;
     }
 
     public class LedConstants {

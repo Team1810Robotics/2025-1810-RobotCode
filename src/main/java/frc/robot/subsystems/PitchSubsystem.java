@@ -1,92 +1,56 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.DutyCycleEncoder;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.WristConstants.PitchConstants;
+import frc.robot.util.Configs;
+import frc.robot.util.ShuffleboardTabs;
 
 public class PitchSubsystem extends SubsystemBase {
-  // private SparkMax pitchMotor;
-  private DutyCycleEncoder encoder;
-
-  private SparkMaxConfig config;
-
   private TalonFX pitchMotor;
 
   private PIDController pitchPIDController;
 
   public double currentSetpoint;
 
-  public boolean badEncoder = false;
+  private final ShuffleboardTab tab = ShuffleboardTabs.PITCH;
 
-  public double highestPower = 0;
 
   public PitchSubsystem() {
-    // pitchMotor = new SparkMax(PitchConstants.MOTOR_ID,
-    // SparkMax.MotorType.kBrushless);
     pitchMotor = new TalonFX(PitchConstants.MOTOR_ID);
-    encoder = new DutyCycleEncoder(PitchConstants.ENCODER_ID);
 
-    config = new SparkMaxConfig();
-    config.smartCurrentLimit(45);
+    pitchMotor.getConfigurator().apply(Configs.getPitchConfig());
 
     pitchPIDController = new PIDController(PitchConstants.kP, PitchConstants.kI, PitchConstants.kD);
 
-    Shuffleboard.getTab("Intake").addNumber("Pitch Rad Adjust", () -> encoder.get() - PitchConstants.ENCODER_OFFSET);
-    Shuffleboard.getTab("Intake").addNumber("Pitch Rad Raw", () -> encoder.get());
-    Shuffleboard.getTab("Intake").addNumber("Pitch Deg", () -> getMeasurment());
-    Shuffleboard.getTab("Intake").addNumber("PitchOut", () -> pitchPIDController.calculate(getMeasurment(), 0));
-
-    Shuffleboard.getTab("Intake").add("Pitch PID", pitchPIDController);
-
-    Shuffleboard.getTab("Encoder").addBoolean("Pitch Encoder", () -> encoder.isConnected());
-
-    Shuffleboard.getTab("Intake").addNumber("Current Setpont", () -> currentSetpoint);
-    Shuffleboard.getTab("Pitch").addNumber("Highest Power", () -> highestPower);
-    Shuffleboard.getTab("Pitch").addNumber("Clamp Power",
-        () -> clamp(pitchPIDController.calculate(getMeasurment(), 135)));
+    tab.addNumber("Degree",() -> getMeasurment());
+    tab.addNumber("Raw", () -> pitchMotor.getPosition().getValueAsDouble());
+    tab.addNumber("Raw Adjusted", () -> pitchMotor.getPosition().getValueAsDouble() - PitchConstants.ENCODER_OFFSET);
+    tab.addNumber("PID Out", () -> pitchPIDController.calculate(getMeasurment(), currentSetpoint));
+    tab.add("PID", pitchPIDController);
   }
 
   public double getMeasurment() {
-    double position = encoder.get() - PitchConstants.ENCODER_OFFSET;
+    double position = pitchMotor.getPosition().getValueAsDouble() - PitchConstants.ENCODER_OFFSET;
     double degrees = Units.rotationsToDegrees(position);
 
-    return degrees;
-  }
-
-  public boolean isEncoderConnected() {
-    return encoder.isConnected();
-  }
-
-  public static double clamp(double value) {
-    // return value;
-    return Math.max(-.3, Math.min(value, 0.3));
+    return -degrees;
   }
 
   /**
    * Runs the pitch motor with PID
    * 
-   * @param setPoint Setpoint for wrist
+   * @param setpoint Setpoint for wrist
    */
-  public void run(double setPoint) {
-    if (encoder.isConnected() && !badEncoder) {
-      currentSetpoint = setPoint;
+  public void run(double setpoint) {
+    currentSetpoint = setpoint;
 
-      pitchMotor.set(clamp(pitchPIDController.calculate(getMeasurment(), setPoint)));
-      if (pitchPIDController.calculate(getMeasurment(), setPoint) > highestPower) {
-        highestPower = pitchPIDController.calculate(getMeasurment(), setPoint);
-      }
-    } else {
-      badEncoder = true;
-      System.out.println("Pitch Encoder Disconnected");
-      stop();
-      pitchMotor.disable();
-    }
+    pitchMotor.set(MathUtil.clamp(-
+    pitchPIDController.calculate(getMeasurment(), setpoint), -.3, .3));
   }
 
   public void stop() {
