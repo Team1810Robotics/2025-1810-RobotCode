@@ -26,11 +26,10 @@ public class Intake extends Command {
 
     @Override
     public void execute() {
-        int blue = intakeSubsystem.getBlue();
         int distance = intakeSubsystem.getDistance();
         
         
-        if (mode == Mode.IN && blue < 10 && distance > 1800) {
+        if (mode == Mode.IN && distance > 1800) {
             //Detects if an algae has been intaked and idles it instead
             intakeSubsystem.run(.1);
         } else if (mode == Mode.IN) {
@@ -47,9 +46,9 @@ public class Intake extends Command {
         int distance = intakeSubsystem.getDistance();
         int blue = intakeSubsystem.getBlue();
 
-        if (distance > 2000 && mode == Mode.IN && blue > 10) {
-            return true;
-        } 
+        // if (distance > 2000 && mode == Mode.IN && blue > 10) {
+        //     return true;
+        // } 
 
         if (mode == Mode.STOP) {
             return true;

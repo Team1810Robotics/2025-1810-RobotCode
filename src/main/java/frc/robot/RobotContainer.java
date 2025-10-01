@@ -68,7 +68,7 @@ import frc.robot.subsystems.ExtenderSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
-import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.util.ShuffleboardTabs;
 import choreo.auto.AutoChooser;
 import choreo.auto.AutoFactory;
@@ -105,9 +105,7 @@ public class RobotContainer {
         public final static ExtenderSubsystem extenderSubsystem = new ExtenderSubsystem();
         public final static PitchSubsystem pitchSubsystem = new PitchSubsystem();
         public final static RollSubsystem rollSubsystem = new RollSubsystem();
-
-        public static final Vision visionLeft = new Vision(VisionConstants.LEFT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_LEFT);
-        public static final Vision visionRight = new Vision(VisionConstants.RIGHT_CAMERA, VisionConstants.CAMERA_TO_ROBOT_RIGHT);
+        public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     
         private final SendableChooser<Command> autoChooser;
     
@@ -146,8 +144,31 @@ public class RobotContainer {
                             .withVelocityY(-driverXbox.getLeftX() * MaxSpeed / 10)
                             .withRotationalRate(driverXbox.getRightX() * MaxAngularRate / 8)));
 
-            driverXbox.b().whileTrue(leftAlign());
-            driverXbox.x().whileTrue(rightAlign());
+                            driverXbox.rightBumper().whileTrue(
+                                drivetrain.applyRequest(() -> visDrive
+                                        .withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.5, true,
+                                                visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y
+                                                                                                        // (forward)
+                                        .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true,
+                                                visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X
+                                                                                                        // (left)
+                                        .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
+                                                driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with
+                                                                                                  // negative X (left)
+                        );
+                
+                        driverXbox.leftBumper().whileTrue(
+                                drivetrain.applyRequest(() -> visDrive
+                                        .withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.5, true,
+                                                visionSubsystem.driveControllerYLeft) * MaxSpeed) / 4) // Drive forward with negative Y
+                                                                                                       // (forward)
+                                        .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0, true,
+                                                visionSubsystem.driveControllerXLeft) * MaxSpeed) / 4) // Drive left with negative X
+                                                                                                       // (left)
+                                        .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
+                                                driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with
+                                                                                                  // negative X (left)
+                        );
 
                 
     
@@ -175,9 +196,10 @@ public class RobotContainer {
             manipulatorXbox.button(9).onTrue(algae2());
     
             // Reset Gyro
-            driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-    
-            manipulatorXbox.back().onTrue(visionLeft.runOnce(() -> visionLeft.getEvil()));
+            //driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+            driverXbox.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        
+            manipulatorXbox.back().onTrue(Commands.runOnce(() -> visionSubsystem.getEvil()));
         }
     
         public void addNamedCommands() {
@@ -210,9 +232,39 @@ public class RobotContainer {
     
             // NamedCommands.registerCommand("Test", drivetrain.applyRequest(() ->
             // drive.withVelocityX(0).withVelocityY(1).withRotationalRate(0)));
-            NamedCommands.registerCommand("Left Align", leftAlign());
+            NamedCommands
+                .registerCommand("Left Align",
+                        drivetrain
+                                .applyRequest(() -> visDrive
+                                        .withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1,
+                                                true, visionSubsystem.driveControllerYLeft) * MaxSpeed) / 4) // Drive
+                                                                                                             // forward
+                                                                                                             // with
+                                                                                                             // negative
+                                                                                                             // Y
+                                                                                                             // (forward)
+                                        .withVelocityY((-visionSubsystem.visionYDriveRight(-driverXbox.getLeftX(), 0.0,
+                                                true, visionSubsystem.driveControllerXLeft) * MaxSpeed) / 4) // Drive
+                                                                                                             // left
+                                                                                                             // with
+                                                                                                             // negative
+                                                                                                             // X (left)
+                                        .withRotationalRate(
+                                                visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
+                                                        driverXbox.a().getAsBoolean()) * MaxAngularRate))
+                                .withTimeout(2)); // Drive counterclockwise with negative X (left)
     
-            NamedCommands.registerCommand("Right Align", rightAlign());
+                                NamedCommands.registerCommand("Right Align",
+                                drivetrain.applyRequest(() -> visDrive
+                                        .withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true,
+                                                visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y
+                                                                                                        // (forward)
+                                        .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true,
+                                                visionSubsystem.driveControllerXRight) * MaxSpeed) / 4) // Drive left with negative X
+                                                                                                        // (left)
+                                        .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
+                                                driverXbox.a().getAsBoolean()) * MaxAngularRate))
+                                        .withTimeout(2));
     
             NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
         }
@@ -298,45 +350,26 @@ public class RobotContainer {
         public Command outtake() {
             return new Intake(intakeSubsystem, Mode.OUT).alongWith(
                     new Pitch(pitchSubsystem, pitchSubsystem.currentSetpoint),
-                    new Roll(rollSubsystem, rollSubsystem.currentSetpoint),
+                //     new Roll(rollSubsystem, rollSubsystem.currentSetpoint),
                     new Extender(extenderSubsystem, extenderSubsystem.currentSetpoint));
         }
     
         public Command algae1() {
             return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(
-                    new Pitch(pitchSubsystem, PitchConstants.ALGAE_1_POSITION),
+                //     new Pitch(pitchSubsystem, PitchConstants.ALGAE_1_POSITION),
                     new Roll(rollSubsystem, RollConstants.INTAKE_POSITION),
                     new Extender(extenderSubsystem, ExtenderConstants.L1_HEIGHT), new Intake(intakeSubsystem, Mode.KICK));
         }
     
         public Command algae2() {
             return new Arm(armSubsystem, ArmConstants.ALGAE_2_POSITION).alongWith(
-                    new Pitch(pitchSubsystem, PitchConstants.ALGAE_2_POSITION),
+                //     new Pitch(pitchSubsystem, PitchConstants.ALGAE_2_POSITION),
                     new Roll(rollSubsystem, RollConstants.INTAKE_POSITION),
                     new Extender(extenderSubsystem, ExtenderConstants.ALGAE_2_HEIGHT),
                     new Intake(intakeSubsystem, Mode.KICK));
         }
 
-        
-    private Command leftAlign() {
-        if (visionRight.getTargetID().isEmpty()) return new InstantCommand();
-        
-        return drivetrain.applyRequest(() ->
-            visDrive.withVelocityX(visionRight.alignX())
-            .withVelocityY(visionRight.alignY())
-            .withRotationalRate(visionRight.alignZ())
-        ).alongWith(new PrintCommand("Left Align Running"));
-    }
 
-    private Command rightAlign() {
-        if (visionLeft.getTargetID().isEmpty()) return new InstantCommand();
-
-        return drivetrain.applyRequest(() ->
-            visDrive.withVelocityX(visionLeft.alignX())
-            .withVelocityY(visionLeft.alignY())
-            .withRotationalRate(visionLeft.alignZ())
-        );
-    }
 
     
         private Pose2d getPose() {
