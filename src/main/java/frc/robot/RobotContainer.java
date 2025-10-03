@@ -356,14 +356,14 @@ public class RobotContainer {
     
         public Command algae1() {
             return new Arm(armSubsystem, ArmConstants.L1_POSITION).alongWith(
-                //     new Pitch(pitchSubsystem, PitchConstants.ALGAE_1_POSITION),
+                    new Pitch(pitchSubsystem, PitchConstants.ALGAE_1_POSITION),
                     new Roll(rollSubsystem, RollConstants.INTAKE_POSITION),
                     new Extender(extenderSubsystem, ExtenderConstants.L1_HEIGHT), new Intake(intakeSubsystem, Mode.KICK));
         }
     
         public Command algae2() {
             return new Arm(armSubsystem, ArmConstants.ALGAE_2_POSITION).alongWith(
-                //     new Pitch(pitchSubsystem, PitchConstants.ALGAE_2_POSITION),
+                    new Pitch(pitchSubsystem, PitchConstants.ALGAE_2_POSITION),
                     new Roll(rollSubsystem, RollConstants.INTAKE_POSITION),
                     new Extender(extenderSubsystem, ExtenderConstants.ALGAE_2_HEIGHT),
                     new Intake(intakeSubsystem, Mode.KICK));

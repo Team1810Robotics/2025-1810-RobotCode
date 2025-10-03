@@ -43,8 +43,8 @@ public class Constants {
             public static final double L4_POSITION = 70;
             public static final double BASE_POSITION = 80;
 
-            public static final double ALGAE_1_POSITION = 110;
-            public static final double ALGAE_2_POSITION = 137;
+            public static final double ALGAE_1_POSITION = 85;
+            public static final double ALGAE_2_POSITION = 85;
 
         }
     }
@@ -79,7 +79,7 @@ public class Constants {
         public static final double L2_POSITION = 105;
         public static final double L3_POSITION = 97.5;
         public static final double L4_POSITION = 92;
-        public static final double ALGAE_2_POSITION = 112 - 10;
+        public static final double ALGAE_2_POSITION = 112;
 
         public static final double BASE_POSITION = 94;
     }
@@ -97,7 +97,7 @@ public class Constants {
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.5;
         public static final double L3_HEIGHT = 6.22 - .25;
-        public static final double L4_HEIGHT = 14.0;
+        public static final double L4_HEIGHT = 14.125;
 
         public static final double BASE_HEIGHT = 0.5;
         public static final double GROUND_PICKUP = 0.15;
