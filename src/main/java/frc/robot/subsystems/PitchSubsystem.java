@@ -40,7 +40,6 @@ public class PitchSubsystem extends SubsystemBase {
 
     return -degrees;
   }
-
   /**
    * Runs the pitch motor with PID
    * 

@@ -252,11 +252,11 @@ public class RobotContainer {
                                         .withRotationalRate(
                                                 visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
                                                         driverXbox.a().getAsBoolean()) * MaxAngularRate))
-                                .withTimeout(2)); // Drive counterclockwise with negative X (left)
+                                .withTimeout(3)); // Drive counterclockwise with negative X (left)
     
                                 NamedCommands.registerCommand("Right Align",
                                 drivetrain.applyRequest(() -> visDrive
-                                        .withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.1, true,
+                                        .withVelocityX((visionSubsystem.visionXDriveLeft(driverXbox.getLeftY(), -0.3, true,
                                                 visionSubsystem.driveControllerYRight) * MaxSpeed) / 4) // Drive forward with negative Y
                                                                                                         // (forward)
                                         .withVelocityY((-visionSubsystem.visionYDriveLeft(-driverXbox.getLeftX(), 0.0, true,
@@ -264,7 +264,7 @@ public class RobotContainer {
                                                                                                         // (left)
                                         .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
                                                 driverXbox.a().getAsBoolean()) * MaxAngularRate))
-                                        .withTimeout(2));
+                                        .withTimeout(3));
     
             NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
         }
