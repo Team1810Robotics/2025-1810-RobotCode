@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -27,6 +29,8 @@ public class RollSubsystem extends SubsystemBase {
   public double currentSetpoint;
 
   private final ShuffleboardTab tab = ShuffleboardTabs.ROLL;
+
+  private AtomicBoolean disconnect = new AtomicBoolean(false);
 
   public RollSubsystem() {
     rollMotor = new SparkMax(RollConstants.MOTOR_ID, SparkMax.MotorType.kBrushless);
@@ -67,6 +71,10 @@ public class RollSubsystem extends SubsystemBase {
    */
   public void run(double setpoint) {
     if (encoder.isConnected()) {
+      if (disconnect.get()) {
+        System.out.println("Roll Encoder Reconnected");
+        disconnect.set(false);
+      }
       currentSetpoint = setpoint;
       if (getMeasurment() < setpoint) {
         // System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
@@ -75,10 +83,11 @@ public class RollSubsystem extends SubsystemBase {
         // System.out.println("Rolling to: " + setpoint + " L:" + getMeasurment());
         rollMotor.set(rollPIDControllerDecreasing.calculate(getMeasurment(), setpoint));
       }
-    } else {
+    } else if (!encoder.isConnected()) {
       System.out.println("Roll Encoder Disconnected");
       stop();
       rollMotor.disable();
+      disconnect.set(true);
     }
   }
 
