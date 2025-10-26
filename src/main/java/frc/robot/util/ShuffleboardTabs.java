@@ -12,4 +12,5 @@ public class ShuffleboardTabs {
     public static final ShuffleboardTab EXTENDER = Shuffleboard.getTab("EXTENDER");
     public static final ShuffleboardTab ARM = Shuffleboard.getTab("ARM");
     public static final ShuffleboardTab VISION = Shuffleboard.getTab("VISION");
+    public static final ShuffleboardTab PIGEON = Shuffleboard.getTab("PIGEON");
 }

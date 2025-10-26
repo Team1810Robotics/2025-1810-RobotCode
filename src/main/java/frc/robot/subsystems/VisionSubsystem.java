@@ -63,7 +63,7 @@ public class VisionSubsystem extends SubsystemBase {
         evilCamera = new PhotonCamera("Evil");
         photonPoseEstimator = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
-                PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 CAMERA_TO_ROBOT_RIGHT);
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
