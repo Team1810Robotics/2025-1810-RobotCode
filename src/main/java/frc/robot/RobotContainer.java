@@ -71,10 +71,7 @@ import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.util.ShuffleboardTabs;
-import choreo.auto.AutoChooser;
-import choreo.auto.AutoFactory;
-import choreo.auto.AutoRoutine;
-import choreo.auto.AutoTrajectory;
+
 
 @SuppressWarnings("unused") // For now :)
 public class RobotContainer {
@@ -120,12 +117,20 @@ public class RobotContainer {
             configureAutonomus();
     
             SmartDashboard.putData("Auto Chooser", autoChooser);
+
+            ShuffleboardTab pigeonTab = ShuffleboardTabs.PIGEON;
     
     
             ShuffleboardTabs.TELEOPERATED.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage());
-            ShuffleboardTabs.TELEOPERATED.addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
-            ShuffleboardTabs.TELEOPERATED.addBoolean("Gyro Connected", () -> drivetrain.getPigeon2().isConnected());
             ShuffleboardTabs.TELEOPERATED.addNumber("Match Time", () -> DriverStation.getMatchTime());
+
+
+            pigeonTab.addNumber("Yaw", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
+            pigeonTab.addNumber("Pitch", () -> drivetrain.getPigeon2().getPitch().getValueAsDouble());
+            pigeonTab.addNumber("Roll", () -> drivetrain.getPigeon2().getRoll().getValueAsDouble());
+
+            pigeonTab.addBoolean("Has Reset", () -> drivetrain.getPigeon2().hasResetOccurred());
+            pigeonTab.addBoolean("Is Connected", () -> drivetrain.getPigeon2().isConnected());
     
             drivetrain.registerTelemetry(logger::telemeterize);
         }

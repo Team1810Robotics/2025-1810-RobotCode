@@ -22,8 +22,6 @@ public class Arm extends Command {
     this.armSubsystem = armSubsystem;
     this.setpoint = setpoint;
 
-   
-
     addRequirements(armSubsystem);
   }
 

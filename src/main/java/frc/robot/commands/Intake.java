@@ -43,8 +43,8 @@ public class Intake extends Command {
 
     @Override
     public boolean isFinished() {
-        int distance = intakeSubsystem.getDistance();
-        int blue = intakeSubsystem.getBlue();
+        // int distance = intakeSubsystem.getDistance();
+        // int blue = intakeSubsystem.getBlue();
 
         // if (distance > 2000 && mode == Mode.IN && blue > 10) {
         //     return true;
