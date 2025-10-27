@@ -15,8 +15,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.net.WebServer;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -26,11 +24,8 @@ public class Robot extends LoggedRobot {
 
   public final RobotContainer m_robotContainer;
 
-  public boolean encoderAllGood = true;
-
-
   public Robot() {
-    Logger.recordMetadata("2025-1810-Robot-Code", "PigeonTest");
+    Logger.recordMetadata("2025-1810-Robot-Code", "Luxo");
 
     if (isReal()) {
       Logger.addDataReceiver(new WPILOGWriter());
@@ -41,7 +36,7 @@ public class Robot extends LoggedRobot {
       Logger.setReplaySource(new WPILOGReader(logPath));
       Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
     }
-    
+
     m_robotContainer = new RobotContainer();
 
     CameraServer.startAutomaticCapture();
