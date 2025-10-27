@@ -23,6 +23,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.GenericEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.RobotState;
@@ -123,6 +124,7 @@ public class RobotContainer {
     
             ShuffleboardTabs.TELEOPERATED.addNumber("Battery Voltage", () -> RobotController.getBatteryVoltage());
             ShuffleboardTabs.TELEOPERATED.addNumber("Gyro", () -> drivetrain.getPigeon2().getYaw().getValueAsDouble());
+            ShuffleboardTabs.TELEOPERATED.addBoolean("Gyro Connected", () -> drivetrain.getPigeon2().isConnected());
             ShuffleboardTabs.TELEOPERATED.addNumber("Match Time", () -> DriverStation.getMatchTime());
     
             drivetrain.registerTelemetry(logger::telemeterize);
@@ -169,7 +171,7 @@ public class RobotContainer {
                                                 driverXbox.a().getAsBoolean()) * MaxAngularRate)) // Drive counterclockwise with
                                                                                                   // negative X (left)
                         );
-
+ 
                 
     
             
@@ -197,7 +199,10 @@ public class RobotContainer {
     
             // Reset Gyro
             //driverXbox.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-            driverXbox.y().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+            driverXbox.y().onTrue(drivetrain.runOnce(() ->{
+                        DataLogManager.log("Gyro Zeroed");
+                        drivetrain.seedFieldCentric();
+                }));
         
             manipulatorXbox.back().onTrue(Commands.runOnce(() -> visionSubsystem.getEvil()));
         }
@@ -236,7 +241,7 @@ public class RobotContainer {
                 .registerCommand("Left Align",
                         drivetrain
                                 .applyRequest(() -> visDrive
-                                        .withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.1,
+                                        .withVelocityX((visionSubsystem.visionXDriveRight(driverXbox.getLeftY(), -0.3,
                                                 true, visionSubsystem.driveControllerYLeft) * MaxSpeed) / 4) // Drive
                                                                                                              // forward
                                                                                                              // with
@@ -264,7 +269,7 @@ public class RobotContainer {
                                                                                                         // (left)
                                         .withRotationalRate(visionSubsystem.visionTargetPIDCalcLeft(driverXbox.getRightX(),
                                                 driverXbox.a().getAsBoolean()) * MaxAngularRate))
-                                        .withTimeout(3));
+                                        .withTimeout(4));
     
             NamedCommands.registerCommand("End", new RunCommand(() -> CommandScheduler.getInstance().cancelAll()));
         }

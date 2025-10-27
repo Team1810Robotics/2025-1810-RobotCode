@@ -34,7 +34,7 @@ public class Constants {
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 80;
+            public static final double INTAKE_POSITION = 80;                         ;
             public static final double GROUND_PICKUP = 80;
 
             public static final double L1_POSITION = 50+35;
@@ -72,10 +72,10 @@ public class Constants {
 
         public static final double ENCODER_OFFSET = .3;
 
-        public static final double INTAKE_POSITION = 100; // 75
+        public static final double INTAKE_POSITION = 100;
 
         public static final double GROUND_PICKUP = 185;
-        public static final double L1_POSITION = 145;
+        public static final double L1_POSITION = 135;
         public static final double L2_POSITION = 97.5;
         public static final double L3_POSITION = 96.5;
         public static final double L4_POSITION = 92;

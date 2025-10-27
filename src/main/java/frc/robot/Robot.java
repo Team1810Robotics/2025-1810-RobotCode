@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import choreo.auto.AutoFactory;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.net.WebServer;
@@ -22,6 +25,7 @@ public class Robot extends TimedRobot {
   public AutoFactory autoFactory;
 
   public boolean encoderAllGood = true;
+
 
   public Robot() {
     m_robotContainer = new RobotContainer();

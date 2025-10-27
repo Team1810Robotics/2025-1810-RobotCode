@@ -19,10 +19,12 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.util.ShuffleboardTabs;
 
 public class VisionSubsystem extends SubsystemBase {
 
@@ -50,6 +52,8 @@ public class VisionSubsystem extends SubsystemBase {
 
     CommandSwerveDrivetrain drivetrain = RobotContainer.drivetrain;
 
+    private ShuffleboardTab tab = ShuffleboardTabs.VISION;
+
     public static final Transform3d CAMERA_TO_ROBOT_RIGHT = new Transform3d(new Translation3d(0.127, 0.17145, 0.3175),
             new Rotation3d(0, 0, 0));
 
@@ -63,24 +67,20 @@ public class VisionSubsystem extends SubsystemBase {
         evilCamera = new PhotonCamera("Evil");
         photonPoseEstimator = new PhotonPoseEstimator(
                 aprilTagFieldLayout,
-                PoseStrategy.CLOSEST_TO_REFERENCE_POSE,
+                PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                 CAMERA_TO_ROBOT_RIGHT);
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
 
-        Shuffleboard.getTab("Vision").addBoolean("Has Camera Right", () -> cameraRight.isConnected());
-        Shuffleboard.getTab("Vision").addBoolean("Has Camera Left", () -> cameraLeft.isConnected());
+        tab.addBoolean("Has Camera Right", () -> cameraRight.isConnected());
+        tab.addBoolean("Has Camera Left", () -> cameraLeft.isConnected());
 
-        Shuffleboard.getTab("Vision/Test").add("Vision Rotiation PID", rotController);
-        Shuffleboard.getTab("Vision/Test").add("Vision Y PID", driveControllerYRight);
-        Shuffleboard.getTab("Vision").add("Vision X PID", driveControllerXRight);
+        tab.add("Vision Rotiation PID", rotController);
+        tab.add("Vision Y PID", driveControllerYRight);
+        tab.add("Vision X PID", driveControllerXRight);
 
-        // Shuffleboard.getTab("Vision").addNumber("13 TAg", () ->
-        // getRangeLeftID(13).get());
-        Shuffleboard.getTab("Vision").addString("Tags", () -> resultLeft.getTargets().toString());
 
-        Shuffleboard.getTab("Vision").addNumber("Tag Rot",
-                () -> Math.toDegrees(aprilTagFieldLayout.getTagPose(11).get().getRotation().getMeasureZ().magnitude()));
+        tab.addString("Tags", () -> resultLeft.getTargets().toString());
     }
 
     public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Pose2d prevEstimatedRobotPose) {
