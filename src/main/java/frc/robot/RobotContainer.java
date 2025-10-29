@@ -71,6 +71,7 @@ import frc.robot.subsystems.PitchSubsystem;
 import frc.robot.subsystems.RollSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.util.ShuffleboardTabs;
+import frc.robot.util.Telemetry;
 
 
 @SuppressWarnings("unused") // For now :)
@@ -106,8 +107,6 @@ public class RobotContainer {
         public final static VisionSubsystem visionSubsystem = new VisionSubsystem();
     
         private final SendableChooser<Command> autoChooser;
-    
-        AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
     
         public RobotContainer() {    
             addNamedCommands();

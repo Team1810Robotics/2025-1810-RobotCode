@@ -364,15 +364,15 @@ public class VisionSubsystem extends SubsystemBase {
         resultRight = cameraRight.getLatestResult();
         resultLeft = cameraLeft.getLatestResult();
 
-        var poseResult = clearEvilTags(resultLeft);
+        // var poseResult = clearEvilTags(resultLeft);
 
-        if (!poseResult.hasTargets()) return;
+        // if (!poseResult.hasTargets()) return;
 
-        var estPose = photonPoseEstimator.update(poseResult);
+        // var estPose = photonPoseEstimator.update(poseResult);
 
-        if (estPose.isEmpty()) return;
+        // if (estPose.isEmpty()) return;
 
-        drivetrain.addVisionMeasurement(estPose.get().estimatedPose.toPose2d(), estPose.get().timestampSeconds);
+        // drivetrain.addVisionMeasurement(estPose.get().estimatedPose.toPose2d(), estPose.get().timestampSeconds);
 
     }
 }
