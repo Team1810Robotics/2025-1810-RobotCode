@@ -28,26 +28,24 @@ public class Constants {
         public class PitchConstants {
             public static final int MOTOR_ID = 15;
 
-            public static final int ENCODER_ID = 3;
-            public static final double ENCODER_OFFSET = 0;
+            public static final double ENCODER_OFFSET = .1;
 
-            public static double kP = 0.0075;
+            public static double kP = 0.012;
             public static double kI = 0.0;
             public static double kD = 0.0;
 
-            public static final double INTAKE_POSITION = 133;
-            public static final double GROUND_PICKUP = 134;
+            public static final double INTAKE_POSITION = 80;                         ;
+            public static final double GROUND_PICKUP = 80;
 
-            public static final double L1_POSITION = 120;
-            public static final double L2_POSITION = 124;
-            public static final double L3_POSITION = 136;
-            public static final double L4_POSITION = 130;
-            public static final double BASE_POSITION = 116;
+            public static final double L1_POSITION = 50+35;
+            public static final double L2_POSITION = 75;
+            public static final double L3_POSITION = 70;
+            public static final double L4_POSITION = 69;
+            public static final double BASE_POSITION = 80;
 
-            public static final double ALGAE_1_POSITION = 110;
-            public static final double ALGAE_2_POSITION = 137;
+            public static final double ALGAE_1_POSITION = 85;
+            public static final double ALGAE_2_POSITION = 85;
 
-            public static final double UPRIGHT = 93;
         }
     }
 
@@ -72,16 +70,16 @@ public class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.000001;
 
-        public static final double ENCODER_OFFSET = .465;
+        public static final double ENCODER_OFFSET = .3;
 
-        public static final double INTAKE_POSITION = 100; // 75
+        public static final double INTAKE_POSITION = 100;
 
         public static final double GROUND_PICKUP = 185;
-        public static final double L1_POSITION = 145;
-        public static final double L2_POSITION = 105;
-        public static final double L3_POSITION = 97.5;
+        public static final double L1_POSITION = 135;
+        public static final double L2_POSITION = 97.5;
+        public static final double L3_POSITION = 96.5;
         public static final double L4_POSITION = 92;
-        public static final double ALGAE_2_POSITION = 112 - 10;
+        public static final double ALGAE_2_POSITION = 112;
 
         public static final double BASE_POSITION = 94;
     }
@@ -99,7 +97,7 @@ public class Constants {
         public static final double L1_HEIGHT = 0.5;
         public static final double L2_HEIGHT = 0.5;
         public static final double L3_HEIGHT = 6.22 - .25;
-        public static final double L4_HEIGHT = 14;
+        public static final double L4_HEIGHT = 14.125;
 
         public static final double BASE_HEIGHT = 0.5;
         public static final double GROUND_PICKUP = 0.15;
@@ -112,8 +110,8 @@ public class Constants {
     }
 
     public class VisionConstants {
-        public static final String TARGET_CAMERA_LEFT = "RIGHT_TARGET_CAM";
-        public static final String TARGET_CAMERA_RIGHT = "LEFT_TARGET_CAM";
+        public static final String TARGET_CAMERA_LEFT = "LEFT_TARGET_CAM";
+        public static final String TARGET_CAMERA_RIGHT = "RIGHT_TARGET_CAM";
 
         // Vision Rotation PID vars
         public static double VR_Kp = 0.07;
